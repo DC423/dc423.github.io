@@ -141,49 +141,56 @@
   </div>
 
   <script>
-    const terminal = document.getElementById('terminalContent');
-    const prompt = document.getElementById('promptLine');
+  const terminal = document.getElementById('terminalContent');
+  const prompt = document.getElementById('promptLine');
 
-    const lines = [
-      "CHA // Chattanooga Hackers Anonymous",
-      "",
-      "Booting up node...",
-      "Initializing protocol...",
-      "Establishing secure connection...",
-      "Access granted.",
-      "",
-      "+----------------------------------------+",
-      "|  Welcome to NoogaHackers               |",
-      "|                                        |",
-      "|  We're currently building something    |",
-      "|  awesome. Stay tuned...                |",
-      "+----------------------------------------+",
-    ];
+  const bootLines = [
+    "CHA // Chattanooga Hackers Anonymous",
+    "",
+    "Booting up node...",
+    "Initializing protocol...",
+    "Establishing secure connection...",
+    "Access granted.",
+    ""
+  ];
 
-    let lineIndex = 0;
-    let charIndex = 0;
-    const typingSpeed = 40;
-    const lineDelay = 600;
+  const motdLines = [
+    "+----------------------------------------+",
+    "|  Welcome to NoogaHackers               |",
+    "|                                        |",
+    "|  We're currently building something    |",
+    "|  awesome. Stay tuned...                |",
+    "+----------------------------------------+"
+  ];
 
-    function typeLine() {
-      if (lineIndex < lines.length) {
-        const currentLine = lines[lineIndex];
-        if (charIndex < currentLine.length) {
-          terminal.innerHTML += currentLine.charAt(charIndex);
-          charIndex++;
-          setTimeout(typeLine, typingSpeed);
-        } else {
-          terminal.innerHTML += "<br/>";
-          lineIndex++;
-          charIndex = 0;
-          setTimeout(typeLine, lineDelay);
-        }
+  let lineIndex = 0;
+  let charIndex = 0;
+  const typingSpeed = 40;
+  const lineDelay = 600;
+
+  function typeBootLines() {
+    if (lineIndex < bootLines.length) {
+      const currentLine = bootLines[lineIndex];
+      if (charIndex < currentLine.length) {
+        terminal.innerHTML += currentLine.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeBootLines, typingSpeed);
       } else {
-        prompt.style.visibility = 'visible';
+        terminal.innerHTML += "<br/>";
+        lineIndex++;
+        charIndex = 0;
+        setTimeout(typeBootLines, lineDelay);
       }
+    } else {
+      // After boot lines finish, add MOTD instantly
+      motdLines.forEach(line => {
+        terminal.innerHTML += line + "<br/>";
+      });
+      prompt.style.visibility = 'visible';
     }
+  }
 
-    typeLine();
-  </script>
+  typeBootLines();
+</script>
 </body>
 </html>
