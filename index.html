@@ -25,15 +25,49 @@
       overflow: hidden;
     }
 
-    .terminal {
-      position: relative;
+    .window {
       width: 800px;
-      height: 450px;
+      height: 480px;
       background-color: rgba(0, 0, 0, 0.95);
-      border: 4px solid #33ff33;
       box-shadow: 0 0 30px #00ff00;
+      border: 1px solid #222;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title-bar {
+      height: 30px;
+      background-color: #222;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      color: #ccc;
+      font-size: 0.9rem;
+      justify-content: space-between;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-controls div {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #444;
+    }
+
+    .window-controls .close { background-color: #ff5f56; }
+    .window-controls .minimize { background-color: #ffbd2e; }
+    .window-controls .maximize { background-color: #27c93f; }
+
+    .terminal {
+      flex-grow: 1;
       padding: 20px;
+      position: relative;
       overflow-y: auto;
+      border-top: 1px solid #333;
     }
 
     .terminal::before {
@@ -90,9 +124,20 @@
   </style>
 </head>
 <body>
-  <div class="terminal">
-    <div class="terminal-content" id="terminalContent"></div>
-    <div class="prompt" id="promptLine"><span class="cursor"></span></div>
+  <div class="window">
+    <div class="title-bar">
+      <div class="window-controls">
+        <div class="close"></div>
+        <div class="minimize"></div>
+        <div class="maximize"></div>
+      </div>
+      <div>root@cha:~</div>
+      <div></div>
+    </div>
+    <div class="terminal">
+      <div class="terminal-content" id="terminalContent"></div>
+      <div class="prompt" id="promptLine"><span class="cursor"></span></div>
+    </div>
   </div>
 
   <script>
