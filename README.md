@@ -7,7 +7,7 @@ This site is currently under construction as we build something worthy of the ch
 ## Live Site
 [noogahackers.com](noogahackers.com)
 
-[noogahackers.github.io](https://dc423.github.io/noogahackers.github.io/)  
+[dc423.github.io](https://dc423.github.io/)  
 
 
 ##  Features
