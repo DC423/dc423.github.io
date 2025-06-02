@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chattanooga Hackers Anonymous (CHA)</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #33ff33;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .terminal {
+      text-align: left;
+      max-width: 800px;
+      padding: 40px;
+      border: 2px solid #33ff33;
+      background-color: #000;
+      box-shadow: 0 0 20px #33ff33;
+      font-size: 1.2rem;
+    }
+
+    .cursor {
+      display: inline-block;
+      background-color: #33ff33;
+      width: 10px;
+      height: 1em;
+      animation: blink 1s steps(1) infinite;
+      vertical-align: bottom;
+      margin-left: 5px;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal" id="terminal"></div>
+
+  <script>
+    const terminal = document.getElementById('terminal');
+    const lines = [
+      "CHA // Chattanooga Hackers Anonymous",
+      "",
+      "Booting up node...",
+      "Initializing protocol...",
+      "Establishing secure connection...",
+      "Access granted.",
+      "",
+      "We're currently building something awesome.",
+      "Stay tuned...",
+    ];
+
+    let lineIndex = 0;
+    let charIndex = 0;
+    const typingSpeed = 40;
+    const lineDelay = 600;
+
+    function typeLine() {
+      if (lineIndex < lines.length) {
+        const currentLine = lines[lineIndex];
+        if (charIndex < currentLine.length) {
+          terminal.innerHTML += currentLine.charAt(charIndex);
+          charIndex++;
+          setTimeout(typeLine, typingSpeed);
+        } else {
+          terminal.innerHTML += "<br/>";
+          lineIndex++;
+          charIndex = 0;
+          setTimeout(typeLine, lineDelay);
+        }
+      } else {
+        terminal.innerHTML += '<br/><br/>[ CHA HQ ]<span class="cursor"></span>';
+      }
+    }
+
+    typeLine();
+  </script>
+</body>
+</html>
