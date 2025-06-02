@@ -5,7 +5,7 @@ Welcome to the temporary website for **Chattanooga Hackers Anonymous (CHA)** —
 This site is currently under construction as we build something worthy of the chaos.
 
 ## Live Site
-[noogahackers.com](noogahackers.com)
+[noogahackers.com](https://noogahackers.com)
 
 [dc423.github.io](https://dc423.github.io/)  
 
