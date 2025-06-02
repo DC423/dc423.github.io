@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chattanooga Hackers Anonymous (CHA)</title>
   <style>
-    /* Background: digital grid + scanlines */
     body {
       margin: 0;
       height: 100vh;
-      background: repeating-linear-gradient(
-        0deg,
-        #000,
-        #000 2px,
-        #0f0f0f 2px,
-        #0f0f0f 4px
-      ),
-      radial-gradient(circle at center, #001100, #000 80%);
-      background-size: cover;
+      background: 
+        repeating-linear-gradient(
+          0deg,
+          #000,
+          #000 2px,
+          #0f0f0f 2px,
+          #0f0f0f 4px
+        ),
+        radial-gradient(circle at center, #001100, #000 80%);
       font-family: 'Courier New', Courier, monospace;
       color: #33ff33;
       display: flex;
@@ -26,42 +25,40 @@
       overflow: hidden;
     }
 
-    /* Terminal monitor styling */
     .terminal {
       position: relative;
       width: 800px;
       height: 450px;
-      background-color: rgba(0, 0, 0, 0.9);
+      background-color: rgba(0, 0, 0, 0.95);
       border: 4px solid #33ff33;
-      box-shadow: 0 0 40px #00ff00, inset 0 0 20px #00ff00;
+      box-shadow: 0 0 30px #00ff00;
       padding: 20px;
       overflow-y: auto;
-      z-index: 1;
     }
 
-    .terminal::after {
-      content: "";
+    .terminal::before {
+      content: '';
       position: absolute;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
+      width: 100%;
+      height: 100%;
       background: repeating-linear-gradient(
         to bottom,
-        rgba(0, 255, 0, 0.03),
-        rgba(0, 255, 0, 0.03) 1px,
-        transparent 1px,
-        transparent 2px
+        rgba(0, 255, 0, 0.05),
+        rgba(0, 255, 0, 0.05) 2px,
+        transparent 2px,
+        transparent 4px
       );
-      z-index: 2;
+      pointer-events: none;
+      z-index: 1;
     }
 
     .terminal-content {
+      position: relative;
+      z-index: 2;
       white-space: pre-wrap;
       word-wrap: break-word;
-      z-index: 3;
-      position: relative;
     }
 
     .prompt {
@@ -71,11 +68,12 @@
       font-weight: bold;
       display: flex;
       align-items: center;
-      z-index: 3;
+      z-index: 2;
+      visibility: hidden;
     }
 
     .prompt::before {
-      content: "user@cha:~$ ";
+      content: "root@cha:~# ";
     }
 
     .cursor {
@@ -89,30 +87,18 @@
     @keyframes blink {
       50% { opacity: 0; }
     }
-
-    /* Scrollbar styling */
-    .terminal::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .terminal::-webkit-scrollbar-thumb {
-      background-color: #33ff33;
-      border-radius: 4px;
-    }
-
-    .terminal::-webkit-scrollbar-track {
-      background: #111;
-    }
   </style>
 </head>
 <body>
   <div class="terminal">
     <div class="terminal-content" id="terminalContent"></div>
-    <div class="prompt"><span class="cursor"></span></div>
+    <div class="prompt" id="promptLine"><span class="cursor"></span></div>
   </div>
 
   <script>
     const terminal = document.getElementById('terminalContent');
+    const prompt = document.getElementById('promptLine');
+
     const lines = [
       "CHA // Chattanooga Hackers Anonymous",
       "",
@@ -143,6 +129,8 @@
           charIndex = 0;
           setTimeout(typeLine, lineDelay);
         }
+      } else {
+        prompt.style.visibility = 'visible';
       }
     }
 
