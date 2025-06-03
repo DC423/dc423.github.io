@@ -233,12 +233,15 @@
             if (cmd === "cat manifesto.txt") {
               setTimeout(showRandomQuote, 400);
             } else if (cmd === "ls") {
-              terminal.innerHTML += "meetings/   manifesto.txt<br/><br/>";
+              terminal.innerHTML += "meetings/   contact/   manifesto.txt<br/><br/>";
               commandBuffer = "";
               updatePrompt();
               prompt.style.visibility = 'visible';
             } else if (cmd === "cd meetings" || cmd === "cd meetings.html") {
               window.location.href = "meetings.html";
+            }             
+            else if (cmd === "cd contact" || cmd === "cd contact.html") {
+              window.location.href = "contact.html";
             } else {
               terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
               commandBuffer = "";
