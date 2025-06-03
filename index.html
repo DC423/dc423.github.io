@@ -60,9 +60,13 @@
       background-color: #444;
     }
 
-    .window-controls .close { background-color: #ff5f56; }
-    .window-controls .minimize { background-color: #ffbd2e; }
-    .window-controls .maximize { background-color: #27c93f; }
+    .close { background-color: #ff5f56; }
+    .minimize { background-color: #ffbd2e; }
+    .maximize { background-color: #27c93f; }
+
+    .close:hover { background-color: #ff0000; }
+    .minimize:hover { background-color: #e6ac00; }
+    .maximize:hover { background-color: #1fbb3f; }
 
     .terminal {
       flex-grow: 1;
@@ -130,7 +134,6 @@
         <div class="maximize"></div>
       </div>
       <div>root@cha:~</div>
-      <div></div>
     </div>
     <div class="terminal">
       <div class="terminal-content" id="terminalContent"></div>
@@ -152,15 +155,6 @@
         "Establishing secure connection...",
         "Access granted.",
         ""
-      ];
-
-      const motdLines = [
-        "+----------------------------------------+",
-        "|  Welcome to NoogaHackers               |",
-        "|                                        |",
-        "|  We're currently building something    |",
-        "|  awesome. Stay tuned...                |",
-        "+----------------------------------------+"
       ];
 
       const quotes = [
@@ -212,7 +206,7 @@
 
       function showRandomQuote() {
         const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        terminal.innerHTML = ""; // blank screen
+        terminal.innerHTML = "";
         typeQuote(quote, 0, () => {
           commandBuffer = "";
           updatePrompt();
@@ -255,6 +249,30 @@
         });
       }
 
+      function buildMotdLines(ip) {
+        const boxWidth = 40;
+        const border = "+" + "-".repeat(boxWidth + 4) + "+";
+
+        const ipLine = ip.includes(":")
+          ? "OMG IPV6 HACKER"
+          : `SERVER IP: ${ip}`;
+
+        const lines = [
+          "Welcome to NoogaHackers",
+          ipLine,
+          "",
+          "We're currently building something",
+          "awesome. Stay tuned..."
+        ];
+
+        const padded = lines.map(line => {
+          const pad = " ".repeat(boxWidth - line.length);
+          return `|  ${line}${pad}  |`;
+        });
+
+        return [border, ...padded, border];
+      }
+
       function typeBootLines() {
         if (lineIndex < bootLines.length) {
           const currentLine = bootLines[lineIndex];
@@ -269,20 +287,12 @@
             setTimeout(typeBootLines, lineDelay);
           }
         } else {
-          // Fetch IP and inject into MOTD
           fetch('https://api.ipify.org?format=json')
             .then(res => res.json())
-            .then(data => {
-              const ipLine = `|  SERVER IP: ${data.ip.padEnd(32)}|`;
-              motdLines.splice(2, 0, ipLine);
-            })
-            .catch(() => {
-              motdLines.splice(2, 0, "|  Your IP: UNKNOWN                 |");
-            })
-            .finally(() => {
-              motdLines.forEach(line => {
-                terminal.innerHTML += line + "<br/>";
-              });
+            .then(data => buildMotdLines(data.ip))
+            .catch(() => buildMotdLines("UNKNOWN"))
+            .then(lines => {
+              lines.forEach(line => terminal.innerHTML += line + "<br/>");
               terminal.innerHTML += "<br/>";
               prompt.style.visibility = 'visible';
               enableTyping();
