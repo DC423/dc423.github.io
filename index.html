@@ -250,14 +250,11 @@
       }
 
       function buildMotdLines(ip) {
-        const boxWidth = 40;
-        const border = "+" + "-".repeat(boxWidth + 4) + "+";
-
         const ipLine = ip.includes(":")
           ? "OMG IPV6 HACKER"
           : `SERVER IP: ${ip}`;
 
-        const lines = [
+        const contentLines = [
           "Welcome to NoogaHackers",
           ipLine,
           "",
@@ -265,8 +262,13 @@
           "Stay tuned..."
         ];
 
-        const padded = lines.map(line => {
-          const pad = " ".repeat(boxWidth - line.length);
+        // Calculate max width dynamically
+        const boxWidth = Math.max(...contentLines.map(line => line.length));
+        const border = "+" + "-".repeat(boxWidth + 4) + "+";
+
+        // Pad each line to match box width
+        const padded = contentLines.map(line => {
+          const pad = " ".repeat(Math.max(0, boxWidth - line.length));
           return `|  ${line}${pad}  |`;
         });
 
