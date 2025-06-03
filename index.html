@@ -137,137 +137,146 @@
     </div>
   </div>
 
- <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const terminal = document.getElementById('terminalContent');
-  const prompt = document.getElementById('promptLine');
-  const promptText = document.getElementById('promptText');
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const terminal = document.getElementById('terminalContent');
+      const prompt = document.getElementById('promptLine');
+      const promptText = document.getElementById('promptText');
 
-  const bootLines = [
-    "CHA // Chattanooga Hackers Anonymous",
-    "",
-    "Booting up node...",
-    "Initializing protocol...",
-    "Establishing secure connection...",
-    "Access granted.",
-    ""
-  ];
+      const bootLines = [
+        "CHA // Chattanooga Hackers Anonymous",
+        "",
+        "Booting up node...",
+        "Initializing protocol...",
+        "Establishing secure connection...",
+        "Access granted.",
+        ""
+      ];
 
-  const motdLines = [
-    "+----------------------------------------+",
-    "|  Welcome to NoogaHackers               |",
-    "|                                        |",
-    "|  We're currently building something    |",
-    "|  awesome. Stay tuned...                |",
-    "+----------------------------------------+"
-  ];
+      const motdLines = [
+        "+----------------------------------------+",
+        "|  Welcome to NoogaHackers               |",
+        "|                                        |",
+        "|  We're currently building something    |",
+        "|  awesome. Stay tuned...                |",
+        "+----------------------------------------+"
+      ];
 
-  const quotes = [
-    "Another one got caught today, it's all over the papers.",
-    "My crime is that of curiosity.",
-    "I am a hacker, and this is my manifesto.",
-    "You may stop this individual, but you can't stop us all... after all, we're all alike.",
-    "We explore... and you call us criminals.",
-    "We seek after knowledge... and you call us criminals.",
-    "We exist without skin color, without nationality, without religious bias.",
-    "You build atomic bombs, you wage wars, you murder, cheat, and lie to us and try to make us believe it's for our own good.",
-    "This is our world now... the world of the electron and the switch, the beauty of the baud.",
-    "We make use of a service already existing without paying for what could be dirt-cheap if it wasn't run by profiteering gluttons.",
-    "We explore... and you call us criminals. We seek after knowledge... and you call us criminals.",
-    "We exist without borders, without limits.",
-    "We don't do it for money. We do it because it's who we are.",
-    "Yes, I am a criminal. My crime is that of curiosity.",
-    "My crime is that of outsmarting you, something that you will never forgive me for.",
-    "We tinker, we test, we break, we learn.",
-    "This is it... this is where I belong.",
-    "You bet your ass we're all alike.",
-    "I’ve learned more from a Commodore 64 than from all the teachers at school.",
-    "We are the hackers of the world."
-  ];
+      const quotes = [
+        "Another one got caught today, it's all over the papers.",
+        "My crime is that of curiosity.",
+        "I am a hacker, and this is my manifesto.",
+        "You may stop this individual, but you can't stop us all... after all, we're all alike.",
+        "We explore... and you call us criminals.",
+        "We seek after knowledge... and you call us criminals.",
+        "We exist without skin color, without nationality, without religious bias.",
+        "You build atomic bombs, you wage wars, you murder, cheat, and lie to us and try to make us believe it's for our own good.",
+        "This is our world now... the world of the electron and the switch, the beauty of the baud.",
+        "We make use of a service already existing without paying for what could be dirt-cheap if it wasn't run by profiteering gluttons.",
+        "We explore... and you call us criminals. We seek after knowledge... and you call us criminals.",
+        "We exist without borders, without limits.",
+        "We don't do it for money. We do it because it's who we are.",
+        "Yes, I am a criminal. My crime is that of curiosity.",
+        "My crime is that of outsmarting you, something that you will never forgive me for.",
+        "We tinker, we test, we break, we learn.",
+        "This is it... this is where I belong.",
+        "You bet your ass we're all alike.",
+        "I’ve learned more from a Commodore 64 than from all the teachers at school.",
+        "We are the hackers of the world."
+      ];
 
-  let commandBuffer = "";
-  let lineIndex = 0;
-  let charIndex = 0;
-  const typingSpeed = 40;
-  const lineDelay = 600;
+      let commandBuffer = "";
+      let lineIndex = 0;
+      let charIndex = 0;
+      const typingSpeed = 40;
+      const lineDelay = 600;
 
-  function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  }
+      function escapeHtml(text) {
+        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      }
 
-  function updatePrompt() {
-    promptText.innerHTML = `root@cha:~# ${escapeHtml(commandBuffer)}`;
-  }
+      function updatePrompt() {
+        promptText.innerHTML = `root@cha:~# ${escapeHtml(commandBuffer)}`;
+      }
 
-  function typeQuote(quote, index = 0, doneCallback = () => {}) {
-    if (index < quote.length) {
-      terminal.innerHTML += escapeHtml(quote.charAt(index));
-      setTimeout(() => typeQuote(quote, index + 1, doneCallback), 25);
-    } else {
-      terminal.innerHTML += "<br/><br/>-- The Mentor, 1986<br/><br/>";
-      doneCallback();
-    }
-  }
-
-  function showRandomQuote() {
-    const quote = quotes[Math.floor(Math.random() * quotes.length)];
-    terminal.innerHTML = ""; // blank screen
-    typeQuote(quote, 0, () => {
-      commandBuffer = "";
-      updatePrompt();
-      prompt.style.visibility = 'visible';
-    });
-  }
-
-  function enableTyping() {
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Backspace') {
-        commandBuffer = commandBuffer.slice(0, -1);
-        updatePrompt();
-      } else if (e.key === 'Enter') {
-        terminal.innerHTML += `<span>root@cha:~# ${escapeHtml(commandBuffer)}</span><br/>`;
-        prompt.style.visibility = 'hidden';
-
-        if (commandBuffer.trim().toLowerCase() === "cat manifesto.txt") {
-          setTimeout(showRandomQuote, 400);
+      function typeQuote(quote, index = 0, doneCallback = () => {}) {
+        if (index < quote.length) {
+          terminal.innerHTML += escapeHtml(quote.charAt(index));
+          setTimeout(() => typeQuote(quote, index + 1, doneCallback), 25);
         } else {
-          terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
+          terminal.innerHTML += "<br/><br/>-- The Mentor, 1986<br/><br/>";
+          doneCallback();
+        }
+      }
+
+      function showRandomQuote() {
+        const quote = quotes[Math.floor(Math.random() * quotes.length)];
+        terminal.innerHTML = ""; // blank screen
+        typeQuote(quote, 0, () => {
           commandBuffer = "";
           updatePrompt();
           prompt.style.visibility = 'visible';
+        });
+      }
+
+      function enableTyping() {
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Backspace') {
+            commandBuffer = commandBuffer.slice(0, -1);
+            updatePrompt();
+          } else if (e.key === 'Enter') {
+            terminal.innerHTML += `<span>root@cha:~# ${escapeHtml(commandBuffer)}</span><br/>`;
+            prompt.style.visibility = 'hidden';
+
+            const cmd = commandBuffer.trim().toLowerCase();
+
+            if (cmd === "cat manifesto.txt") {
+              setTimeout(showRandomQuote, 400);
+            } else if (cmd === "ls") {
+              terminal.innerHTML += "meetings/   manifesto.txt<br/><br/>";
+              commandBuffer = "";
+              updatePrompt();
+              prompt.style.visibility = 'visible';
+            } else if (cmd === "cd meetings" || cmd === "cd meetings.html") {
+              window.location.href = "meetings.html";
+            } else {
+              terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
+              commandBuffer = "";
+              updatePrompt();
+              prompt.style.visibility = 'visible';
+            }
+          } else if (e.key.length === 1) {
+            commandBuffer += e.key;
+            updatePrompt();
+          }
+        });
+      }
+
+      function typeBootLines() {
+        if (lineIndex < bootLines.length) {
+          const currentLine = bootLines[lineIndex];
+          if (charIndex < currentLine.length) {
+            terminal.innerHTML += currentLine.charAt(charIndex);
+            charIndex++;
+            setTimeout(typeBootLines, typingSpeed);
+          } else {
+            terminal.innerHTML += "<br/>";
+            lineIndex++;
+            charIndex = 0;
+            setTimeout(typeBootLines, lineDelay);
+          }
+        } else {
+          motdLines.forEach(line => {
+            terminal.innerHTML += line + "<br/>";
+          });
+          terminal.innerHTML += "<br/>";
+          prompt.style.visibility = 'visible';
+          enableTyping();
         }
-      } else if (e.key.length === 1) {
-        commandBuffer += e.key;
-        updatePrompt();
       }
+
+      typeBootLines();
     });
-  }
-
-  function typeBootLines() {
-    if (lineIndex < bootLines.length) {
-      const currentLine = bootLines[lineIndex];
-      if (charIndex < currentLine.length) {
-        terminal.innerHTML += currentLine.charAt(charIndex);
-        charIndex++;
-        setTimeout(typeBootLines, typingSpeed);
-      } else {
-        terminal.innerHTML += "<br/>";
-        lineIndex++;
-        charIndex = 0;
-        setTimeout(typeBootLines, lineDelay);
-      }
-    } else {
-      motdLines.forEach(line => {
-        terminal.innerHTML += line + "<br/>";
-      });
-      terminal.innerHTML += "<br/>";
-      prompt.style.visibility = 'visible';
-      enableTyping();
-    }
-  }
-
-  typeBootLines();
-});
-</script>
+  </script>
 </body>
 </html>
