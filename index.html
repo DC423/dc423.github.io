@@ -240,8 +240,7 @@
               prompt.style.visibility = 'visible';
             } else if (cmd === "cd meetings" || cmd === "cd meetings.html") {
               window.location.href = "meetings.html";
-            }             
-            else if (cmd === "cd contact" || cmd === "cd contact.html") {
+            } else if (cmd === "cd contact" || cmd === "cd contact.html") {
               window.location.href = "contact.html";
             } else {
               terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
@@ -270,12 +269,24 @@
             setTimeout(typeBootLines, lineDelay);
           }
         } else {
-          motdLines.forEach(line => {
-            terminal.innerHTML += line + "<br/>";
-          });
-          terminal.innerHTML += "<br/>";
-          prompt.style.visibility = 'visible';
-          enableTyping();
+          // Fetch IP and inject into MOTD
+          fetch('https://api.ipify.org?format=json')
+            .then(res => res.json())
+            .then(data => {
+              const ipLine = `|  SERVER IP: ${data.ip.padEnd(32)}|`;
+              motdLines.splice(2, 0, ipLine);
+            })
+            .catch(() => {
+              motdLines.splice(2, 0, "|  Your IP: UNKNOWN                 |");
+            })
+            .finally(() => {
+              motdLines.forEach(line => {
+                terminal.innerHTML += line + "<br/>";
+              });
+              terminal.innerHTML += "<br/>";
+              prompt.style.visibility = 'visible';
+              enableTyping();
+            });
         }
       }
 
