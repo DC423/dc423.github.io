@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CHA // Meetings</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      color: #33ff33;
+      font-family: 'Courier New', Courier, monospace;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #00ff00;
+    }
+    .content {
+      max-width: 700px;
+      text-align: left;
+      border: 1px solid #00ff00;
+      padding: 20px;
+      background-color: #010;
+      box-shadow: 0 0 20px #0f0;
+    }
+    a {
+      color: #00ff00;
+    }
+    .hidden-egg {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>CHA // Meetings</h1>
+  <div class="content">
+    <p><strong>Next Meetup:</strong> <span id="nextMeeting">Calculating...</span></p>
+    <p><strong>Location:</strong> [redacted]</p>
+    <p><strong>What to Expect:</strong></p>
+    <ul>
+      <li>Lightning talks by members</li>
+      <li>Hands-on demos and hacks</li>
+      <li>Social + Q&A</li>
+    </ul>
+    <p>New? Interested? <a href="mailto:info@noogahackers.org">Reach out to us!</a></p>
+    <p><a href="index.html">← Return to terminal</a></p>
+  </div>
+
+  <!-- Want the location? Hack away-->
+  <div class="hidden-egg">
+    <!-- MTIwNiBDYnZhZ3IgUHJhZ2VyIFFlICMxMDAsIFB1bmdnbmFiYnRuLCBHQSAzNzQyMQ== -->
+  </div>
+
+  <script>
+    function getLastWednesdayOfMonth(year, month) {
+      const date = new Date(year, month + 1, 0); // last day of month
+      while (date.getDay() !== 3) { // 3 = Wednesday
+        date.setDate(date.getDate() - 1);
+      }
+      return date;
+    }
+
+    function getNextMeetingDate() {
+      const now = new Date();
+      const thisMonth = getLastWednesdayOfMonth(now.getFullYear(), now.getMonth());
+      const nextMonth = getLastWednesdayOfMonth(now.getFullYear(), now.getMonth() + 1);
+
+      const meetingTime = new Date(thisMonth);
+      meetingTime.setHours(18, 30, 0, 0); // 6:30 PM
+
+      // if today is after this month's last Wed at 6:30pm, use next month
+      return now < meetingTime ? meetingTime : new Date(nextMonth.setHours(18, 30, 0, 0));
+    }
+
+    const nextMeeting = getNextMeetingDate();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+    document.getElementById('nextMeeting').textContent = nextMeeting.toLocaleString(undefined, options);
+  </script>
+</body>
+</html>
