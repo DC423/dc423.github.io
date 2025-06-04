@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!--53 58 51 6e 63 79 42 68 49 46 56 4f 53 56 67 67 63 33 6c 7a 64 47 56 74 4c 43 42 4a 49 47 74 75 62 33 63 67 64 47 68 70 63 79 45 3d -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,7 +10,7 @@
       margin: 0;
       height: 100vh;
       background: 
-        linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), /* Optional dark overlay */
+        linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), 
         url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
       background-size: 100% 100%;
       background-repeat: no-repeat;
@@ -227,7 +226,7 @@
             if (cmd === "cat manifesto.txt") {
               setTimeout(showRandomQuote, 400);
             } else if (cmd === "ls") {
-              terminal.innerHTML += "meetings/   contact/   manifesto.txt<br/><br/>";
+              terminal.innerHTML += "meetings/   contact/   manifesto.txt   blog/<br/><br/>";
               commandBuffer = "";
               updatePrompt();
               prompt.style.visibility = 'visible';
@@ -235,6 +234,8 @@
               window.location.href = "meetings.html";
             } else if (cmd === "cd contact" || cmd === "cd contact.html") {
               window.location.href = "contact.html";
+            } else if (cmd === "cd blog" || cmd === "cd blog.html") {
+              window.location.href = "blog.html";
             } else {
               terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
               commandBuffer = "";
@@ -261,11 +262,9 @@
           "Stay tuned..."
         ];
 
-        // Calculate max width dynamically
         const boxWidth = Math.max(...contentLines.map(line => line.length));
         const border = "+" + "-".repeat(boxWidth + 4) + "+";
 
-        // Pad each line to match box width
         const padded = contentLines.map(line => {
           const pad = " ".repeat(Math.max(0, boxWidth - line.length));
           return `|  ${line}${pad}  |`;
