@@ -57,22 +57,35 @@
       margin: 1em 0;
     }
 
+    details summary {
+      cursor: pointer;
+      color: #33ff33;
+      font-weight: bold;
+      margin-top: 2em;
+    }
+
     hr {
       border: none;
       border-top: 1px dashed #0f0;
       margin: 2em 0;
     }
   </style>
-  <!-- Optional: Uncomment to sanitize user content -->
+  <!-- Optional: Uncomment to sanitize user-generated HTML in content -->
   <!-- <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.0/dist/purify.min.js"></script> -->
 </head>
 <body>
   <div class="terminal-container" id="blogTerminal">
     <h2 style="color: #0f0;">Chattanooga Hackers Anonymous // Blog</h2>
     <p><a href="index.html">← Back to Terminal</a></p>
+    <div id="latestPost"></div>
+    <details id="olderPosts">
+      <summary>▸ Show Older Posts</summary>
+      <div id="olderPostContainer"></div>
+    </details>
   </div>
 
   <script>
+    // Escape helper for metadata (NOT used for content)
     function escapeHtml(text) {
       return text
         .replace(/&/g, "&amp;")
@@ -81,15 +94,21 @@
     }
 
     async function loadBlog() {
-      const container = document.getElementById('blogTerminal');
+      const latestContainer = document.getElementById('latestPost');
+      const olderContainer = document.getElementById('olderPostContainer');
 
       try {
         const res = await fetch("YmxvZwo=/index.json");
         const files = await res.json();
 
-        for (const file of files) {
+        if (files.length === 0) {
+          latestContainer.innerHTML = "<p>No blog posts found.</p>";
+          return;
+        }
+
+        for (let i = 0; i < files.length; i++) {
           try {
-            const postRes = await fetch(`YmxvZwo=/${file}`);
+            const postRes = await fetch(`YmxvZwo=/${files[i]}`);
             const post = await postRes.json();
 
             const postEl = document.createElement("div");
@@ -99,10 +118,10 @@
             const date = escapeHtml(post.date);
             const author = escapeHtml(post.author);
 
-            // TRUSTED HTML CONTENT
+            // ALLOW HTML inside content safely (trusted input)
             const content = post.content.map(line => `<p>${line}</p>`).join("");
 
-            // If you want to sanitize untrusted content, use this instead:
+            // If you're working with untrusted input, sanitize like this:
             // const content = post.content.map(line => `<p>${DOMPurify.sanitize(line)}</p>`).join("");
 
             postEl.innerHTML = `
@@ -111,13 +130,18 @@
               <div class="post-content">${content}</div>
             `;
 
-            container.appendChild(postEl);
+            // Show the newest post immediately, hide older ones
+            if (i === 0) {
+              latestContainer.appendChild(postEl);
+            } else {
+              olderContainer.appendChild(postEl);
+            }
           } catch (err) {
-            console.warn(`Failed to load post ${file}`);
+            console.warn(`Failed to load post ${files[i]}`);
           }
         }
       } catch (err) {
-        container.innerHTML += `<p>Error loading blog index: ${escapeHtml(err.message)}</p>`;
+        latestContainer.innerHTML = `<p>Error loading blog index: ${escapeHtml(err.message)}</p>`;
       }
     }
 
