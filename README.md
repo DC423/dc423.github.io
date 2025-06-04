@@ -1,6 +1,6 @@
-# Chattanooga Hackers Anonymous (CHA)
+# Chattanooga Hackers (CHA)
 
-Welcome to the temporary website for **Chattanooga Hackers Anonymous (CHA)** — a collective of tinkerers, coders, breakers, and builders in and around Chattanooga, TN.
+Welcome to the temporary website for **Chattanooga Hackers ** — a collective of tinkerers, coders, breakers, and builders in and around Chattanooga, TN.
 
 This site is currently under construction as we build something worthy of the chaos.
 
