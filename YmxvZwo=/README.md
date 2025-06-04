@@ -41,12 +41,12 @@ It creates a .json file in blogdata/.
 ## Update index.json
 
 Make sure blogdata/index.json contains a list of your blog files:
-
+```
 [
   "2025-06-03_Blog.json",
   "2025-06-04_Blog.json"
 ]
-
+```
 
 ## Done
 
