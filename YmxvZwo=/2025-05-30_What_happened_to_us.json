@@ -1,0 +1,23 @@
+{
+  "title": "WHAT HAPPENED TO US",
+  "date": "2025-05-30",
+  "author": "tothehilt",
+  "content": [
+    "we_are_root",
+    "I remember when hacking meant opening something not meant to be opened.",
+    "When \"why not?\" was enough of a reason to reverse engineer a bootloader.",
+    "Now it's all sponsored posts and capture-the-flag marketing fluff.",
+    "People call themselves hackers because they used Burp Suite once on a bug bounty.",
+    "No one breaks things to understand them anymore — they just wait for tools to be released.",
+    "Scripts are swapped, tokens are farmed, creds dumped... but no one *knows* the systems.",
+    "Not the BIOS bytes, not the syscall chains, not even the TCP flags.",
+    "Everything is sanitized, packaged, and sold back to us by people who’ve never popped a shell.",
+    "We’ve got “hacker” conferences with wristbands and brand partners.",
+    "I don’t want your Discord server — I want my TTY back.",
+    "We used to trace UART pins with paperclips.",
+    "Now it’s all USB rubber ducks and badge firmware updates.",
+    "Whatever this is now — it isn’t hacking.",
+    "And I’m still here. Still digging.",
+    "Still breaking things just to see what falls out."
+  ]
+}
