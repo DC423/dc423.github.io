@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CHA Blog Terminal</title>
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico" />
+  <style>
+    body {
+      margin: 0;
+      background-color: #000;
+      color: #33ff33;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 20px;
+    }
+
+    .terminal-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background-color: rgba(0, 0, 0, 0.95);
+      padding: 20px;
+      border: 1px solid #222;
+      box-shadow: 0 0 30px #00ff00;
+    }
+
+    .post {
+      margin-bottom: 60px;
+      border-bottom: 1px solid #0f0;
+      padding-bottom: 20px;
+    }
+
+    .post-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #00ff00;
+    }
+
+    .post-meta {
+      font-size: 0.9rem;
+      color: #888;
+      margin-bottom: 1em;
+    }
+
+    .post-content p {
+      white-space: pre-wrap;
+      margin: 0 0 1em 0;
+    }
+
+    a {
+      color: #33ff33;
+      text-decoration: underline;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px dashed #0f0;
+      margin: 2em 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-container" id="blogTerminal">
+    <h2 style="color: #0f0;">Chattanooga Hackers Anonymous // Blog</h2>
+    <p><a href="index.html">← Back to Terminal</a></p>
+  </div>
+
+  <script>
+    function escapeHtml(text) {
+      return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    async function loadBlog() {
+      const container = document.getElementById('blogTerminal');
+
+      try {
+        const res = await fetch("YmxvZwo=/index.json");
+        const files = await res.json();
+
+        for (const file of files) {
+          try {
+            const postRes = await fetch(`YmxvZwo=/${file}`);
+            const post = await postRes.json();
+
+            const postEl = document.createElement("div");
+            postEl.className = "post";
+
+            const title = escapeHtml(post.title);
+            const date = escapeHtml(post.date);
+            const author = escapeHtml(post.author);
+            const content = post.content.map(line => `<p>${escapeHtml(line)}</p>`).join("");
+
+            postEl.innerHTML = `
+              <div class="post-title">${title}</div>
+              <div class="post-meta">${date} by ${author}</div>
+              <div class="post-content">${content}</div>
+            `;
+
+            container.appendChild(postEl);
+          } catch (err) {
+            console.warn(`Failed to load post ${file}`);
+          }
+        }
+      } catch (err) {
+        container.innerHTML += `<p>Error loading blog index: ${escapeHtml(err.message)}</p>`;
+      }
+    }
+
+    loadBlog();
+  </script>
+</body>
+</html>
