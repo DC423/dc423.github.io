@@ -65,24 +65,6 @@
       border-top: 1px solid #333;
     }
 
-    .terminal::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(0, 255, 0, 0.05),
-        rgba(0, 255, 0, 0.05) 2px,
-        transparent 2px,
-        transparent 4px
-      );
-      pointer-events: none;
-      z-index: 1;
-    }
-
     .terminal-content {
       position: relative;
       z-index: 2;
@@ -95,6 +77,7 @@
       display: flex;
       align-items: center;
       margin-top: 8px;
+      visibility: hidden; /* initially hidden */
     }
 
     .cursor {
@@ -179,8 +162,8 @@
       }
 
       function scrollToBottom() {
-        const terminalContainer = document.querySelector('.terminal');
-        terminalContainer.scrollTop = terminalContainer.scrollHeight;
+        const container = document.querySelector('.terminal');
+        container.scrollTop = container.scrollHeight;
       }
 
       function updatePrompt() {
@@ -196,12 +179,8 @@
           scrollToBottom();
           setTimeout(() => typeQuote(quote, index + 1, doneCallback), 25);
         } else {
-          const br1 = document.createElement('br');
-          const br2 = document.createElement('br');
           const footer = document.createElement('div');
-          footer.innerHTML = '-- The Mentor, 1986<br/><br/>';
-          terminal.insertBefore(br1, prompt);
-          terminal.insertBefore(br2, prompt);
+          footer.innerHTML = "<br/><br/>-- The Mentor, 1986<br/><br/>";
           terminal.insertBefore(footer, prompt);
           scrollToBottom();
           doneCallback();
@@ -211,10 +190,11 @@
       function showRandomQuote() {
         const quote = quotes[Math.floor(Math.random() * quotes.length)];
         terminal.innerHTML = '';
-        terminal.appendChild(prompt); // keep prompt after clearing
+        terminal.appendChild(prompt); // preserve prompt
         typeQuote(quote, 0, () => {
           commandBuffer = "";
           updatePrompt();
+          prompt.style.visibility = 'visible';
         });
       }
 
@@ -342,6 +322,8 @@
               const br = document.createElement('br');
               terminal.insertBefore(br, prompt);
               scrollToBottom();
+
+              // ✅ Only now show the prompt and allow typing
               prompt.style.visibility = 'visible';
               enableTyping();
             });
