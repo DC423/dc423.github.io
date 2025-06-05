@@ -13,10 +13,6 @@
         linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), 
         url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
       background-size: 100% 100%;
-      background-repeat: no-repeat;
-      background-position: center center;
-      background-attachment: fixed;
-
       font-family: 'Courier New', Courier, monospace;
       color: #33ff33;
       display: flex;
@@ -61,10 +57,6 @@
     .close { background-color: #ff5f56; }
     .minimize { background-color: #ffbd2e; }
     .maximize { background-color: #27c93f; }
-
-    .close:hover { background-color: #ff0000; }
-    .minimize:hover { background-color: #e6ac00; }
-    .maximize:hover { background-color: #1fbb3f; }
 
     .terminal {
       flex-grow: 1;
@@ -230,28 +222,17 @@
               commandBuffer = "";
               updatePrompt();
               prompt.style.visibility = 'visible';
-            } else if (cmd === "cd meetings" || cmd === "cd meetings.html") {
+            } else if (cmd === "cd meetings") {
               window.location.href = "meetings.html";
-            } else if (cmd === "cd contact" || cmd === "cd contact.html") {
+            } else if (cmd === "cd contact") {
               window.location.href = "contact.html";
-            } else if (cmd === "cd blog" || cmd === "cd blog.html") {
+            } else if (cmd === "cd blog") {
               window.location.href = "blog.html";
             } else if (cmd === "cd code" || cmd === "cd code/") {
-              window.location.href = "https://github.com/dc423";
-            } else if (cmd.startsWith("sudo ")) {
-              terminal.innerHTML += `root@cha:~# ${escapeHtml(commandBuffer)}<br/>`;
-              terminal.innerHTML += `You're not in the sudoers file. This incident will be reported.<br/><br/>`;
-              
-              // OMG HACKERS
-              terminal.innerHTML += `
-              ████████ INTRUSION DETECTED ████████<br/>
-              Logging unauthorized privilege escalation attempt...<br/>
-              Alert sent to admin@cha<br/><br/>
-              `;
-
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = 'visible';
+              terminal.innerHTML += `Opening source tree at github.com/dc423...<br/><br/>`;
+              setTimeout(() => {
+                window.open("https://github.com/dc423", "_blank");
+              }, 800);
             } else {
               terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
               commandBuffer = "";
