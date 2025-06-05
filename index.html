@@ -226,7 +226,7 @@
             if (cmd === "cat manifesto.txt") {
               setTimeout(showRandomQuote, 400);
             } else if (cmd === "ls") {
-              terminal.innerHTML += "meetings/   contact/   manifesto.txt   blog/<br/><br/>";
+              terminal.innerHTML += "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
               commandBuffer = "";
               updatePrompt();
               prompt.style.visibility = 'visible';
@@ -236,6 +236,8 @@
               window.location.href = "contact.html";
             } else if (cmd === "cd blog" || cmd === "cd blog.html") {
               window.location.href = "blog.html";
+            } else if (cmd === "cd code" || cmd === "cd code/") {
+              window.location.href = "https://github.com/dc423";
             } else {
               terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
               commandBuffer = "";
