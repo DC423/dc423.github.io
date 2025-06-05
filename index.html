@@ -238,6 +238,20 @@
               window.location.href = "blog.html";
             } else if (cmd === "cd code" || cmd === "cd code/") {
               window.location.href = "https://github.com/dc423";
+            } else if (cmd.startsWith("sudo ")) {
+              terminal.innerHTML += `root@cha:~# ${escapeHtml(commandBuffer)}<br/>`;
+              terminal.innerHTML += `You're not in the sudoers file. This incident will be reported.<br/><br/>`;
+              
+              // Optional dramatic effect:
+              terminal.innerHTML += `
+              ████████ INTRUSION DETECTED ████████<br/>
+              Logging unauthorized privilege escalation attempt...<br/>
+              Alert sent to admin@cha<br/><br/>
+              `;
+
+              commandBuffer = "";
+              updatePrompt();
+              prompt.style.visibility = 'visible';
             } else {
               terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
               commandBuffer = "";
