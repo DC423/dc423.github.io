@@ -61,7 +61,6 @@
     .terminal {
       flex-grow: 1;
       padding: 20px;
-      position: relative;
       overflow-y: auto;
       border-top: 1px solid #333;
     }
@@ -92,14 +91,10 @@
     }
 
     .prompt {
-      position: absolute;
-      bottom: 15px;
-      left: 20px;
       font-weight: bold;
       display: flex;
       align-items: center;
-      z-index: 2;
-      visibility: hidden;
+      margin-top: 8px;
     }
 
     .cursor {
@@ -126,8 +121,11 @@
       <div>root@cha:~</div>
     </div>
     <div class="terminal">
-      <div class="terminal-content" id="terminalContent"></div>
-      <div class="prompt" id="promptLine"><span id="promptText">root@cha:~# </span><span class="cursor"></span></div>
+      <div class="terminal-content" id="terminalContent">
+        <div class="prompt" id="promptLine">
+          <span id="promptText">root@cha:~# </span><span class="cursor"></span>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -180,27 +178,43 @@
         return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
       }
 
+      function scrollToBottom() {
+        const terminalContainer = document.querySelector('.terminal');
+        terminalContainer.scrollTop = terminalContainer.scrollHeight;
+      }
+
       function updatePrompt() {
         promptText.innerHTML = `root@cha:~# ${escapeHtml(commandBuffer)}`;
+        scrollToBottom();
       }
 
       function typeQuote(quote, index = 0, doneCallback = () => {}) {
         if (index < quote.length) {
-          terminal.innerHTML += escapeHtml(quote.charAt(index));
+          const span = document.createElement('span');
+          span.innerText = quote.charAt(index);
+          terminal.insertBefore(span, prompt);
+          scrollToBottom();
           setTimeout(() => typeQuote(quote, index + 1, doneCallback), 25);
         } else {
-          terminal.innerHTML += "<br/><br/>-- The Mentor, 1986<br/><br/>";
+          const br1 = document.createElement('br');
+          const br2 = document.createElement('br');
+          const footer = document.createElement('div');
+          footer.innerHTML = '-- The Mentor, 1986<br/><br/>';
+          terminal.insertBefore(br1, prompt);
+          terminal.insertBefore(br2, prompt);
+          terminal.insertBefore(footer, prompt);
+          scrollToBottom();
           doneCallback();
         }
       }
 
       function showRandomQuote() {
         const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        terminal.innerHTML = "";
+        terminal.innerHTML = '';
+        terminal.appendChild(prompt); // keep prompt after clearing
         typeQuote(quote, 0, () => {
           commandBuffer = "";
           updatePrompt();
-          prompt.style.visibility = 'visible';
         });
       }
 
@@ -210,15 +224,20 @@
             commandBuffer = commandBuffer.slice(0, -1);
             updatePrompt();
           } else if (e.key === 'Enter') {
-            terminal.innerHTML += `<span>root@cha:~# ${escapeHtml(commandBuffer)}</span><br/>`;
-            prompt.style.visibility = 'hidden';
+            const commandLine = document.createElement('div');
+            commandLine.innerText = `root@cha:~# ${commandBuffer}`;
+            terminal.insertBefore(commandLine, prompt);
+            scrollToBottom();
 
             const cmd = commandBuffer.trim().toLowerCase();
+            prompt.style.visibility = 'hidden';
 
             if (cmd === "cat manifesto.txt") {
               setTimeout(showRandomQuote, 400);
             } else if (cmd === "ls") {
-              terminal.innerHTML += "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
+              const out = document.createElement('div');
+              out.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
+              terminal.insertBefore(out, prompt);
               commandBuffer = "";
               updatePrompt();
               prompt.style.visibility = 'visible';
@@ -229,25 +248,35 @@
             } else if (cmd === "cd blog") {
               window.location.href = "blog.html";
             } else if (cmd === "cd code" || cmd === "cd code/") {
-              terminal.innerHTML += `Opening source tree at github.com/dc423...<br/><br/>`;
+              const out = document.createElement('div');
+              out.innerHTML = "Opening source tree at github.com/dc423...<br/><br/>";
+              terminal.insertBefore(out, prompt);
+              scrollToBottom();
               setTimeout(() => {
                 window.open("https://github.com/dc423", "_blank");
-
-                // Clear terminal and show new prompt
                 setTimeout(() => {
                   terminal.innerHTML = "";
+                  terminal.appendChild(prompt);
                   commandBuffer = "";
                   updatePrompt();
                   prompt.style.visibility = 'visible';
-                }, 400); // delay ensures smoother transition
+                }, 400);
               }, 800);
             } else if (cmd === "whoami") {
-              terminal.innerHTML += `idk... who are <i>you</i>?<br/><br/>`;
+              const out = document.createElement('div');
+              if (Math.random() < 0.1) {
+                out.innerHTML = `idk... who are <i>you</i>?<br/><br/>`;
+              } else {
+                out.innerHTML = `root<br/><br/>`;
+              }
+              terminal.insertBefore(out, prompt);
               commandBuffer = "";
               updatePrompt();
               prompt.style.visibility = 'visible';
             } else {
-              terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
+              const out = document.createElement('div');
+              out.innerHTML = `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
+              terminal.insertBefore(out, prompt);
               commandBuffer = "";
               updatePrompt();
               prompt.style.visibility = 'visible';
@@ -287,11 +316,14 @@
         if (lineIndex < bootLines.length) {
           const currentLine = bootLines[lineIndex];
           if (charIndex < currentLine.length) {
-            terminal.innerHTML += currentLine.charAt(charIndex);
+            const char = document.createTextNode(currentLine.charAt(charIndex));
+            terminal.insertBefore(char, prompt);
+            scrollToBottom();
             charIndex++;
             setTimeout(typeBootLines, typingSpeed);
           } else {
-            terminal.innerHTML += "<br/>";
+            const br = document.createElement('br');
+            terminal.insertBefore(br, prompt);
             lineIndex++;
             charIndex = 0;
             setTimeout(typeBootLines, lineDelay);
@@ -302,8 +334,14 @@
             .then(data => buildMotdLines(data.ip))
             .catch(() => buildMotdLines("UNKNOWN"))
             .then(lines => {
-              lines.forEach(line => terminal.innerHTML += line + "<br/>");
-              terminal.innerHTML += "<br/>";
+              lines.forEach(line => {
+                const div = document.createElement('div');
+                div.innerText = line;
+                terminal.insertBefore(div, prompt);
+              });
+              const br = document.createElement('br');
+              terminal.insertBefore(br, prompt);
+              scrollToBottom();
               prompt.style.visibility = 'visible';
               enableTyping();
             });
