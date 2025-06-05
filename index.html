@@ -232,6 +232,14 @@
               terminal.innerHTML += `Opening source tree at github.com/dc423...<br/><br/>`;
               setTimeout(() => {
                 window.open("https://github.com/dc423", "_blank");
+
+                // Clear terminal and show new prompt
+                setTimeout(() => {
+                  terminal.innerHTML = "";
+                  commandBuffer = "";
+                  updatePrompt();
+                  prompt.style.visibility = 'visible';
+                }, 400); // delay ensures smoother transition
               }, 800);
             } else {
               terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
