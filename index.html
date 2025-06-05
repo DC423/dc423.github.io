@@ -215,13 +215,21 @@
             if (cmd === "cat manifesto.txt") {
               setTimeout(showRandomQuote, 400);
             } else if (cmd === "cat /dev/memory") {
-              const encodedTribute = `
-                PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FUVFlQRSA9PT0KCkxhc3Qgc2VlbiB1bmRlciB0aGUgaG9vZCwgc29ja2V0IGluIGhhbmQsIGJhc2ggaW4gYnJhaW4uCkhlIGNvdWxkIGRlYnVnIGEgY3JhbmtoYWZ0IGFuZCBhIGtlcm5lbCBwYW5pYyB3aXRoIHRoZSBzYW1lIGNhbG0uCgpUaGUgMTBtbSBzb2NrZXQgaXMgc3RpbGwgbWlzc2luZy4KU28gaXMgYSBwaWVjZSBvZiBvdXIgY3Jldy4KCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbiB0aGUgc2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhlIHdhbGxzLgoKIyBlY2hvICRNRUNIQU5JQ0FUVFlQRSA+IC9kZXYvbGVnYWN5CgpSSVAgTWVjaGFuaWNhbFR5cGUgMTk4NCAtIDIwMjQK
+              const encoded = `
+                PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FUVFlQRSA9PT0K
+                TGFzdCBzZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4g
+                aGFuZCwgYmFzaCBpbiBicmFpbi4KSGUgY291bGQgZGVidWcg
+                YSBjcmFua2hhZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGgg
+                dGhlIHNhbWUgY2FsbS4KVGhlIDEwbW0gc29ja2V0IGlzIHN0
+                aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY2Ugb2Ygb3VyIGNy
+                ZXcuCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbiB0aGUg
+                c2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhl
+                IHdhbGxzLgojIGVjaG8gJE1FQ0hBTklDQVBUWVBFID4gL2Rl
+                di9sZWdhY3kK
+                UklQIE1lY2hhbmljYWxUeXBlIDE5ODQgLSAyMDI0
               `.replace(/\s+/g, '');
             
-              const decoded = atob(encodedTribute);
-              const lines = decoded.split('\n');
-            
+              const lines = atob(encoded).split('\n');
               lines.forEach(line => {
                 const out = document.createElement('div');
                 out.innerText = line;
