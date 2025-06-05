@@ -216,17 +216,16 @@
               setTimeout(showRandomQuote, 400);
             } else if (cmd === "cat /dev/memory") {
               const encoded = `
-                PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FUVFlQRSA9PT0K
-                TGFzdCBzZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4g
-                aGFuZCwgYmFzaCBpbiBicmFpbi4KSGUgY291bGQgZGVidWcg
-                YSBjcmFua2hhZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGgg
-                dGhlIHNhbWUgY2FsbS4KVGhlIDEwbW0gc29ja2V0IGlzIHN0
-                aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY2Ugb2Ygb3VyIGNy
-                ZXcuCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbiB0aGUg
-                c2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhl
-                IHdhbGxzLgojIGVjaG8gJE1FQ0hBTklDQVBUWVBFID4gL2Rl
-                di9sZWdhY3kK
-                UklQIE1lY2hhbmljYWxUeXBlIDE5ODQgLSAyMDI0
+                PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FMVFlQRSA9PT0KTGF
+                zdCBzZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4gaGFuZC
+                wgYmFzaCBpbiBicmFpbi4KSGUgY291bGQgZGVidWcgYSBjcmFua
+                2hhZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGggdGhlIHNhbWUg
+                Y2FsbS4KVGhlIDEwbW0gc29ja2V0IGlzIHN0aWxsIG1pc3Npbmc
+                uClNvIGlzIGEgcGllY2Ugb2Ygb3VyIGNyZXcuCmdvbmUgdG8gdG
+                hlIGdyZWF0IGdhcmFnZSBpbiB0aGUgc2t5LApidXQgaGlzIGhhY
+                2tzIHN0aWxsIGVjaG8gaW4gdGhlIHdhbGxzLgojIGVjaG8gJE1F
+                Q0hBTklDQUxUWVBFID4gL2Rldi9sZWdhY3kKUklQIE1lY2hhbml
+                jYWxUeXBlIDE5ODQgLSAyMDI0
               `.replace(/\s+/g, '');
             
               const lines = atob(encoded).split('\n');
