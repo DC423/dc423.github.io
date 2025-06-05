@@ -214,6 +214,23 @@
 
             if (cmd === "cat manifesto.txt") {
               setTimeout(showRandomQuote, 400);
+            } else if (cmd === "cat /dev/memory") {
+              const encodedTribute = `
+                PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FUVFlQRSA9PT0KCkxhc3Qgc2VlbiB1bmRlciB0aGUgaG9vZCwgc29ja2V0IGluIGhhbmQsIGJhc2ggaW4gYnJhaW4uCkhlIGNvdWxkIGRlYnVnIGEgY3JhbmtoYWZ0IGFuZCBhIGtlcm5lbCBwYW5pYyB3aXRoIHRoZSBzYW1lIGNhbG0uCgpUaGUgMTBtbSBzb2NrZXQgaXMgc3RpbGwgbWlzc2luZy4KU28gaXMgYSBwaWVjZSBvZiBvdXIgY3Jldy4KCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbiB0aGUgc2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhlIHdhbGxzLgoKIyBlY2hvICRNRUNIQU5JQ0FUVFlQRSA+IC9kZXYvbGVnYWN5CgpSSVAgTWVjaGFuaWNhbFR5cGUgMTk4NCAtIDIwMjQK
+              `.replace(/\s+/g, '');
+            
+              const decoded = atob(encodedTribute);
+              const lines = decoded.split('\n');
+            
+              lines.forEach(line => {
+                const out = document.createElement('div');
+                out.innerText = line;
+                terminal.insertBefore(out, prompt);
+              });
+            
+              commandBuffer = "";
+              updatePrompt();
+              prompt.style.visibility = 'visible';
             } else if (cmd === "ls") {
               const out = document.createElement('div');
               out.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
