@@ -221,11 +221,11 @@
               commandBuffer = "";
               updatePrompt();
               prompt.style.visibility = 'visible';
-            } else if (cmd === "cd meetings") {
+            } else if (cmd === "cd meetings" || cmd === "cd meetings/") {
               window.location.href = "meetings.html";
-            } else if (cmd === "cd contact") {
+            } else if (cmd === "cd contact" || cmd === "cd contact/") {
               window.location.href = "contact.html";
-            } else if (cmd === "cd blog") {
+            } else if (cmd === "cd blog" || cmd === "cd blog/") {
               window.location.href = "blog.html";
             } else if (cmd === "cd code" || cmd === "cd code/") {
               const out = document.createElement('div');
