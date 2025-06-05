@@ -241,6 +241,15 @@
                   prompt.style.visibility = 'visible';
                 }, 400); // delay ensures smoother transition
               }, 800);
+            } else if (cmd === "whoami") {
+              if (Math.random() < 0.1) {
+                terminal.innerHTML += `idk... who are <i>you</i>?<br/><br/>`;
+              } else {
+                terminal.innerHTML += `root<br/><br/>`;
+              }
+              commandBuffer = "";
+              updatePrompt();
+              prompt.style.visibility = 'visible';
             } else {
               terminal.innerHTML += `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
               commandBuffer = "";
