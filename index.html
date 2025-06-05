@@ -242,11 +242,7 @@
                 }, 400); // delay ensures smoother transition
               }, 800);
             } else if (cmd === "whoami") {
-              if (Math.random() < 0.1) {
-                terminal.innerHTML += `idk... who are <i>you</i>?<br/><br/>`;
-              } else {
-                terminal.innerHTML += `root<br/><br/>`;
-              }
+              terminal.innerHTML += `idk... who are <i>you</i>?<br/><br/>`;
               commandBuffer = "";
               updatePrompt();
               prompt.style.visibility = 'visible';
