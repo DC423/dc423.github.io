@@ -248,10 +248,88 @@
 
             const cmd = commandBuffer.trim().toLowerCase();
             prompt.style.visibility = 'hidden';
+<<<<<<< HEAD
             handleCommand(cmd);
             commandBuffer = "";
             updatePrompt();
             prompt.style.visibility = 'visible';
+=======
+
+            if (cmd === "cat manifesto.txt") {
+              setTimeout(showRandomQuote, 400);
+            } else if (cmd === "cat /dev/memory") {
+              const encoded = `
+                PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FUVFlQRSA9PT0K
+                TGFzdCBzZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4g
+                aGFuZCwgYmFzaCBpbiBicmFpbi4KSGUgY291bGQgZGVidWcg
+                YSBjcmFua2hhZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGgg
+                dGhlIHNhbWUgY2FsbS4KVGhlIDEwbW0gc29ja2V0IGlzIHN0
+                aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY2Ugb2Ygb3VyIGNy
+                ZXcuCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbiB0aGUg
+                c2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhl
+                IHdhbGxzLgojIGVjaG8gJE1FQ0hBTklDQVBUWVBFID4gL2Rl
+                di9sZWdhY3kK
+                UklQIE1lY2hhbmljYWxUeXBlIDE5ODQgLSAyMDI0
+              `.replace(/\s+/g, '');
+            
+              const lines = atob(encoded).split('\n');
+              lines.forEach(line => {
+                const out = document.createElement('div');
+                out.innerText = line;
+                terminal.insertBefore(out, prompt);
+              });
+            
+              commandBuffer = "";
+              updatePrompt();
+              prompt.style.visibility = 'visible';
+            } else if (cmd === "ls") {
+              const out = document.createElement('div');
+              out.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
+              terminal.insertBefore(out, prompt);
+              commandBuffer = "";
+              updatePrompt();
+              prompt.style.visibility = 'visible';
+            } else if (cmd === "cd meetings" || cmd === "cd meetings/") {
+              window.location.href = "meetings.html";
+            } else if (cmd === "cd contact" || cmd === "cd contact/") {
+              window.location.href = "contact.html";
+            } else if (cmd === "cd blog" || cmd === "cd blog/") {
+              window.location.href = "blog.html";
+            } else if (cmd === "cd code" || cmd === "cd code/") {
+              const out = document.createElement('div');
+              out.innerHTML = "Opening source tree at github.com/dc423...<br/><br/>";
+              terminal.insertBefore(out, prompt);
+              scrollToBottom();
+              setTimeout(() => {
+                window.open("https://github.com/dc423", "_blank");
+                setTimeout(() => {
+                  terminal.innerHTML = "";
+                  terminal.appendChild(prompt);
+                  commandBuffer = "";
+                  updatePrompt();
+                  prompt.style.visibility = 'visible';
+                }, 400);
+              }, 800);
+            } else if (cmd === "whoami") {
+              const out = document.createElement('div');
+              if (Math.random() < 0.1) {
+                out.innerHTML = `idk... who are <i>you</i>?<br/><br/>`;
+              } else {
+                out.innerHTML = `root<br/><br/>`;
+              }
+              terminal.insertBefore(out, prompt);
+              commandBuffer = "";
+              updatePrompt();
+              prompt.style.visibility = 'visible';
+            } else {
+              const out = document.createElement('div');
+              out.innerHTML = `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
+              terminal.insertBefore(out, prompt);
+              commandBuffer = "";
+              updatePrompt();
+              prompt.style.visibility = 'visible';
+            }
+>>>>>>> parent of 1697a57 (Update index.html)
           } else if (e.key.length === 1) {
             commandBuffer += e.key;
             updatePrompt();
