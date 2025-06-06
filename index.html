@@ -298,7 +298,7 @@
         } else if (cmd === "whoami") {
           const lines = ["root"];
           if (Math.random() < 0.15) {
-            lines.push("but also... who are <em>you</em>? 🤔");
+            lines.push("but also... who are <em>you</em>?");
           }
           div.innerHTML = lines.join("<br/>") + "<br/><br/>";
         } else if (cmd === "cat manifesto.txt") {
