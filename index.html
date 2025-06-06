@@ -187,12 +187,10 @@
       function buildMotdLines(ip) {
         const ipLine = ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`;
         const contentLines = [
-          "Welcome to NoogaHackers",
+          "Welcome to NoogaHackers: Happy Hacking",
           ipLine,
-          "",
-          "The world is a dangerous place,",
-          "not because of those who do evil,",
-          "but because of those who look on and do nothing.."
+          " ",
+          " "
         ];
         const boxWidth = Math.max(...contentLines.map(line => line.length));
         const border = "+" + "-".repeat(boxWidth + 4) + "+";
