@@ -3,15 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chattanooga Hackers Anonymous (CHA)</title>
+  <title>Chattanooga Hackers Anonymous | Cybersecurity & InfoSec Collective</title>
+  <meta name="description" content="Chattanooga Hackers Anonymous (CHA) is a local collective of ethical hackers, cybersecurity professionals, and infosec enthusiasts focused on education, community, and exploration.">
+  <meta name="keywords" content="Chattanooga hackers, ethical hacking, cybersecurity, infosec, hacker collective, penetration testing, DEFCON 423, CHA, local hackers, cyber meetup, red team, blue team">
+  <meta name="author" content="Chattanooga Hackers Anonymous">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Chattanooga Hackers Anonymous (CHA)">
+  <meta property="og:description" content="Local hacker collective in Chattanooga focused on infosec, ethical hacking, and tech education.">
+  <meta property="og:image" content="https://yourdomain.com/social-preview.jpg">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yourdomain.com">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chattanooga Hackers Anonymous">
+  <meta name="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
+  <meta name="twitter:image" content="https://yourdomain.com/social-preview.jpg">
+
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background: 
-        linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), 
-        url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
       background-size: 100% 100%;
       font-family: 'Courier New', Courier, monospace;
       color: #33ff33;
@@ -20,7 +37,6 @@
       align-items: center;
       overflow: hidden;
     }
-
     .window {
       width: 800px;
       height: 480px;
@@ -30,7 +46,6 @@
       display: flex;
       flex-direction: column;
     }
-
     .title-bar {
       height: 30px;
       background-color: #222;
@@ -41,37 +56,31 @@
       font-size: 0.9rem;
       justify-content: space-between;
     }
-
     .window-controls {
       display: flex;
       gap: 6px;
     }
-
     .window-controls div {
       width: 12px;
       height: 12px;
       border-radius: 50%;
       background-color: #444;
     }
-
     .close { background-color: #ff5f56; }
     .minimize { background-color: #ffbd2e; }
     .maximize { background-color: #27c93f; }
-
     .terminal {
       flex-grow: 1;
       padding: 20px;
       overflow-y: auto;
       border-top: 1px solid #333;
     }
-
     .terminal-content {
       position: relative;
       z-index: 2;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
-
     .prompt {
       font-weight: bold;
       display: flex;
@@ -79,7 +88,6 @@
       margin-top: 8px;
       visibility: hidden;
     }
-
     .cursor {
       width: 10px;
       height: 1em;
@@ -87,7 +95,6 @@
       margin-left: 5px;
       animation: blink 1s steps(1) infinite;
     }
-
     @keyframes blink {
       50% { opacity: 0; }
     }
@@ -110,6 +117,10 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div style="display:none;">
+    Chattanooga Hackers Anonymous (CHA) is a hacker collective based in Chattanooga, TN focused on ethical hacking, information security, red teaming, penetration testing, cyber defense, digital privacy, and community education. Join our meetups to learn infosec skills, reverse engineering, OSINT, bug bounty hunting, malware analysis, and CTF training. A proud affiliate of DEFCON 423.
   </div>
 
   <script>
@@ -138,16 +149,7 @@
         "We exist without skin color, without nationality, without religious bias.",
         "You build atomic bombs, you wage wars, you murder, cheat, and lie to us and try to make us believe it's for our own good.",
         "This is our world now... the world of the electron and the switch, the beauty of the baud.",
-        "We make use of a service already existing without paying for what could be dirt-cheap if it wasn't run by profiteering gluttons.",
-        "We exist without borders, without limits.",
-        "We don't do it for money. We do it because it's who we are.",
-        "Yes, I am a criminal. My crime is that of curiosity.",
-        "My crime is that of outsmarting you, something that you will never forgive me for.",
-        "We tinker, we test, we break, we learn.",
-        "This is it... this is where I belong.",
-        "You bet your ass we're all alike.",
-        "I’ve learned more from a Commodore 64 than from all the teachers at school.",
-        "We are the hackers of the world."
+        "We don't do it for money. We do it because it's who we are."
       ];
 
       const motdQuotes = [
@@ -158,81 +160,69 @@
         "There is no system that cannot be hacked. — Kevin Mitnick",
         "Good hackers don't break in, they walk in like they own the place. — Unknown",
         "The only secure computer is one that’s unplugged, locked in a safe, and buried 20 feet underground. — Gene Spafford",
-        "You can’t patch human stupidity. — Bruce Schneier",
-        "It's not a bug, it's a feature. — Every Developer Ever",
-        "Walking again without pain hopefully does not come from physical capacity. It comes from from an indomitable will - Mobin A",
-        "Information wants to be free. — Stewart Brand"
+        "You can’t patch human stupidity. — Bruce Schneier"
       ];
 
       let commandBuffer = "";
       let lineIndex = 0;
       let charIndex = 0;
-      const typingSpeed = 40;
-      const lineDelay = 600;
-
-      function escapeHtml(text) {
-        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      }
 
       function scrollToBottom() {
-        const container = document.querySelector('.terminal');
-        container.scrollTop = container.scrollHeight;
+        terminal.scrollTop = terminal.scrollHeight;
       }
 
       function updatePrompt() {
-        promptText.innerHTML = `root@cha:~# ${escapeHtml(commandBuffer)}`;
+        promptText.innerHTML = `root@cha:~# ${commandBuffer}`;
         scrollToBottom();
       }
 
       function buildMotdLines(ip) {
         const ipLine = ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`;
-        const contentLines = [
-          "Welcome to NoogaHackers: Happy Hacking",
+        const lines = [
+          "Welcome to NoogaHackers",
           ipLine,
-          " ",
-          " "
+          "",
+          "The world is a dangerous place,",
+          "not because of those who do evil,",
+          "but because of those who look on and do nothing.."
         ];
-        const boxWidth = Math.max(...contentLines.map(line => line.length));
-        const border = "+" + "-".repeat(boxWidth + 4) + "+";
-        const padded = contentLines.map(line => {
-          const pad = " ".repeat(Math.max(0, boxWidth - line.length));
-          return `|  ${line}${pad}  |`;
-        });
+        const maxLen = Math.max(...lines.map(l => l.length));
+        const border = "+" + "-".repeat(maxLen + 4) + "+";
+        const padded = lines.map(l => `|  ${l}${" ".repeat(maxLen - l.length)}  |`);
         return [border, ...padded, border];
       }
 
       function typeBootLines() {
         if (lineIndex < bootLines.length) {
-          const currentLine = bootLines[lineIndex];
-          if (charIndex < currentLine.length) {
-            const char = document.createTextNode(currentLine.charAt(charIndex));
+          const line = bootLines[lineIndex];
+          if (charIndex < line.length) {
+            const char = document.createTextNode(line.charAt(charIndex));
             terminal.insertBefore(char, prompt);
-            scrollToBottom();
             charIndex++;
-            setTimeout(typeBootLines, typingSpeed);
+            scrollToBottom();
+            setTimeout(typeBootLines, 35);
           } else {
             terminal.insertBefore(document.createElement('br'), prompt);
             lineIndex++;
             charIndex = 0;
-            setTimeout(typeBootLines, lineDelay);
+            setTimeout(typeBootLines, 300);
           }
         } else {
           fetch('https://api.ipify.org?format=json')
-            .then(res => res.json())
+            .then(r => r.json())
             .then(data => buildMotdLines(data.ip))
             .catch(() => buildMotdLines("UNKNOWN"))
-            .then(lines => {
-              lines.forEach(line => {
+            .then(motd => {
+              motd.forEach(l => {
                 const div = document.createElement('div');
-                div.innerText = line;
+                div.innerText = l;
                 terminal.insertBefore(div, prompt);
               });
               terminal.insertBefore(document.createElement('br'), prompt);
 
-              // Show random MOTD quote
-              const randomMotd = motdQuotes[Math.floor(Math.random() * motdQuotes.length)];
+              const quote = motdQuotes[Math.floor(Math.random() * motdQuotes.length)];
               const quoteDiv = document.createElement('div');
-              quoteDiv.innerHTML = `"${randomMotd}"<br/><br/>`;
+              quoteDiv.innerHTML = `"${quote}"<br/><br/>`;
               terminal.insertBefore(quoteDiv, prompt);
 
               prompt.style.visibility = 'visible';
@@ -255,16 +245,7 @@
             const cmd = commandBuffer.trim().toLowerCase();
             prompt.style.visibility = 'hidden';
 
-            if (cmd === "cat manifesto.txt") {
-              const quote = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
-              const quoteEl = document.createElement('div');
-              quoteEl.innerHTML = quote + "<br/><br/>-- The Mentor, 1986<br/><br/>";
-              terminal.insertBefore(quoteEl, prompt);
-            } else {
-              const err = document.createElement('div');
-              err.innerHTML = `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
-              terminal.insertBefore(err, prompt);
-            }
+            handleCommand(cmd);
 
             commandBuffer = "";
             updatePrompt();
@@ -274,6 +255,44 @@
             updatePrompt();
           }
         });
+      }
+
+      function handleCommand(cmd) {
+        const div = document.createElement('div');
+        if (cmd === "ls") {
+          div.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
+        } else if (cmd.startsWith("cd ")) {
+          const dir = cmd.split(" ")[1];
+          const urls = {
+            "meetings": "meetings.html",
+            "contact": "contact.html",
+            "blog": "blog.html",
+            "code": "https://github.com/dc423"
+          };
+          if (urls[dir]) {
+            if (dir === "code") {
+              div.innerHTML = "Opening source tree at github.com/dc423...<br/><br/>";
+              terminal.insertBefore(div, prompt);
+              setTimeout(() => window.open(urls[dir], "_blank"), 600);
+            } else {
+              window.location.href = urls[dir];
+            }
+            return;
+          } else {
+            div.innerHTML = `bash: cd: ${dir}: No such file or directory<br/><br/>`;
+          }
+        } else if (cmd === "whoami") {
+          div.innerHTML = `root<br/>${Math.random() < 0.1 ? "but also... who are <em>you</em>? 🤔" : ""}<br/><br/>`;
+        } else if (cmd === "cat manifesto.txt") {
+          const quote = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
+          div.innerHTML = quote + "<br/><br/>-- The Mentor, 1986<br/><br/>";
+        } else if (cmd === "cat /dev/memory") {
+          div.innerHTML = "=== /dev/memory ===<br/>Loading...<br/>0x00FFAC: 01 23 45 67 89 AB CD EF<br/>...<br/><br/>";
+        } else {
+          div.innerHTML = `bash: command not found: ${cmd}<br/><br/>`;
+        }
+        terminal.insertBefore(div, prompt);
+        scrollToBottom();
       }
 
       typeBootLines();
