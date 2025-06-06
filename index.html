@@ -214,7 +214,7 @@
               motd.forEach(l => {
                 const div = document.createElement('div');
                 div.innerText = l;
-                terminal.insertBefore(div, prompt);
+                terminal.insertBefore(div, prompt.nextSibling);
               });
               terminal.insertBefore(document.createElement('br'), prompt);
               prompt.style.visibility = 'visible';
