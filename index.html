@@ -172,16 +172,23 @@
       function wrapText(text, maxWidth) {
         const words = text.split(/\s+/);
         const lines = [];
-        let currentLine = "";
-
+        let line = "";
+      
         for (const word of words) {
-          if ((currentLine + " " + word).trim().length <= maxWidth) {
-            currentLine += (currentLine ? " " : "") + word;
+          if ((line + (line ? " " : "") + word).length <= maxWidth) {
+            line += (line ? " " : "") + word;
           } else {
-            lines.push(currentLine);
-            currentLine = word;
+            lines.push(line);
+            line = word;
           }
         }
+      
+        if (line) {
+          lines.push(line);
+        }
+      
+        return lines;
+      }
 
         if (currentLine) lines.push(currentLine);
         return lines;
