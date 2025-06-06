@@ -189,11 +189,12 @@
       function buildMotdLines(ip, quote) {
         const wrappedQuote = wrapText(quote, 40);
         const footerLines = [
-          "",
+          "Welcome to NoogaHackers",
           ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`,
-          "Welcome to NoogaHackers"
+          ""
         ];
-        const allLines = [...wrappedQuote, ...footerLines];
+        const allLines = [...footerLines, ...wrappedQuote]; // Footer first, quote second
+
         const maxLen = Math.max(...allLines.map(l => l.length));
         const border = "+" + "-".repeat(maxLen + 4) + "+";
         const padded = allLines.map(l => `|  ${l}${" ".repeat(maxLen - l.length)}  |`);
@@ -283,8 +284,7 @@
             div.innerHTML = `bash: cd: ${dir}: No such file or directory<br/><br/>`;
           }
         } else if (cmd === "whoami") {
-          const lines = ["root"];
-          div.innerHTML = lines.join("<br/>") + "<br/><br/>";
+          div.innerHTML = "root<br/><br/>";
         } else if (cmd === "cat manifesto.txt") {
           const quote = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
           div.innerHTML = quote + "<br/><br/>-- The Mentor, 1986<br/><br/>";
