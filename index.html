@@ -301,8 +301,8 @@
           "Welcome to NoogaHackers",
           ipLine,
           "",
-          "We're currently building something awesome.",
-          "Stay tuned..."
+          "The world is a dangerous place,",
+          "but because of those who look on and do nothing."
         ];
 
         const boxWidth = Math.max(...contentLines.map(line => line.length));
@@ -347,7 +347,7 @@
               terminal.insertBefore(br, prompt);
               scrollToBottom();
 
-              // ✅ Only now show the prompt and allow typing
+              // Only now show the prompt and allow typing
               prompt.style.visibility = 'visible';
               enableTyping();
             });
