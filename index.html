@@ -4,6 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chattanooga Hackers Anonymous | Cybersecurity & InfoSec Collective</title>
+  <meta name="description" content="Chattanooga Hackers Anonymous (CHA) is a local collective of ethical hackers, cybersecurity professionals, and infosec enthusiasts focused on education, community, and exploration.">
+  <meta name="keywords" content="Chattanooga hackers, ethical hacking, cybersecurity, infosec, hacker collective, penetration testing, DEFCON 423, CHA, local hackers, cyber meetup, red team, blue team">
+  <meta name="author" content="Chattanooga Hackers Anonymous">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:title" content="Chattanooga Hackers Anonymous (CHA)">
+  <meta property="og:description" content="Local hacker collective in Chattanooga focused on infosec, ethical hacking, and tech education.">
+  <meta property="og:image" content="https://yourdomain.com/social-preview.jpg">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yourdomain.com">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Chattanooga Hackers Anonymous">
+  <meta name="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
+  <meta name="twitter:image" content="https://yourdomain.com/social-preview.jpg">
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+
   <style>
     body {
       margin: 0;
@@ -60,6 +81,8 @@
       z-index: 2;
       white-space: pre-wrap;
       word-wrap: break-word;
+      display: flex;
+      flex-direction: column;
     }
     .prompt {
       font-weight: bold;
@@ -175,14 +198,13 @@
       }
 
       function buildMotdLines(ip, quote) {
-        const ipLine = ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`;
-        const introLines = [
+        const headerLines = [
           "Welcome to NoogaHackers",
-          ipLine,
+          ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`,
           " "
         ];
         const wrappedQuote = wrapText(quote, 40);
-        const allLines = [...introLines, ...wrappedQuote];
+        const allLines = [...headerLines, ...wrappedQuote];
         const maxLen = Math.max(...allLines.map(l => l.length));
         const border = "+" + "-".repeat(maxLen + 4) + "+";
         const padded = allLines.map(l => `|  ${l}${" ".repeat(maxLen - l.length)}  |`);
@@ -216,7 +238,7 @@
                 div.innerText = l;
                 terminal.insertBefore(div, prompt.nextSibling);
               });
-              terminal.insertBefore(document.createElement('br'), prompt);
+              terminal.insertBefore(document.createElement('br'), prompt.nextSibling);
               prompt.style.visibility = 'visible';
               enableTyping();
             });
@@ -231,14 +253,12 @@
           } else if (e.key === 'Enter') {
             const cmdLine = document.createElement('div');
             cmdLine.innerText = `root@cha:~# ${commandBuffer}`;
-            terminal.insertBefore(cmdLine, prompt);
+            terminal.insertBefore(cmdLine, prompt.nextSibling);
             scrollToBottom();
 
             const cmd = commandBuffer.trim().toLowerCase();
             prompt.style.visibility = 'hidden';
-
             handleCommand(cmd);
-
             commandBuffer = "";
             updatePrompt();
             prompt.style.visibility = 'visible';
@@ -264,7 +284,7 @@
           if (urls[dir]) {
             if (dir === "code") {
               div.innerHTML = "Opening source tree at github.com/dc423...<br/><br/>";
-              terminal.insertBefore(div, prompt);
+              terminal.insertBefore(div, prompt.nextSibling);
               setTimeout(() => window.open(urls[dir], "_blank"), 600);
             } else {
               window.location.href = urls[dir];
@@ -285,7 +305,7 @@
         } else {
           div.innerHTML = `bash: command not found: ${cmd}<br/><br/>`;
         }
-        terminal.insertBefore(div, prompt);
+        terminal.insertBefore(div, prompt.nextSibling);
         scrollToBottom();
       }
 
