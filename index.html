@@ -18,6 +18,7 @@
   <meta name="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
   <meta name="twitter:image" content="https://yourdomain.com/social-preview.jpg">
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+
   <style>
     body {
       margin: 0;
@@ -173,7 +174,7 @@
         const words = text.split(/\s+/);
         const lines = [];
         let line = "";
-      
+
         for (const word of words) {
           if ((line + (line ? " " : "") + word).length <= maxWidth) {
             line += (line ? " " : "") + word;
@@ -182,18 +183,15 @@
             line = word;
           }
         }
-      
-        if (line) {
-          lines.push(line);
-        }
-      
+
+        if (line) lines.push(line);
         return lines;
       }
 
       function buildMotdLines(ip, quote) {
         const wrappedQuote = wrapText(quote, 40);
         const footerLines = [
-          " ",
+          "",
           ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`,
           "Welcome to NoogaHackers"
         ];
