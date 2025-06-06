@@ -8,23 +8,16 @@
   <meta name="keywords" content="Chattanooga hackers, ethical hacking, cybersecurity, infosec, hacker collective, penetration testing, DEFCON 423, CHA, local hackers, cyber meetup, red team, blue team">
   <meta name="author" content="Chattanooga Hackers Anonymous">
   <meta name="robots" content="index, follow">
-
-  <!-- Open Graph / Facebook -->
   <meta property="og:title" content="Chattanooga Hackers Anonymous (CHA)">
   <meta property="og:description" content="Local hacker collective in Chattanooga focused on infosec, ethical hacking, and tech education.">
   <meta property="og:image" content="https://yourdomain.com/social-preview.jpg">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://yourdomain.com">
-
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Chattanooga Hackers Anonymous">
   <meta name="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
   <meta name="twitter:image" content="https://yourdomain.com/social-preview.jpg">
-
-  <!-- Favicon -->
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-
   <style>
     body {
       margin: 0;
@@ -177,36 +170,31 @@
       }
 
       function wrapText(text, maxWidth) {
-        const words = text.split(" ");
+        const words = text.split(/\s+/);
         const lines = [];
         let currentLine = "";
 
-        words.forEach(word => {
-          if ((currentLine + word).length <= maxWidth) {
-            currentLine += word + " ";
+        for (const word of words) {
+          if ((currentLine + " " + word).trim().length <= maxWidth) {
+            currentLine += (currentLine ? " " : "") + word;
           } else {
-            lines.push(currentLine.trim());
-            currentLine = word + " ";
+            lines.push(currentLine);
+            currentLine = word;
           }
-        });
-
-        if (currentLine.trim()) {
-          lines.push(currentLine.trim());
         }
 
+        if (currentLine) lines.push(currentLine);
         return lines;
       }
 
       function buildMotdLines(ip, quote) {
-        const headerLines = [
-          "Welcome to NoogaHackers",
-          ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`,
-          " "
-        ];
-      
         const wrappedQuote = wrapText(quote, 40);
-        const allLines = [...headerLines, ...wrappedQuote]; 
-      
+        const footerLines = [
+          " ",
+          ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`,
+          "Welcome to NoogaHackers"
+        ];
+        const allLines = [...wrappedQuote, ...footerLines];
         const maxLen = Math.max(...allLines.map(l => l.length));
         const border = "+" + "-".repeat(maxLen + 4) + "+";
         const padded = allLines.map(l => `|  ${l}${" ".repeat(maxLen - l.length)}  |`);
@@ -298,7 +286,7 @@
         } else if (cmd === "whoami") {
           const lines = ["root"];
           if (Math.random() < 0.15) {
-            lines.push("but also... who are <em>you</em>?");
+            lines.push("but also... who are <em>you</em>? 🤔");
           }
           div.innerHTML = lines.join("<br/>") + "<br/><br/>";
         } else if (cmd === "cat manifesto.txt") {
