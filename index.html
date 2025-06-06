@@ -11,18 +11,22 @@
   <meta property="og:title" content="Chattanooga Hackers Anonymous (CHA)">
   <meta property="og:description" content="Local hacker collective in Chattanooga focused on infosec, ethical hacking, and tech education.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://yourdomain.com">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Chattanooga Hackers Anonymous">
   <meta name="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chattanooga Hackers Anonymous | Cybersecurity & InfoSec Collective</title>
   <style>
     body {
       margin: 0;
       height: 100vh;
       background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
-      background-size: 100% 100%;
+      background-size: cover;
       font-family: 'Courier New', Courier, monospace;
       color: #33ff33;
       display: flex;
@@ -69,8 +73,6 @@
       border-top: 1px solid #333;
     }
     .terminal-content {
-      position: relative;
-      z-index: 2;
       white-space: pre-wrap;
       word-wrap: break-word;
       display: flex;
@@ -120,16 +122,6 @@
       const prompt = document.getElementById('promptLine');
       const promptText = document.getElementById('promptText');
 
-      const bootLines = [
-        "CHA // Chattanooga Hackers Anonymous",
-        "",
-        "Booting up node...",
-        "Initializing protocol...",
-        "Establishing secure connection...",
-        "Access granted.",
-        ""
-      ];
-
       const motdQuotes = [
         "The world is a dangerous place, not because of those who do evil, but because of those who look on and do nothing. — Mr. Robot",
         "We are all living in each other's paranoia. — Mr. Robot",
@@ -155,6 +147,16 @@
         "We don't do it for money. We do it because it's who we are."
       ];
 
+      const bootLines = [
+        "CHA // Chattanooga Hackers Anonymous",
+        "",
+        "Booting up node...",
+        "Initializing protocol...",
+        "Establishing secure connection...",
+        "Access granted.",
+        ""
+      ];
+
       let commandBuffer = "";
       let lineIndex = 0;
       let charIndex = 0;
@@ -172,29 +174,26 @@
         const words = text.split(/\s+/);
         const lines = [];
         let line = "";
-
         for (const word of words) {
-          if ((line + (line ? " " : "") + word).length <= maxWidth) {
+          if ((line + " " + word).trim().length <= maxWidth) {
             line += (line ? " " : "") + word;
           } else {
             lines.push(line);
             line = word;
           }
         }
-
         if (line) lines.push(line);
         return lines;
       }
 
       function buildMotdLines(ip, quote) {
-        const wrappedQuote = wrapText(quote, 40);
+        const wrappedQuote = wrapText(quote, 50);
         const footerLines = [
           "Welcome to NoogaHackers",
-          ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`,
+          `SERVER IP: ${ip}`,
           ""
         ];
-        const allLines = [...footerLines, ...wrappedQuote]; // Footer first, quote second
-
+        const allLines = [...footerLines, ...wrappedQuote];
         const maxLen = Math.max(...allLines.map(l => l.length));
         const border = "+" + "-".repeat(maxLen + 4) + "+";
         const padded = allLines.map(l => `|  ${l}${" ".repeat(maxLen - l.length)}  |`);
@@ -218,115 +217,38 @@
           }
         } else {
           const quote = motdQuotes[Math.floor(Math.random() * motdQuotes.length)];
-          fetch('https://api.ipify.org?format=json')
+          fetch("https://api.ipify.org?format=json")
             .then(r => r.json())
             .then(data => buildMotdLines(data.ip, quote))
             .catch(() => buildMotdLines("UNKNOWN", quote))
             .then(motd => {
               motd.forEach(l => {
-                const div = document.createElement('div');
+                const div = document.createElement("div");
                 div.innerText = l;
-                terminal.insertBefore(div, prompt.nextSibling);
+                terminal.insertBefore(div, prompt);
               });
-              terminal.insertBefore(document.createElement('br'), prompt.nextSibling);
-              prompt.style.visibility = 'visible';
+              terminal.insertBefore(document.createElement("br"), prompt);
+              prompt.style.visibility = "visible";
               enableTyping();
             });
         }
       }
 
       function enableTyping() {
-        document.addEventListener('keydown', function (e) {
-          if (e.key === 'Backspace') {
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Backspace") {
             commandBuffer = commandBuffer.slice(0, -1);
             updatePrompt();
-          } else if (e.key === 'Enter') {
-            const cmdLine = document.createElement('div');
+          } else if (e.key === "Enter") {
+            const cmdLine = document.createElement("div");
             cmdLine.innerText = `root@cha:~# ${commandBuffer}`;
-            terminal.insertBefore(cmdLine, prompt.nextSibling);
-            scrollToBottom();
-
+            terminal.insertBefore(cmdLine, prompt);
             const cmd = commandBuffer.trim().toLowerCase();
-            prompt.style.visibility = 'hidden';
+            prompt.style.visibility = "hidden";
             handleCommand(cmd);
             commandBuffer = "";
             updatePrompt();
-            prompt.style.visibility = 'visible';
-
-            if (cmd === "cat manifesto.txt") {
-              setTimeout(showRandomQuote, 400);
-            } else if (cmd === "cat /dev/memory") {
-              const encoded = `
-                PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FUVFlQRSA9PT0K
-                TGFzdCBzZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4g
-                aGFuZCwgYmFzaCBpbiBicmFpbi4KSGUgY291bGQgZGVidWcg
-                YSBjcmFua2hhZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGgg
-                dGhlIHNhbWUgY2FsbS4KVGhlIDEwbW0gc29ja2V0IGlzIHN0
-                aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY2Ugb2Ygb3VyIGNy
-                ZXcuCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbiB0aGUg
-                c2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhl
-                IHdhbGxzLgojIGVjaG8gJE1FQ0hBTklDQVBUWVBFID4gL2Rl
-                di9sZWdhY3kK
-                UklQIE1lY2hhbmljYWxUeXBlIDE5ODQgLSAyMDI0
-              `.replace(/\s+/g, '');
-            
-              const lines = atob(encoded).split('\n');
-              lines.forEach(line => {
-                const out = document.createElement('div');
-                out.innerText = line;
-                terminal.insertBefore(out, prompt);
-              });
-            
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = 'visible';
-            } else if (cmd === "ls") {
-              const out = document.createElement('div');
-              out.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
-              terminal.insertBefore(out, prompt);
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = 'visible';
-            } else if (cmd === "cd meetings" || cmd === "cd meetings/") {
-              window.location.href = "meetings.html";
-            } else if (cmd === "cd contact" || cmd === "cd contact/") {
-              window.location.href = "contact.html";
-            } else if (cmd === "cd blog" || cmd === "cd blog/") {
-              window.location.href = "blog.html";
-            } else if (cmd === "cd code" || cmd === "cd code/") {
-              const out = document.createElement('div');
-              out.innerHTML = "Opening source tree at github.com/dc423...<br/><br/>";
-              terminal.insertBefore(out, prompt);
-              scrollToBottom();
-              setTimeout(() => {
-                window.open("https://github.com/dc423", "_blank");
-                setTimeout(() => {
-                  terminal.innerHTML = "";
-                  terminal.appendChild(prompt);
-                  commandBuffer = "";
-                  updatePrompt();
-                  prompt.style.visibility = 'visible';
-                }, 400);
-              }, 800);
-            } else if (cmd === "whoami") {
-              const out = document.createElement('div');
-              if (Math.random() < 0.1) {
-                out.innerHTML = `idk... who are <i>you</i>?<br/><br/>`;
-              } else {
-                out.innerHTML = `root<br/><br/>`;
-              }
-              terminal.insertBefore(out, prompt);
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = 'visible';
-            } else {
-              const out = document.createElement('div');
-              out.innerHTML = `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
-              terminal.insertBefore(out, prompt);
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = 'visible';
-            }
+            prompt.style.visibility = "visible";
           } else if (e.key.length === 1) {
             commandBuffer += e.key;
             updatePrompt();
@@ -335,38 +257,60 @@
       }
 
       function handleCommand(cmd) {
-        const div = document.createElement('div');
+        const div = document.createElement("div");
         if (cmd === "ls") {
-          div.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
+          div.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br>";
         } else if (cmd.startsWith("cd ")) {
           const dir = cmd.split(" ")[1];
           const urls = {
-            "meetings": "meetings.html",
-            "contact": "contact.html",
-            "blog": "blog.html",
-            "code": "https://github.com/dc423"
+            meetings: "meetings.html",
+            contact: "contact.html",
+            blog: "blog.html",
+            code: "https://github.com/dc423"
           };
           if (urls[dir]) {
             if (dir === "code") {
-              div.innerHTML = "Opening source tree at github.com/dc423...<br/><br/>";
-              terminal.insertBefore(div, prompt.nextSibling);
-              setTimeout(() => window.open(urls[dir], "_blank"), 600);
+              div.innerHTML = "Opening source tree at github.com/dc423...<br>";
+              terminal.insertBefore(div, prompt);
+              setTimeout(() => window.open(urls[dir], "_blank"), 800);
             } else {
               window.location.href = urls[dir];
             }
             return;
           } else {
-            div.innerHTML = `bash: cd: ${dir}: No such file or directory<br/><br/>`;
+            div.innerHTML = `bash: cd: ${dir}: No such file or directory<br>`;
           }
         } else if (cmd === "whoami") {
-          div.innerHTML = "root<br/><br/>";
+          div.innerHTML = Math.random() < 0.1
+            ? "idk... who are <i>you</i>?<br>"
+            : "root<br>";
         } else if (cmd === "cat manifesto.txt") {
           const quote = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
-          div.innerHTML = quote + "<br/><br/>-- The Mentor, 1986<br/><br/>";
+          div.innerHTML = `${quote}<br>-- The Mentor, 1986<br>`;
+        } else if (cmd === "cat /dev/memory") {
+          const encoded = `
+            PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FUVFlQRSA9PT0K
+            TGFzdCBzZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4g
+            aGFuZCwgYmFzaCBpbiBicmFpbi4KSGUgY291bGQgZGVidWcg
+            YSBjcmFua2hhZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGgg
+            dGhlIHNhbWUgY2FsbS4KVGhlIDEwbW0gc29ja2V0IGlzIHN0
+            aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY2Ugb2Ygb3VyIGNy
+            ZXcuCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbiB0aGUg
+            c2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhl
+            IHdhbGxzLgojIGVjaG8gJE1FQ0hBTklDQVBUWVBFID4gL2Rl
+            di9sZWdhY3kK
+            UklQIE1lY2hhbmljYWxUeXBlIDE5ODQgLSAyMDI0
+          `.replace(/\\s+/g, '');
+          const lines = atob(encoded).split('\\n');
+          lines.forEach(line => {
+            const out = document.createElement('div');
+            out.innerText = line;
+            terminal.insertBefore(out, prompt);
+          });
         } else {
-          div.innerHTML = `bash: command not found: ${cmd}<br/><br/>`;
+          div.innerHTML = `bash: command not found: ${cmd}<br>`;
         }
-        terminal.insertBefore(div, prompt.nextSibling);
+        terminal.insertBefore(div, prompt);
         scrollToBottom();
       }
 
