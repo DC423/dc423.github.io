@@ -4,19 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Chattanooga Hackers Anonymous | Cybersecurity & InfoSec Collective</title>
-  <meta name="description" content="Chattanooga Hackers Anonymous (CHA) is a local collective of ethical hackers, cybersecurity professionals, and infosec enthusiasts focused on education, community, and exploration.">
-  <meta name="keywords" content="Chattanooga hackers, ethical hacking, cybersecurity, infosec, hacker collective, penetration testing, DEFCON 423, CHA, local hackers, cyber meetup, red team, blue team">
-  <meta name="author" content="Chattanooga Hackers Anonymous">
-  <meta name="robots" content="index, follow">
-  <meta property="og:title" content="Chattanooga Hackers Anonymous (CHA)">
-  <meta property="og:description" content="Local hacker collective in Chattanooga focused on infosec, ethical hacking, and tech education.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://yourdomain.com">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chattanooga Hackers Anonymous">
-  <meta name="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
-  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-
   <style>
     body {
       margin: 0;
@@ -140,6 +127,19 @@
         "You can’t patch human stupidity. — Bruce Schneier"
       ];
 
+      const manifestoQuotes = [
+        "Another one got caught today, it's all over the papers.",
+        "My crime is that of curiosity.",
+        "I am a hacker, and this is my manifesto.",
+        "You may stop this individual, but you can't stop us all... after all, we're all alike.",
+        "We explore... and you call us criminals.",
+        "We seek after knowledge... and you call us criminals.",
+        "We exist without skin color, without nationality, without religious bias.",
+        "You build atomic bombs, you wage wars, you murder, cheat, and lie to us and try to make us believe it's for our own good.",
+        "This is our world now... the world of the electron and the switch, the beauty of the baud.",
+        "We don't do it for money. We do it because it's who we are."
+      ];
+
       let commandBuffer = "";
       let lineIndex = 0;
       let charIndex = 0;
@@ -237,6 +237,8 @@
             const cmd = commandBuffer.trim().toLowerCase();
             prompt.style.visibility = 'hidden';
 
+            handleCommand(cmd);
+
             commandBuffer = "";
             updatePrompt();
             prompt.style.visibility = 'visible';
@@ -245,6 +247,46 @@
             updatePrompt();
           }
         });
+      }
+
+      function handleCommand(cmd) {
+        const div = document.createElement('div');
+        if (cmd === "ls") {
+          div.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
+        } else if (cmd.startsWith("cd ")) {
+          const dir = cmd.split(" ")[1];
+          const urls = {
+            "meetings": "meetings.html",
+            "contact": "contact.html",
+            "blog": "blog.html",
+            "code": "https://github.com/dc423"
+          };
+          if (urls[dir]) {
+            if (dir === "code") {
+              div.innerHTML = "Opening source tree at github.com/dc423...<br/><br/>";
+              terminal.insertBefore(div, prompt);
+              setTimeout(() => window.open(urls[dir], "_blank"), 600);
+            } else {
+              window.location.href = urls[dir];
+            }
+            return;
+          } else {
+            div.innerHTML = `bash: cd: ${dir}: No such file or directory<br/><br/>`;
+          }
+        } else if (cmd === "whoami") {
+          const lines = ["root"];
+          if (Math.random() < 0.15) {
+            lines.push("but also... who are <em>you</em>? 🤔");
+          }
+          div.innerHTML = lines.join("<br/>") + "<br/><br/>";
+        } else if (cmd === "cat manifesto.txt") {
+          const quote = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
+          div.innerHTML = quote + "<br/><br/>-- The Mentor, 1986<br/><br/>";
+        } else {
+          div.innerHTML = `bash: command not found: ${cmd}<br/><br/>`;
+        }
+        terminal.insertBefore(div, prompt);
+        scrollToBottom();
       }
 
       typeBootLines();
