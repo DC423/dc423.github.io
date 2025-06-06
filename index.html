@@ -286,7 +286,9 @@
             ? "idk... who are <i>you</i>?<br>"
             : "root<br>";
         } else if (cmd === "cat manifesto.txt") {
-          const quoteLines = [...manifestoQuotes, "-- The Mentor, 1986"];
+          const randomLine = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
+
+          const quoteLines = [...wrapText(randomLine, 50), "-- The Mentor, 1986"];
 
           terminal.innerHTML = '';
           terminal.appendChild(prompt);
@@ -298,8 +300,10 @@
               line.innerText = quoteLines[i];
               terminal.insertBefore(line, prompt);
               i++;
-              scrollToBottom(); // <-- THIS is crucial
-              setTimeout(scrollLine, 300);
+              setTimeout(() => {
+                scrollToBottom();
+                scrollLine();
+              }, 300);
             } else {
               prompt.style.visibility = "visible";
             }
