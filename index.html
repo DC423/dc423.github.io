@@ -203,8 +203,10 @@
           ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`,
           " "
         ];
+      
         const wrappedQuote = wrapText(quote, 40);
-        const allLines = [...headerLines, ...wrappedQuote];
+        const allLines = [...headerLines, ...wrappedQuote]; // ✅ This is correct
+      
         const maxLen = Math.max(...allLines.map(l => l.length));
         const border = "+" + "-".repeat(maxLen + 4) + "+";
         const padded = allLines.map(l => `|  ${l}${" ".repeat(maxLen - l.length)}  |`);
