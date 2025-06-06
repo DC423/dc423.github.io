@@ -8,20 +8,15 @@
   <meta name="keywords" content="Chattanooga hackers, ethical hacking, cybersecurity, infosec, hacker collective, penetration testing, DEFCON 423, CHA, local hackers, cyber meetup, red team, blue team">
   <meta name="author" content="Chattanooga Hackers Anonymous">
   <meta name="robots" content="index, follow">
-
-  <!-- Open Graph -->
   <meta property="og:title" content="Chattanooga Hackers Anonymous (CHA)">
   <meta property="og:description" content="Local hacker collective in Chattanooga focused on infosec, ethical hacking, and tech education.">
   <meta property="og:image" content="https://yourdomain.com/social-preview.jpg">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://yourdomain.com">
-
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Chattanooga Hackers Anonymous">
   <meta name="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
   <meta name="twitter:image" content="https://yourdomain.com/social-preview.jpg">
-
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
 
   <style>
@@ -119,6 +114,7 @@
     </div>
   </div>
 
+  <!-- Hidden SEO keywords -->
   <div style="display:none;">
     Chattanooga Hackers Anonymous (CHA) is a hacker collective based in Chattanooga, TN focused on ethical hacking, information security, red teaming, penetration testing, cyber defense, digital privacy, and community education. Join our meetups to learn infosec skills, reverse engineering, OSINT, bug bounty hunting, malware analysis, and CTF training. A proud affiliate of DEFCON 423.
   </div>
@@ -182,7 +178,9 @@
           "Welcome to NoogaHackers",
           ipLine,
           "",
-          " "
+          "The world is a dangerous place,",
+          "not because of those who do evil,",
+          "but because of those who look on and do nothing.."
         ];
         const maxLen = Math.max(...lines.map(l => l.length));
         const border = "+" + "-".repeat(maxLen + 4) + "+";
@@ -280,12 +278,30 @@
             div.innerHTML = `bash: cd: ${dir}: No such file or directory<br/><br/>`;
           }
         } else if (cmd === "whoami") {
-          div.innerHTML = `root<br/>${Math.random() < 0.1 ? "but also... who are <em>you</em>? 🤔" : ""}<br/><br/>`;
+          const lines = ["root"];
+          if (Math.random() < 0.15) {
+            lines.push("but also... who are <em>you</em>? 🤔");
+          }
+          div.innerHTML = lines.join("<br/>") + "<br/><br/>";
         } else if (cmd === "cat manifesto.txt") {
           const quote = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
           div.innerHTML = quote + "<br/><br/>-- The Mentor, 1986<br/><br/>";
         } else if (cmd === "cat /dev/memory") {
-          div.innerHTML = "=== /dev/memory ===<br/>Loading...<br/>0x00FFAC: 01 23 45 67 89 AB CD EF<br/>...<br/><br/>";
+          const b64 = `
+            PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FMVFlQRSA9PT0K
+            TGFzdCBzZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4g
+            aGFuZCwgYmFzaCBpbiBicmFpbi4KSGUgY291bGQgZGVidWcg
+            YSBjcmFua2hhZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGgg
+            dGhlIHNhbWUgc2FsbS4KVGhlIDEwbW0gc29ja2V0IGlzIHN0
+            aWxsIG1pc3NpbmcgLi4uClNvIGlzIGEgcGllY2Ugb2Ygb3Vy
+            IGNwcy4gR29uZSB0byB0aGUgZ3JlYXQgZ2FyYWdlIGluIHRo
+            ZSBza3ksIGJ1dCBoaXMgaGFja3MgZXNob3MgZWNobyBpbiB0
+            aGUgd2FsbHMuCiMgZWNobyAkTUVDSEFOSUNBTFRZUEUgPiAv
+            ZGV2L2xlZ2FjeQpSSVAgTWVjaGFuaWNhbFR5cGUgMTk4NCAt
+            IDIwMjQ=
+          `.replace(/\s+/g, '');
+          const decoded = atob(b64).trim().split("\n");
+          div.innerHTML = decoded.map(line => line.replace(/</g, "&lt;").replace(/>/g, "&gt;")).join("<br/>") + "<br/><br/>";
         } else {
           div.innerHTML = `bash: command not found: ${cmd}<br/><br/>`;
         }
