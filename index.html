@@ -26,7 +26,7 @@
       margin: 0;
       height: 100vh;
       background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
-      background-size: cover;
+      background-size: 100% 100%;
       font-family: 'Courier New', Courier, monospace;
       color: #33ff33;
       display: flex;
@@ -70,6 +70,7 @@
       flex-grow: 1;
       padding: 20px;
       overflow-y: auto;
+      scroll-behavior: smooth;
       border-top: 1px solid #333;
     }
     .terminal-content {
@@ -162,7 +163,7 @@
       let charIndex = 0;
 
       function scrollToBottom() {
-        terminal.scrollTop = terminal.scrollHeight;
+        document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
       }
 
       function updatePrompt() {
@@ -285,21 +286,41 @@
             ? "idk... who are <i>you</i>?<br>"
             : "root<br>";
         } else if (cmd === "cat manifesto.txt") {
-          const quote = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
-          div.innerHTML = `${quote}<br>-- The Mentor, 1986<br>`;
+          const quoteLines = [...manifestoQuotes, "-- The Mentor, 1986"];
+
+          terminal.innerHTML = '';
+          terminal.appendChild(prompt);
+
+          let i = 0;
+          function scrollLine() {
+            if (i < quoteLines.length) {
+              const line = document.createElement("div");
+              line.innerText = quoteLines[i];
+              terminal.insertBefore(line, prompt);
+              i++;
+              scrollToBottom(); // <-- THIS is crucial
+              setTimeout(scrollLine, 300);
+            } else {
+              prompt.style.visibility = "visible";
+            }
+          }
+
+          scrollLine();
         } else if (cmd === "cat /dev/memory") {
           const encoded = `
-            PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FUVFlQRSA9PT0K
-            TGFzdCBzZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4g
-            aGFuZCwgYmFzaCBpbiBicmFpbi4KSGUgY291bGQgZGVidWcg
-            YSBjcmFua2hhZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGgg
-            dGhlIHNhbWUgY2FsbS4KVGhlIDEwbW0gc29ja2V0IGlzIHN0
-            aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY2Ugb2Ygb3VyIGNy
-            ZXcuCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbiB0aGUg
-            c2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhl
-            IHdhbGxzLgojIGVjaG8gJE1FQ0hBTklDQVBUWVBFID4gL2Rl
-            di9sZWdhY3kK
-            UklQIE1lY2hhbmljYWxUeXBlIDE5ODQgLSAyMDI0
+            PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FMVFl
+            QRSA9PT0KTGFzdCBzZWVuIHVuZGVyIHRoZSBob2
+            9kLCBzb2NrZXQgaW4gaGFuZCwgYmFzaCBpbiBic
+            mFpbi4KSGUgY291bGQgZGVidWcgYSBjcmFua2hh
+            ZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGggdGh
+            lIHNhbWUgY2FsbS4KVGhlIDEwbW0gc29ja2V0IG
+            lzIHN0aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY
+            2Ugb2Ygb3VyIGNyZXcuCmdvbmUgdG8gdGhlIGdy
+            ZWF0IGdhcmFnZSBpbiB0aGUgc2t5LApidXQgaGl
+            zIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhlIHdhbG
+            xzLgojIGVjaG8gJE1FQ0hBTklDQUxUWVBFID4gL
+            2Rldi9sZWdhY3kKUklQIE1lY2hhbmljYWxUeXBl
+            IDE5ODQgLSAyMDI0
           `.replace(/\\s+/g, '');
           const lines = atob(encoded).split('\\n');
           lines.forEach(line => {
