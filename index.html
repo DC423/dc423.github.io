@@ -260,13 +260,14 @@
       function handleCommand(cmd) {
         const div = document.createElement("div");
         if (cmd === "ls") {
-          div.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br>";
+          div.innerHTML = "meetings/   contact/  conduct/  manifesto.txt   blog/   code/<br>";
         } else if (cmd.startsWith("cd ")) {
           const dir = cmd.split(" ")[1];
           const urls = {
             meetings: "meetings.html",
             contact: "contact.html",
             blog: "blog.html",
+            conduct: "coc.html",
             code: "https://github.com/dc423"
           };
           if (urls[dir]) {
