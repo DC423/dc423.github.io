@@ -205,7 +205,7 @@
         ];
       
         const wrappedQuote = wrapText(quote, 40);
-        const allLines = [...headerLines, ...wrappedQuote]; // ✅ This is correct
+        const allLines = [...headerLines, ...wrappedQuote]; 
       
         const maxLen = Math.max(...allLines.map(l => l.length));
         const border = "+" + "-".repeat(maxLen + 4) + "+";
