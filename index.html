@@ -77,7 +77,7 @@
       display: flex;
       align-items: center;
       margin-top: 8px;
-      visibility: hidden; /* initially hidden */
+      visibility: hidden;
     }
 
     .cursor {
@@ -128,7 +128,7 @@
         ""
       ];
 
-      const quotes = [
+      const manifestoQuotes = [
         "Another one got caught today, it's all over the papers.",
         "My crime is that of curiosity.",
         "I am a hacker, and this is my manifesto.",
@@ -139,7 +139,6 @@
         "You build atomic bombs, you wage wars, you murder, cheat, and lie to us and try to make us believe it's for our own good.",
         "This is our world now... the world of the electron and the switch, the beauty of the baud.",
         "We make use of a service already existing without paying for what could be dirt-cheap if it wasn't run by profiteering gluttons.",
-        "We explore... and you call us criminals. We seek after knowledge... and you call us criminals.",
         "We exist without borders, without limits.",
         "We don't do it for money. We do it because it's who we are.",
         "Yes, I am a criminal. My crime is that of curiosity.",
@@ -149,6 +148,20 @@
         "You bet your ass we're all alike.",
         "I’ve learned more from a Commodore 64 than from all the teachers at school.",
         "We are the hackers of the world."
+      ];
+
+      const motdQuotes = [
+        "The world is a dangerous place, not because of those who do evil, but because of those who look on and do nothing. — Mr. Robot",
+        "We are all living in each other's paranoia. — Mr. Robot",
+        "Every lock can be picked. Every system can be broken. — Unknown",
+        "Hack the planet! — Hackers (1995)",
+        "There is no system that cannot be hacked. — Kevin Mitnick",
+        "Good hackers don't break in, they walk in like they own the place. — Unknown",
+        "The only secure computer is one that’s unplugged, locked in a safe, and buried 20 feet underground. — Gene Spafford",
+        "You can’t patch human stupidity. — Bruce Schneier",
+        "It's not a bug, it's a feature. — Every Developer Ever",
+        "Walking again without pain hopefully does not come from physical capacity. It comes from from an indomitable will - Mobin A"
+        "Information wants to be free. — Stewart Brand"
       ];
 
       let commandBuffer = "";
@@ -171,132 +184,8 @@
         scrollToBottom();
       }
 
-      function typeQuote(quote, index = 0, doneCallback = () => {}) {
-        if (index < quote.length) {
-          const span = document.createElement('span');
-          span.innerText = quote.charAt(index);
-          terminal.insertBefore(span, prompt);
-          scrollToBottom();
-          setTimeout(() => typeQuote(quote, index + 1, doneCallback), 25);
-        } else {
-          const footer = document.createElement('div');
-          footer.innerHTML = "<br/><br/>-- The Mentor, 1986<br/><br/>";
-          terminal.insertBefore(footer, prompt);
-          scrollToBottom();
-          doneCallback();
-        }
-      }
-
-      function showRandomQuote() {
-        const quote = quotes[Math.floor(Math.random() * quotes.length)];
-        terminal.innerHTML = '';
-        terminal.appendChild(prompt); // preserve prompt
-        typeQuote(quote, 0, () => {
-          commandBuffer = "";
-          updatePrompt();
-          prompt.style.visibility = 'visible';
-        });
-      }
-
-      function enableTyping() {
-        document.addEventListener('keydown', function (e) {
-          if (e.key === 'Backspace') {
-            commandBuffer = commandBuffer.slice(0, -1);
-            updatePrompt();
-          } else if (e.key === 'Enter') {
-            const commandLine = document.createElement('div');
-            commandLine.innerText = `root@cha:~# ${commandBuffer}`;
-            terminal.insertBefore(commandLine, prompt);
-            scrollToBottom();
-
-            const cmd = commandBuffer.trim().toLowerCase();
-            prompt.style.visibility = 'hidden';
-
-            if (cmd === "cat manifesto.txt") {
-              setTimeout(showRandomQuote, 400);
-            } else if (cmd === "cat /dev/memory") {
-              const encoded = `
-                PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FMVFlQRSA9PT0KTGF
-                zdCBzZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4gaGFuZC
-                wgYmFzaCBpbiBicmFpbi4KSGUgY291bGQgZGVidWcgYSBjcmFua
-                2hhZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGggdGhlIHNhbWUg
-                Y2FsbS4KVGhlIDEwbW0gc29ja2V0IGlzIHN0aWxsIG1pc3Npbmc
-                uClNvIGlzIGEgcGllY2Ugb2Ygb3VyIGNyZXcuCmdvbmUgdG8gdG
-                hlIGdyZWF0IGdhcmFnZSBpbiB0aGUgc2t5LApidXQgaGlzIGhhY
-                2tzIHN0aWxsIGVjaG8gaW4gdGhlIHdhbGxzLgojIGVjaG8gJE1F
-                Q0hBTklDQUxUWVBFID4gL2Rldi9sZWdhY3kKUklQIE1lY2hhbml
-                jYWxUeXBlIDE5ODQgLSAyMDI0
-              `.replace(/\s+/g, '');
-            
-              const lines = atob(encoded).split('\n');
-              lines.forEach(line => {
-                const out = document.createElement('div');
-                out.innerText = line;
-                terminal.insertBefore(out, prompt);
-              });
-            
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = 'visible';
-            } else if (cmd === "ls") {
-              const out = document.createElement('div');
-              out.innerHTML = "meetings/   contact/   manifesto.txt   blog/   code/<br/><br/>";
-              terminal.insertBefore(out, prompt);
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = 'visible';
-            } else if (cmd === "cd meetings" || cmd === "cd meetings/") {
-              window.location.href = "meetings.html";
-            } else if (cmd === "cd contact" || cmd === "cd contact/") {
-              window.location.href = "contact.html";
-            } else if (cmd === "cd blog" || cmd === "cd blog/") {
-              window.location.href = "blog.html";
-            } else if (cmd === "cd code" || cmd === "cd code/") {
-              const out = document.createElement('div');
-              out.innerHTML = "Opening source tree at github.com/dc423...<br/><br/>";
-              terminal.insertBefore(out, prompt);
-              scrollToBottom();
-              setTimeout(() => {
-                window.open("https://github.com/dc423", "_blank");
-                setTimeout(() => {
-                  terminal.innerHTML = "";
-                  terminal.appendChild(prompt);
-                  commandBuffer = "";
-                  updatePrompt();
-                  prompt.style.visibility = 'visible';
-                }, 400);
-              }, 800);
-            } else if (cmd === "whoami") {
-              const out = document.createElement('div');
-              if (Math.random() < 0.1) {
-                out.innerHTML = `idk... who are <i>you</i>?<br/><br/>`;
-              } else {
-                out.innerHTML = `root<br/><br/>`;
-              }
-              terminal.insertBefore(out, prompt);
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = 'visible';
-            } else {
-              const out = document.createElement('div');
-              out.innerHTML = `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
-              terminal.insertBefore(out, prompt);
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = 'visible';
-            }
-          } else if (e.key.length === 1) {
-            commandBuffer += e.key;
-            updatePrompt();
-          }
-        });
-      }
-
       function buildMotdLines(ip) {
-        const ipLine = ip.includes(":")
-          ? "OMG IPV6 HACKER"
-          : `SERVER IP: ${ip}`;
-
+        const ipLine = ip.includes(":") ? "OMG IPV6 HACKER" : `SERVER IP: ${ip}`;
         const contentLines = [
           "Welcome to NoogaHackers",
           ipLine,
@@ -305,15 +194,12 @@
           "not because of those who do evil,",
           "but because of those who look on and do nothing.."
         ];
-
         const boxWidth = Math.max(...contentLines.map(line => line.length));
         const border = "+" + "-".repeat(boxWidth + 4) + "+";
-
         const padded = contentLines.map(line => {
           const pad = " ".repeat(Math.max(0, boxWidth - line.length));
           return `|  ${line}${pad}  |`;
         });
-
         return [border, ...padded, border];
       }
 
@@ -327,8 +213,7 @@
             charIndex++;
             setTimeout(typeBootLines, typingSpeed);
           } else {
-            const br = document.createElement('br');
-            terminal.insertBefore(br, prompt);
+            terminal.insertBefore(document.createElement('br'), prompt);
             lineIndex++;
             charIndex = 0;
             setTimeout(typeBootLines, lineDelay);
@@ -344,15 +229,53 @@
                 div.innerText = line;
                 terminal.insertBefore(div, prompt);
               });
-              const br = document.createElement('br');
-              terminal.insertBefore(br, prompt);
-              scrollToBottom();
+              terminal.insertBefore(document.createElement('br'), prompt);
 
-              // Only now show the prompt and allow typing
+              // Show random MOTD quote
+              const randomMotd = motdQuotes[Math.floor(Math.random() * motdQuotes.length)];
+              const quoteDiv = document.createElement('div');
+              quoteDiv.innerHTML = `"${randomMotd}"<br/><br/>`;
+              terminal.insertBefore(quoteDiv, prompt);
+
               prompt.style.visibility = 'visible';
               enableTyping();
             });
         }
+      }
+
+      function enableTyping() {
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Backspace') {
+            commandBuffer = commandBuffer.slice(0, -1);
+            updatePrompt();
+          } else if (e.key === 'Enter') {
+            const cmdLine = document.createElement('div');
+            cmdLine.innerText = `root@cha:~# ${commandBuffer}`;
+            terminal.insertBefore(cmdLine, prompt);
+            scrollToBottom();
+
+            const cmd = commandBuffer.trim().toLowerCase();
+            prompt.style.visibility = 'hidden';
+
+            if (cmd === "cat manifesto.txt") {
+              const quote = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
+              const quoteEl = document.createElement('div');
+              quoteEl.innerHTML = quote + "<br/><br/>-- The Mentor, 1986<br/><br/>";
+              terminal.insertBefore(quoteEl, prompt);
+            } else {
+              const err = document.createElement('div');
+              err.innerHTML = `bash: command not found: ${escapeHtml(commandBuffer)}<br/><br/>`;
+              terminal.insertBefore(err, prompt);
+            }
+
+            commandBuffer = "";
+            updatePrompt();
+            prompt.style.visibility = 'visible';
+          } else if (e.key.length === 1) {
+            commandBuffer += e.key;
+            updatePrompt();
+          }
+        });
       }
 
       typeBootLines();
