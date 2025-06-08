@@ -24,7 +24,6 @@
   <meta property="twitter:url" content="https://noogahackers.com/">
   <meta property="twitter:title" content="Chattanooga Hackers Anonymous">
   <meta property="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
-  
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
   
   <!-- Structured Data -->
@@ -110,11 +109,87 @@
       height: 12px;
       border-radius: 50%;
       background-color: #444;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
     }
 
-    .close { background-color: #ff5f56; }
-    .minimize { background-color: #ffbd2e; }
-    .maximize { background-color: #27c93f; }
+    .window-controls div:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+
+    .close { 
+      background-color: #ff5f57; 
+    }
+
+    .close:hover {
+      background-color: #ff4444;
+    }
+
+    .close:hover::after {
+      content: "×";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 10px;
+      font-weight: bold;
+      color: #800000;
+      line-height: 1;
+    }
+
+    .minimize { 
+      background-color: #ffbd30; 
+    }
+
+    .minimize:hover {
+      background-color: #ffaa00;
+    }
+
+    .minimize:hover::after {
+      content: "−";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 12px;
+      font-weight: bold;
+      color: #996600;
+      line-height: 1;
+    }
+
+    .maximize { 
+      background-color: #28c940; 
+    }
+
+    .maximize:hover {
+      background-color: #22aa33;
+    }
+
+    .maximize:hover::after {
+      content: "□";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 8px;
+      font-weight: bold;
+      color: #004400;
+      line-height: 1;
+    }
+
+    .window.minimized {
+      transform: scale(0.1);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .window.maximized {
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+    }
 
     .terminal {
       flex-grow: 1;
@@ -318,58 +393,122 @@
         const promptText = document.getElementById('promptText');
 
         const motdQuotes = [
-          "The world is a dangerous place, not because of those who do evil, but because of those who look on and do nothing. — Mr. Robot",
-          "We are all living in each other's paranoia. — Mr. Robot",
-          "Every lock can be picked. Every system can be broken. — Unknown",
+          // Cybersecurity & Hacker Culture
           "Hack the planet! — Hackers (1995)",
           "There is no system that cannot be hacked. — Kevin Mitnick",
-          "Good hackers don't break in, they walk in like they own the place. — Unknown",
-          "The only secure computer is one that's unplugged, locked in a safe, and buried 20 feet underground. — Gene Spafford",
-          "Walking again without pain hopefully does not come from physical capacity. It comes from an indomitable will. — Mobin A",
-          "You can't patch human stupidity. — Bruce Schneier",
-          "Security is not a product, but a process. — Bruce Schneier",
-          "The best way to accelerate a Macintosh is at 9.8 m/s². — Marcus Dolengo",
-          "If you think technology can solve your security problems, then you don't understand the problems and you don't understand the technology. — Bruce Schneier",
-          "Most security problems are caused by insider threats. The biggest insider threat is poor coding. — Unknown",
-          "There are two types of companies: those that have been hacked and those that don't know they've been hacked. — John Chambers",
           "Amateurs hack systems, professionals hack people. — Bruce Schneier",
-          "Privacy is not something that I'm merely entitled to, it's an absolute prerequisite. — Marlon Brando",
-          "The weakest link in the security chain is the human element. — Kevin Mitnick",
-          "Passwords are like underwear: you don't let people see it, you should change it very often, and you shouldn't share it with strangers. — Chris Pirillo",
-          "In God we trust. All others must be authenticated. — Unknown",
-          "Hackers are breaking the systems for profit. Before, it was about intellectual curiosity and pursuit of knowledge and thrill, and now hacking is big business. — Kevin Mitnick",
-          "The internet is not a big truck. It's a series of tubes. — Ted Stevens",
-          "To err is human, but to really foul things up you need a computer. — Paul Ehrlich",
-          "A computer lets you make more mistakes faster than any invention in human history. — Mitch Ratcliffe",
           "Social engineering bypasses all technologies, including firewalls. — Kevin Mitnick",
+          "The only secure computer is one that's unplugged, locked in a safe, and buried 20 feet underground. — Gene Spafford",
+          "Every lock can be picked. Every system can be broken. — Unknown",
+          "You can't patch human stupidity. — Bruce Schneier",
+          "The weakest link in the security chain is the human element. — Kevin Mitnick",
           "Your system is only as secure as your dumbest user. — Unknown",
-          "The price of freedom is eternal vigilance. — Thomas Jefferson",
-          "Data is a precious thing and will last longer than the systems themselves. — Tim Berners-Lee",
-          "The Internet treats censorship as damage and routes around it. — John Gilmore",
-          "Any sufficiently advanced technology is indistinguishable from magic. — Arthur C. Clarke",
-          "Code is poetry. — WordPress",
-          "Talk is cheap. Show me the code. — Linus Torvalds",
-          "First, solve the problem. Then, write the code. — John Johnson",
-          "Measuring programming progress by lines of code is like measuring aircraft building progress by weight. — Bill Gates",
-          "Programs must be written for people to read, and only incidentally for machines to execute. — Harold Abelson",
+          "Good hackers don't break in, they walk in like they own the place. — Unknown",
+          "Most security problems are caused by insider threats. The biggest insider threat is poor coding. — Unknown",
+          "In God we trust. All others must be authenticated. — Unknown",
+          "Passwords are like underwear... — Chris Pirillo",
+          "There are two types of companies: those that have been hacked, and those that don't know it yet. — John Chambers",
           "Information wants to be free. — Stewart Brand",
-          "The quieter you become, the more you are able to hear. — Ram Dass",
-          "The hacker ethic: Access to computers—and anything which might teach you something about the way the world works—should be unlimited and total. — Steven Levy",
-          "With great power comes great responsibility. — Uncle Ben",
-          "Sometimes the best way to learn is to reverse-engineer. — Anonymous",
+          "The Internet treats censorship as damage and routes around it. — John Gilmore",
+          "Privacy is not something that I'm merely entitled to, it's an absolute prerequisite. — Marlon Brando",
           "Cybersecurity is much more than a matter of IT. — Stephane Nappo",
-          "The best minds of my generation are thinking about how to make people click ads. — Jeff Hammerbacher",
-          "A good programmer is someone who always looks both ways before crossing a one-way street. — Doug Linder",
-          "Only trust code you wrote yourself. — Unknown",
+
+          // Programmer / Tech Quotes
+          "Talk is cheap. Show me the code. — Linus Torvalds",
+          "Code is poetry. — WordPress",
+          "Programs must be written for people to read, and only incidentally for machines to execute. — Harold Abelson",
           "Beware of bugs in the above code; I have only proved it correct, not tried it. — Donald Knuth",
-          "Never underestimate the bandwidth of a station wagon full of tapes hurtling down the highway. — Andrew Tanenbaum",
+          "The best way to accelerate a Macintosh is at 9.8 m/s². — Marcus Dolengo",
           "The computer was born to solve problems that did not exist before. — Bill Gates",
+          "Only trust code you wrote yourself. — Unknown",
+          "Never underestimate the bandwidth of a station wagon full of tapes hurtling down the highway. — Andrew Tanenbaum",
+          "To err is human, but to really foul things up you need a computer. — Paul Ehrlich",
+          "A good programmer looks both ways before crossing a one-way street. — Doug Linder",
+          "The greatest enemy of knowledge is not ignorance, it's the illusion of knowledge. — Stephen Hawking",
           "There is no patch for human curiosity. — Anonymous",
-          "The greatest enemy of knowledge is not ignorance, it is the illusion of knowledge. — Stephen Hawking",
-          "If builders built buildings the way programmers wrote programs, then the first woodpecker that came along would destroy civilization. — Gerald Weinberg",
+          "If builders built buildings the way programmers wrote programs... — Gerald Weinberg",
+
+          // Inspirational / Philosophical
+          "Walking again without pain hopefully does not come from physical capacity. It comes from an indomitable will. — Mobin A",
+          "Whether you think you can, or you think you can't—you're right. — Henry Ford",
+          "Success is not final, failure is not fatal: It is the courage to continue that counts. — Winston Churchill",
+          "Do not pray for an easy life, pray for the strength to endure a difficult one. — Bruce Lee",
+          "Discipline equals freedom. — Jocko Willink",
+          "The best time to plant a tree was 20 years ago. The second best time is now. — Chinese Proverb",
+          "You miss 100% of the shots you don't take. — Wayne Gretzky (via Michael Scott)",
+          "Courage is being scared to death... and saddling up anyway. — John Wayne",
+          "The man who moves a mountain begins by carrying away small stones. — Confucius",
+          "If you're going through hell, keep going. — Winston Churchill",
+          "Hard times create strong men. Strong men create good times. — G. Michael Hopf",
+          "Fall seven times, stand up eight. — Japanese Proverb",
+          "Success usually comes to those who are too busy to be looking for it. — Henry David Thoreau",
+          "It always seems impossible until it is done. — Nelson Mandela",
+          "I'm not a product of my circumstances. I am a product of my decisions. — Stephen R. Covey",
+
+          // Cult Hacker/Tech Movies
+          "Would you like to play a game? — WarGames (1983)",
+          "The only winning move is not to play. — WarGames (1983)",
+          "Too many secrets. — Sneakers (1992)",
+          "The world isn't run by weapons anymore... it's run by ones and zeroes. — Sneakers (1992)",
+          "They've got the best encryption money can buy... which is to say, they bought it. — Sneakers (1992)",
+          "It's a UNIX system. I know this! — Jurassic Park (1993)",
+          "I know kung fu. — The Matrix (1999)",
+          "There is no spoon. — The Matrix (1999)",
+          "Ignorance is bliss. — The Matrix (1999)",
+          "I'm in. — Every hacker movie ever",
+          "Enhance. — Every crime show ever",
+
+          // Mr. Robot
+          "The world is a dangerous place, not because of those who do evil, but because of those who look on and do nothing. — Mr. Robot",
+          "We are all living in each other's paranoia. — Mr. Robot",
+
+          // Fear & Loathing
+          "Buy the ticket, take the ride. — Fear and Loathing in Las Vegas",
+          "We can't stop here, this is bat country! — Fear and Loathing in Las Vegas",
+          "Too weird to live, too rare to die. — Fear and Loathing in Las Vegas",
+          "It never got weird enough for me. — Hunter S. Thompson",
+          "When the going gets weird, the weird turn pro. — Hunter S. Thompson",
+          "There is no honest way to explain the edge. — Hunter S. Thompson",
+
+          // Fight Club
+          "The things you own end up owning you. — Fight Club",
+          "It's only after we've lost everything that we're free to do anything. — Fight Club",
+          "This is your life and it's ending one minute at a time. — Fight Club",
+          "You are not your job. You are not how much money you have in the bank. — Fight Club",
+
+          // Trainspotting
+          "Choose life. Choose a job. Choose a career. Choose a family... — Trainspotting",
+          "We were colonized by wankers. — Trainspotting",
+          "It's shite being Scottish! — Trainspotting",
+          "Take the best orgasm you've ever had, multiply it by a thousand and you're still nowhere near it. — Trainspotting",
+
+          // Big Lebowski & Other Cult Comedies
+          "That rug really tied the room together. — The Big Lebowski",
+          "Yeah, well, you know, that's just, like, your opinion, man. — The Big Lebowski",
+          "I'm not even supposed to be here today! — Clerks",
+          "Life moves pretty fast. If you don't stop and look around once in a while, you could miss it. — Ferris Bueller's Day Off",
+          "60% of the time, it works every time. — Anchorman",
+          "I see you've played knifey-spoony before. — The Simpsons",
+
+          // Happy Gilmore
           "The price is wrong, Bob! — Happy Gilmore",
           "You eat pieces of [bleep] for breakfast? — Happy Gilmore",
-          "Just tap it in. Give it a little tappy. Tap tap taparoo. — Happy Gilmore"
+          "Just tap it in. Give it a little tappy. Tap tap taparoo. — Happy Gilmore", 
+          
+          // Rick and Morty 
+            "Wubba lubba dub-dub! — Rick and Morty",
+            "Sometimes science is more art than science. — Rick Sanchez",
+            "Your boos mean nothing, I've seen what makes you cheer. — Rick Sanchez",
+            "I'm sorry, but your opinion means very little to me. — Rick Sanchez",
+            "What, so everyone's supposed to sleep every single night now? You realize that night time makes up half of all time? — Rick Sanchez",
+            "School is not a place for smart people. — Rick Sanchez",
+            "I turned myself into a pickle, Morty! I'm Pickle Riiiick! — Rick and Morty",
+            "Nobody exists on purpose, nobody belongs anywhere, everybody's gonna die. Come watch TV. — Morty",
+            "Sometimes you have to not give a f***. — Rick Sanchez",
+            "I'm not looking for judgement, just a yes or no. Can you assimilate a giraffe? — Rick Sanchez",
+            "I'm not a villain. I'm just a guy doing his job in a world full of villains. — Rick Sanchez",
+            "Listen, Morty, I hate to break it to you, but what people call 'love' is just a chemical reaction that compels animals to breed. — Rick Sanchez",
+            "What about the reality where Hitler cured cancer, Morty? The answer is: don't think about it. — Rick Sanchez"
         ];
 
         const manifestoQuotes = [
@@ -473,7 +612,15 @@
               });
           }
         }
-
+        function formatLsDate(date = new Date()) {
+          const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+          const month = months[date.getMonth()];
+          const day = String(date.getDate()).padStart(2, ' ');
+          const hour = String(date.getHours()).padStart(2, '0');
+          const min = String(date.getMinutes()).padStart(2, '0');
+          return `${month} ${day} ${hour}:${min}`;
+        }
         function enableTyping() {
           document.addEventListener("keydown", function (e) {
             if (e.key === "Backspace") {
@@ -496,10 +643,35 @@
           });
         }
 
-        function handleCommand(cmd) {
+        async function fetchDadJoke() {
+          try {
+            const response = await fetch('https://icanhazdadjoke.com/', {
+              headers: {
+                'Accept': 'application/json'
+              }
+            });
+            const data = await response.json();
+            return data.joke;
+          } catch (error) {
+            return "Error: Failed to fetch dad joke. Maybe try again later? *sigh*";
+          }
+        }
+
+        async function handleCommand(cmd) {
           const div = document.createElement("div");
           if (cmd === "ls") {
-            div.innerHTML = "meetings/   contact/  conduct/  manifesto.txt   blog/   code/<br>";
+            div.innerHTML = "blog/ meetings/   contact/  conduct/  manifesto.txt   sigh.txt  code/<br>";
+          }  else if (cmd === "ls -l") {
+              const now = formatLsDate();
+              div.innerHTML = `<pre>
+drwxr-xr-x  5 root staff   160 ${now} blog/
+drwxr-xr-x  3 root staff    96 ${now} meetings/
+drwxr-xr-x  4 root staff   128 ${now} contact/
+drwxr-xr-x  6 root staff   192 ${now} conduct/
+-rw-r--r--  1 root staff  1354 ${now} manifesto.txt
+-rw-r--r--  1 root staff   921 ${now} sigh.txt
+drwxr-xr-x  8 root staff   256 ${now} code/
+</pre>`;
           } else if (cmd.startsWith("cd ")) {
             const dir = cmd.split(" ")[1];
             const urls = {
@@ -549,6 +721,19 @@
             }
 
             scrollLine();
+            return;
+          } else if (cmd === "cat sigh.txt") {
+            div.innerHTML = "Fetching dad joke...<br>";
+            terminal.insertBefore(div, prompt);
+            scrollToBottom();
+            
+            const joke = await fetchDadJoke();
+            const jokeDiv = document.createElement("div");
+            jokeDiv.innerHTML = `<br>${joke}<br><br>*sigh*<br>`;
+            terminal.insertBefore(jokeDiv, prompt);
+            scrollToBottom();
+            return;
+          
           } else if (cmd === "cat /dev/memory") {
             const encoded = `
               PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FMVFlQRSA9PT0KTGFzdCB
