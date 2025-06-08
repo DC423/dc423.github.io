@@ -3,37 +3,82 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chattanooga Hackers Anonymous | Cybersecurity & InfoSec Collective</title>
-  <meta name="description" content="Chattanooga Hackers Anonymous (CHA) is a local collective of ethical hackers, cybersecurity professionals, and infosec enthusiasts focused on education, community, and exploration.">
-  <meta name="keywords" content="Chattanooga hackers, ethical hacking, cybersecurity, infosec, hacker collective, penetration testing, DEFCON 423, CHA, local hackers, cyber meetup, red team, blue team">
+  <title>Chattanooga Hackers Anonymous (CHA) | Ethical Hacking & Cybersecurity Meetup</title>
+  <meta name="description" content="Join Chattanooga's premier ethical hacking collective. CHA (Chattanooga Hackers Anonymous) hosts cybersecurity meetups, training, and other security events in Tennessee.">
+  <meta name="keywords" content="Chattanooga hackers, Nooga hackers, ethical hacking, cybersecurity meetup, infosec, hacker collective, penetration testing, Information Security, CHA, Tennessee cybersecurity, Nooga infosec community, cyber meetup, red team, blue team">
   <meta name="author" content="Chattanooga Hackers Anonymous">
   <meta name="robots" content="index, follow">
+  <meta name="geo.region" content="US-TN">
+  <meta name="geo.placename" content="Chattanooga">
+  <link rel="canonical" href="https://noogahackers.com/">
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://noogahackers.com/">
   <meta property="og:title" content="Chattanooga Hackers Anonymous (CHA)">
   <meta property="og:description" content="Local hacker collective in Chattanooga focused on infosec, ethical hacking, and tech education.">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Chattanooga Hackers Anonymous">
-  <meta name="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
+  <meta property="og:site_name" content="NoogaHackers">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://noogahackers.com/">
+  <meta property="twitter:title" content="Chattanooga Hackers Anonymous">
+  <meta property="twitter:description" content="Meet Chattanooga's ethical hackers & cybersecurity enthusiasts.">
+  
   <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
-  <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chattanooga Hackers Anonymous | Cybersecurity & InfoSec Collective</title>
+  
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Chattanooga Hackers Anonymous",
+    "alternateName": ["CHA", "NoogaHackers"],
+    "url": "https://noogahackers.com",
+    "sameAs": "https://github.com/dc423",
+    "description": "Chattanooga's ethical hacking and cybersecurity community hosting meetups, training, and Infosec events",
+    "areaServed": {
+      "@type": "City",
+      "name": "Chattanooga",
+      "containedInPlace": {
+        "@type": "State",
+        "name": "Tennessee"
+      }
+    },
+    "foundingDate": "2012",
+    "keywords": "ethical hacking, cybersecurity, infosec, penetration testing, DEFCON"
+  }
+  </script>
+  
   <style>
     body {
       margin: 0;
+      font-family: 'Courier New', Courier, monospace;
+      color: #33ff33;
+      background: #000;
+      overflow-x: hidden;
+    }
+
+    /* SEO-friendly hidden headings */
+    .seo-heading {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    /* Desktop styles */
+    .desktop-view {
       height: 100vh;
       background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
       background-size: 100% 100%;
-      font-family: 'Courier New', Courier, monospace;
-      color: #33ff33;
       display: flex;
       justify-content: center;
       align-items: center;
       overflow: hidden;
     }
+
     .window {
       width: 800px;
       height: 480px;
@@ -43,6 +88,7 @@
       display: flex;
       flex-direction: column;
     }
+
     .title-bar {
       height: 30px;
       background-color: #222;
@@ -53,19 +99,23 @@
       font-size: 0.9rem;
       justify-content: space-between;
     }
+
     .window-controls {
       display: flex;
       gap: 6px;
     }
+
     .window-controls div {
       width: 12px;
       height: 12px;
       border-radius: 50%;
       background-color: #444;
     }
+
     .close { background-color: #ff5f56; }
     .minimize { background-color: #ffbd2e; }
     .maximize { background-color: #27c93f; }
+
     .terminal {
       flex-grow: 1;
       padding: 20px;
@@ -73,12 +123,14 @@
       scroll-behavior: smooth;
       border-top: 1px solid #333;
     }
+
     .terminal-content {
       white-space: pre-wrap;
       word-wrap: break-word;
       display: flex;
       flex-direction: column;
     }
+
     .prompt {
       font-weight: bold;
       display: flex;
@@ -86,6 +138,7 @@
       margin-top: 8px;
       visibility: hidden;
     }
+
     .cursor {
       width: 10px;
       height: 1em;
@@ -93,255 +146,392 @@
       margin-left: 5px;
       animation: blink 1s steps(1) infinite;
     }
+
     @keyframes blink {
       50% { opacity: 0; }
+    }
+
+    /* Mobile styles */
+    .mobile-view {
+      display: none;
+      min-height: 100vh;
+      padding: 20px;
+      background: linear-gradient(135deg, #001100, #003300);
+      text-align: center;
+    }
+
+    .mobile-header {
+      margin-bottom: 40px;
+    }
+
+    .mobile-header h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px #33ff33;
+    }
+
+    .mobile-header h2 {
+      font-size: 1rem;
+      color: #66ff66;
+      margin-bottom: 20px;
+    }
+
+    .keyboard-warning {
+      background: rgba(255, 255, 0, 0.1);
+      border: 1px solid #ffff00;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .keyboard-warning h3 {
+      color: #ffff00;
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+
+    .mobile-links {
+      margin-top: 40px;
+    }
+
+    .mobile-link {
+      display: block;
+      background: rgba(51, 255, 51, 0.1);
+      border: 1px solid #33ff33;
+      color: #33ff33;
+      text-decoration: none;
+      padding: 15px 20px;
+      margin: 15px 0;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+
+    .mobile-link:hover {
+      background: rgba(51, 255, 51, 0.2);
+      box-shadow: 0 0 15px rgba(51, 255, 51, 0.5);
+    }
+
+    .mobile-footer {
+      margin-top: 40px;
+      font-size: 0.8rem;
+      color: #666;
+    }
+
+    .mobile-content {
+      margin: 30px 0;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      color: #99ff99;
+      text-align: left;
+    }
+
+    /* Media queries */
+    @media (max-width: 768px) {
+      .desktop-view {
+        display: none;
+      }
+      .mobile-view {
+        display: block;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .mobile-view {
+        padding: 15px;
+      }
+      .mobile-header h1 {
+        font-size: 1.5rem;
+      }
+      .keyboard-warning {
+        padding: 15px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="window">
-    <div class="title-bar">
-      <div class="window-controls">
-        <div class="close"></div>
-        <div class="minimize"></div>
-        <div class="maximize"></div>
+  <!-- SEO-friendly content -->
+  <h1 class="seo-heading">Chattanooga Hackers Anonymous - Ethical Hacking & Cybersecurity Community</h1>
+  <h2 class="seo-heading">NoogaHackers - Tennessee Infosec Meetup Group</h2>
+  
+  <!-- Desktop View -->
+  <div class="desktop-view">
+    <div class="window">
+      <div class="title-bar">
+        <div class="window-controls">
+          <div class="close"></div>
+          <div class="minimize"></div>
+          <div class="maximize"></div>
+        </div>
+        <div>root@cha:~</div>
       </div>
-      <div>root@cha:~</div>
-    </div>
-    <div class="terminal">
-      <div class="terminal-content" id="terminalContent">
-        <div class="prompt" id="promptLine">
-          <span id="promptText">root@cha:~# </span><span class="cursor"></span>
+      <div class="terminal">
+        <div class="terminal-content" id="terminalContent">
+          <div class="prompt" id="promptLine">
+            <span id="promptText">root@cha:~# </span><span class="cursor"></span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Mobile View -->
+  <div class="mobile-view">
+    <div class="mobile-header">
+      <h1>CHA</h1>
+      <h2>Chattanooga Hackers Anonymous</h2>
+    </div>
+
+    <div class="keyboard-warning">
+      <h3>WARNING: Mobile Interface Detected</h3>
+      <p>Real hackers use keyboards, not touchscreens.</p>
+      <p>For the full l33t experience, please visit us on a proper computer with a mechanical keyboard and at least three monitors.</p>
+      <p>Until then, here are the essential links for aspiring keyboard warriors:</p>
+    </div>
+
+    <div class="mobile-content">
+      <p>Chattanooga Hackers Anonymous (CHA) is a local collective of ethical hackers, cybersecurity professionals, and infosec enthusiasts in Tennessee. We focus on education, community building, and responsible security research.</p>
+      
+      <p>Our group hosts regular meetups, training sessions, and participates in information security events. Whether you're interested in penetration testing, red team operations, blue team defense, or just learning about cybersecurity, you'll find like-minded individuals in our community.</p>
+    </div>
+
+    <div class="mobile-links">
+      <a href="contact.html" class="mobile-link">Contact</a>
+      <a href="meetings.html" class="mobile-link">Meetings</a>
+      <a href="coc.html" class="mobile-link">Code of Conduct</a>
+    </div>
+
+    <div class="mobile-footer">
+      <p>Hack responsibly. Stay curious.</p>
+      <p>Now go find a real computer.</p>
+    </div>
+  </div>
+
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const terminal = document.getElementById('terminalContent');
-      const prompt = document.getElementById('promptLine');
-      const promptText = document.getElementById('promptText');
+    // Only run desktop terminal code if on desktop
+    if (window.innerWidth > 768) {
+      document.addEventListener("DOMContentLoaded", function () {
+        const terminal = document.getElementById('terminalContent');
+        const prompt = document.getElementById('promptLine');
+        const promptText = document.getElementById('promptText');
 
-      const motdQuotes = [
-        "The world is a dangerous place, not because of those who do evil, but because of those who look on and do nothing. — Mr. Robot",
-        "We are all living in each other's paranoia. — Mr. Robot",
-        "Every lock can be picked. Every system can be broken. — Unknown",
-        "Hack the planet! — Hackers (1995)",
-        "There is no system that cannot be hacked. — Kevin Mitnick",
-        "Good hackers don't break in, they walk in like they own the place. — Unknown",
-        "The only secure computer is one that’s unplugged, locked in a safe, and buried 20 feet underground. — Gene Spafford",
-        "Walking again without pain hopefully does not come from physical capacity. It comes from an indomitable will. — Mobin A",
-        "You can’t patch human stupidity. — Bruce Schneier"
-      ];
+        const motdQuotes = [
+          "The world is a dangerous place, not because of those who do evil, but because of those who look on and do nothing. — Mr. Robot",
+          "We are all living in each other's paranoia. — Mr. Robot",
+          "Every lock can be picked. Every system can be broken. — Unknown",
+          "Hack the planet! — Hackers (1995)",
+          "There is no system that cannot be hacked. — Kevin Mitnick",
+          "Good hackers don't break in, they walk in like they own the place. — Unknown",
+          "The only secure computer is one that's unplugged, locked in a safe, and buried 20 feet underground. — Gene Spafford",
+          "Walking again without pain hopefully does not come from physical capacity. It comes from an indomitable will. — Mobin A",
+          "You can't patch human stupidity. — Bruce Schneier"
+        ];
 
-      const manifestoQuotes = [
-        "Another one got caught today, it's all over the papers.",
-        "My crime is that of curiosity.",
-        "I am a hacker, and this is my manifesto.",
-        "You may stop this individual, but you can't stop us all... after all, we're all alike.",
-        "We explore... and you call us criminals.",
-        "We seek after knowledge... and you call us criminals.",
-        "We exist without skin color, without nationality, without religious bias.",
-        "You build atomic bombs, you wage wars, you murder, cheat, and lie to us and try to make us believe it's for our own good.",
-        "This is our world now... the world of the electron and the switch, the beauty of the baud.",
-        "We don't do it for money. We do it because it's who we are."
-      ];
+        const manifestoQuotes = [
+          "Another one got caught today, it's all over the papers.",
+          "My crime is that of curiosity.",
+          "I am a hacker, and this is my manifesto.",
+          "You may stop this individual, but you can't stop us all... after all, we're all alike.",
+          "We explore... and you call us criminals.",
+          "We seek after knowledge... and you call us criminals.",
+          "We exist without skin color, without nationality, without religious bias.",
+          "You build atomic bombs, you wage wars, you murder, cheat, and lie to us and try to make us believe it's for our own good.",
+          "This is our world now... the world of the electron and the switch, the beauty of the baud.",
+          "We don't do it for money. We do it because it's who we are."
+        ];
 
-      const bootLines = [
-        "CHA // Chattanooga Hackers Anonymous",
-        "",
-        "Booting up node...",
-        "Initializing protocol...",
-        "Establishing secure connection...",
-        "Access granted.",
-        ""
-      ];
-
-      let commandBuffer = "";
-      let lineIndex = 0;
-      let charIndex = 0;
-
-      function scrollToBottom() {
-        document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
-      }
-
-      function updatePrompt() {
-        promptText.innerHTML = `root@cha:~# ${commandBuffer}`;
-        scrollToBottom();
-      }
-
-      function wrapText(text, maxWidth) {
-        const words = text.split(/\s+/);
-        const lines = [];
-        let line = "";
-        for (const word of words) {
-          if ((line + " " + word).trim().length <= maxWidth) {
-            line += (line ? " " : "") + word;
-          } else {
-            lines.push(line);
-            line = word;
-          }
-        }
-        if (line) lines.push(line);
-        return lines;
-      }
-
-      function buildMotdLines(ip, quote) {
-        const wrappedQuote = wrapText(quote, 50);
-        const footerLines = [
-          "Welcome to NoogaHackers",
-          `SERVER IP: ${ip}`,
+        const bootLines = [
+          "CHA // Chattanooga Hackers Anonymous",
+          "",
+          "Booting up node...",
+          "Initializing protocol...",
+          "Establishing secure connection...",
+          "Access granted.",
           ""
         ];
-        const allLines = [...footerLines, ...wrappedQuote];
-        const maxLen = Math.max(...allLines.map(l => l.length));
-        const border = "+" + "-".repeat(maxLen + 4) + "+";
-        const padded = allLines.map(l => `|  ${l}${" ".repeat(maxLen - l.length)}  |`);
-        return [border, ...padded, border];
-      }
 
-      function typeBootLines() {
-        if (lineIndex < bootLines.length) {
-          const line = bootLines[lineIndex];
-          if (charIndex < line.length) {
-            const char = document.createTextNode(line.charAt(charIndex));
-            terminal.insertBefore(char, prompt);
-            charIndex++;
-            scrollToBottom();
-            setTimeout(typeBootLines, 35);
-          } else {
-            terminal.insertBefore(document.createElement('br'), prompt);
-            lineIndex++;
-            charIndex = 0;
-            setTimeout(typeBootLines, 300);
+        let commandBuffer = "";
+        let lineIndex = 0;
+        let charIndex = 0;
+
+        function scrollToBottom() {
+          document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
+        }
+
+        function updatePrompt() {
+          promptText.innerHTML = `root@cha:~# ${commandBuffer}`;
+          scrollToBottom();
+        }
+
+        function wrapText(text, maxWidth) {
+          const words = text.split(/\s+/);
+          const lines = [];
+          let line = "";
+          for (const word of words) {
+            if ((line + " " + word).trim().length <= maxWidth) {
+              line += (line ? " " : "") + word;
+            } else {
+              lines.push(line);
+              line = word;
+            }
           }
-        } else {
-          const quote = motdQuotes[Math.floor(Math.random() * motdQuotes.length)];
-          fetch("https://api.ipify.org?format=json")
-            .then(r => r.json())
-            .then(data => buildMotdLines(data.ip, quote))
-            .catch(() => buildMotdLines("UNKNOWN", quote))
-            .then(motd => {
-              motd.forEach(l => {
-                const div = document.createElement("div");
-                div.innerText = l;
-                terminal.insertBefore(div, prompt);
+          if (line) lines.push(line);
+          return lines;
+        }
+
+        function buildMotdLines(ip, quote) {
+          const wrappedQuote = wrapText(quote, 50);
+          const footerLines = [
+            "Welcome to NoogaHackers",
+            `SERVER IP: ${ip}`,
+            ""
+          ];
+          const allLines = [...footerLines, ...wrappedQuote];
+          const maxLen = Math.max(...allLines.map(l => l.length));
+          const border = "+" + "-".repeat(maxLen + 4) + "+";
+          const padded = allLines.map(l => `|  ${l}${" ".repeat(maxLen - l.length)}  |`);
+          return [border, ...padded, border];
+        }
+
+        function typeBootLines() {
+          if (lineIndex < bootLines.length) {
+            const line = bootLines[lineIndex];
+            if (charIndex < line.length) {
+              const char = document.createTextNode(line.charAt(charIndex));
+              terminal.insertBefore(char, prompt);
+              charIndex++;
+              scrollToBottom();
+              setTimeout(typeBootLines, 35);
+            } else {
+              terminal.insertBefore(document.createElement('br'), prompt);
+              lineIndex++;
+              charIndex = 0;
+              setTimeout(typeBootLines, 300);
+            }
+          } else {
+            const quote = motdQuotes[Math.floor(Math.random() * motdQuotes.length)];
+            fetch("https://api.ipify.org?format=json")
+              .then(r => r.json())
+              .then(data => buildMotdLines(data.ip, quote))
+              .catch(() => buildMotdLines("UNKNOWN", quote))
+              .then(motd => {
+                motd.forEach(l => {
+                  const div = document.createElement("div");
+                  div.innerText = l;
+                  terminal.insertBefore(div, prompt);
+                });
+                terminal.insertBefore(document.createElement("br"), prompt);
+                prompt.style.visibility = "visible";
+                enableTyping();
               });
-              terminal.insertBefore(document.createElement("br"), prompt);
-              prompt.style.visibility = "visible";
-              enableTyping();
-            });
+          }
         }
-      }
 
-      function enableTyping() {
-        document.addEventListener("keydown", function (e) {
-          if (e.key === "Backspace") {
-            commandBuffer = commandBuffer.slice(0, -1);
-            updatePrompt();
-          } else if (e.key === "Enter") {
-            const cmdLine = document.createElement("div");
-            cmdLine.innerText = `root@cha:~# ${commandBuffer}`;
-            terminal.insertBefore(cmdLine, prompt);
-            const cmd = commandBuffer.trim().toLowerCase();
-            prompt.style.visibility = "hidden";
-            handleCommand(cmd);
-            commandBuffer = "";
-            updatePrompt();
-            prompt.style.visibility = "visible";
-          } else if (e.key.length === 1) {
-            commandBuffer += e.key;
-            updatePrompt();
-          }
-        });
-      }
-
-      function handleCommand(cmd) {
-        const div = document.createElement("div");
-        if (cmd === "ls") {
-          div.innerHTML = "meetings/   contact/  conduct/  manifesto.txt   blog/   code/<br>";
-        } else if (cmd.startsWith("cd ")) {
-          const dir = cmd.split(" ")[1];
-          const urls = {
-            meetings: "meetings.html",
-            contact: "contact.html",
-            blog: "blog.html",
-            conduct: "coc.html",
-            code: "https://github.com/dc423"
-          };
-          if (urls[dir]) {
-            if (dir === "code") {
-              div.innerHTML = "Opening source tree at github.com/dc423...<br>";
-              terminal.insertBefore(div, prompt);
-              setTimeout(() => window.open(urls[dir], "_blank"), 800);
-            } else {
-              window.location.href = urls[dir];
-            }
-            return;
-          } else {
-            div.innerHTML = `bash: cd: ${dir}: No such file or directory<br>`;
-          }
-        } else if (cmd === "whoami") {
-          div.innerHTML = Math.random() < 0.1
-            ? "idk... who are <i>you</i>?<br>"
-            : "root<br>";
-        } else if (cmd === "cat manifesto.txt") {
-          const randomLine = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
-
-          const quoteLines = [...wrapText(randomLine, 50), "-- The Mentor, 1986"];
-
-          terminal.innerHTML = '';
-          terminal.appendChild(prompt);
-
-          let i = 0;
-          function scrollLine() {
-            if (i < quoteLines.length) {
-              const line = document.createElement("div");
-              line.innerText = quoteLines[i];
-              terminal.insertBefore(line, prompt);
-              i++;
-              setTimeout(() => {
-                scrollToBottom();
-                scrollLine();
-              }, 300);
-            } else {
+        function enableTyping() {
+          document.addEventListener("keydown", function (e) {
+            if (e.key === "Backspace") {
+              commandBuffer = commandBuffer.slice(0, -1);
+              updatePrompt();
+            } else if (e.key === "Enter") {
+              const cmdLine = document.createElement("div");
+              cmdLine.innerText = `root@cha:~# ${commandBuffer}`;
+              terminal.insertBefore(cmdLine, prompt);
+              const cmd = commandBuffer.trim().toLowerCase();
+              prompt.style.visibility = "hidden";
+              handleCommand(cmd);
+              commandBuffer = "";
+              updatePrompt();
               prompt.style.visibility = "visible";
+            } else if (e.key.length === 1) {
+              commandBuffer += e.key;
+              updatePrompt();
             }
-          }
-
-          scrollLine();
-        } else if (cmd === "cat /dev/memory") {
-          const encoded = `
-            PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FMVFl
-            QRSA9PT0KTGFzdCBzZWVuIHVuZGVyIHRoZSBob2
-            9kLCBzb2NrZXQgaW4gaGFuZCwgYmFzaCBpbiBic
-            mFpbi4KSGUgY291bGQgZGVidWcgYSBjcmFua2hh
-            ZnQgYW5kIGEga2VybmVsIHBhbmljIHdpdGggdGh
-            lIHNhbWUgY2FsbS4KVGhlIDEwbW0gc29ja2V0IG
-            lzIHN0aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY
-            2Ugb2Ygb3VyIGNyZXcuCmdvbmUgdG8gdGhlIGdy
-            ZWF0IGdhcmFnZSBpbiB0aGUgc2t5LApidXQgaGl
-            zIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhlIHdhbG
-            xzLgojIGVjaG8gJE1FQ0hBTklDQUxUWVBFID4gL
-            2Rldi9sZWdhY3kKUklQIE1lY2hhbmljYWxUeXBl
-            IDE5ODQgLSAyMDI0
-          `.replace(/\\s+/g, '');
-          const lines = atob(encoded).split('\\n');
-          lines.forEach(line => {
-            const out = document.createElement('div');
-            out.innerText = line;
-            terminal.insertBefore(out, prompt);
           });
-        } else {
-          div.innerHTML = `bash: command not found: ${cmd}<br>`;
         }
-        terminal.insertBefore(div, prompt);
-        scrollToBottom();
-      }
 
-      typeBootLines();
-    });
+        function handleCommand(cmd) {
+          const div = document.createElement("div");
+          if (cmd === "ls") {
+            div.innerHTML = "meetings/   contact/  conduct/  manifesto.txt   blog/   code/<br>";
+          } else if (cmd.startsWith("cd ")) {
+            const dir = cmd.split(" ")[1];
+            const urls = {
+              meetings: "meetings.html",
+              contact: "contact.html",
+              blog: "blog.html",
+              conduct: "coc.html",
+              code: "https://github.com/dc423"
+            };
+            if (urls[dir]) {
+              if (dir === "code") {
+                div.innerHTML = "Opening source tree at github.com/dc423...<br>";
+                terminal.insertBefore(div, prompt);
+                setTimeout(() => window.open(urls[dir], "_blank"), 800);
+              } else {
+                window.location.href = urls[dir];
+              }
+              return;
+            } else {
+              div.innerHTML = `bash: cd: ${dir}: No such file or directory<br>`;
+            }
+          } else if (cmd === "whoami") {
+            div.innerHTML = Math.random() < 0.1
+              ? "idk... who are <i>you</i>?<br>"
+              : "root<br>";
+          } else if (cmd === "cat manifesto.txt") {
+            const randomLine = manifestoQuotes[Math.floor(Math.random() * manifestoQuotes.length)];
+            const quoteLines = [...wrapText(randomLine, 50), "-- The Mentor, 1986"];
+
+            terminal.innerHTML = '';
+            terminal.appendChild(prompt);
+
+            let i = 0;
+            function scrollLine() {
+              if (i < quoteLines.length) {
+                const line = document.createElement("div");
+                line.innerText = quoteLines[i];
+                terminal.insertBefore(line, prompt);
+                i++;
+                setTimeout(() => {
+                  scrollToBottom();
+                  scrollLine();
+                }, 300);
+              } else {
+                prompt.style.visibility = "visible";
+              }
+            }
+
+            scrollLine();
+          } else if (cmd === "cat /dev/memory") {
+            const encoded = `
+              PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FMVFlQRSA9PT0KTGFzdCB
+              zZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4gaGFuZCwgYmFzaC
+              BpbiBicmFpbi4KSGUgY291bGQgZGVidWcgYSBjcmFua2hhZnQgYW5kI
+              GEga2VybmVsIHBhbmljIHdpdGggdGhlIHNhbWUgY2FsbS4KVGhlIDEw
+              bW0gc29ja2V0IGlzIHN0aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY2U
+              gb2Ygb3VyIGNyZXcuCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbi
+              B0aGUgc2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhlI
+              HdhbGxzLgojIGVjaG8gJE1FQ0hBTklDQUxUWVBFID4gL2Rldi9sZWdh
+              Y3kKUklQIE1lY2hhbmljYWxUeXBlIDE5ODQgLSAyMDI0
+            `.replace(/\s+/g, '');
+            const lines = atob(encoded).split('\n');
+            lines.forEach(line => {
+              const out = document.createElement('div');
+              out.innerText = line;
+              terminal.insertBefore(out, prompt);
+            });
+          } else {
+            div.innerHTML = `bash: command not found: ${cmd}<br>`;
+          }
+          terminal.insertBefore(div, prompt);
+          scrollToBottom();
+        }
+
+        typeBootLines();
+      });
+    }
   </script>
 </body>
 </html>
