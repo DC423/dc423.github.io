@@ -661,7 +661,7 @@
           const div = document.createElement("div");
           if (cmd === "ls") {
             div.innerHTML = "blog/ meetings/   contact/  conduct/  manifesto.txt   sigh.txt  code/<br>";
-          }  else if (cmd === "ls -l") {
+          }  else if (cmd === "ls -l" || cmd == "ls -lah") {
               const now = formatLsDate();
               div.innerHTML = `<pre>
 drwxr-xr-x  5 root staff   160 ${now} blog/
