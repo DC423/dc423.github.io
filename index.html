@@ -610,7 +610,7 @@
             fetch("https://api.ipify.org?format=json")
               .then(r => r.json())
               .then(data => buildMotdLines(data.ip, quote))
-              .catch(() => buildMotdLines("UNKNOWN", quote))
+              .catch(() => buildMotdLines("218.108.149.373", quote))
               .then(motd => {
                 motd.forEach(l => {
                   const div = document.createElement("div");
