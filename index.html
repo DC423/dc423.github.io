@@ -671,17 +671,17 @@
         async function handleCommand(cmd) {
           const div = document.createElement("div");
           if (cmd === "ls") {
-            div.innerHTML = "blog/  meetings/  contact/  conduct/  manifesto.txt  sigh.txt  code/<br>";
+            div.innerHTML = "blog/  code/  conduct/  contact/  meetings/  manifesto.txt  sigh.txt<br>";
           }  else if (cmd === "ls -l" || cmd == "ls -lah") {
               const now = formatLsDate();
               div.innerHTML = `<pre>
 drwxr-xr-x  5 root staff   160 ${now} blog/
-drwxr-xr-x  3 root staff    96 ${now} meetings/
-drwxr-xr-x  4 root staff   128 ${now} contact/
+drwxr-xr-x  8 root staff   256 ${now} code/
 drwxr-xr-x  6 root staff   192 ${now} conduct/
+drwxr-xr-x  4 root staff   128 ${now} contact/
+drwxr-xr-x  3 root staff    96 ${now} meetings/
 -rw-r--r--  1 root staff  1354 ${now} manifesto.txt
 -rw-r--r--  1 root staff   921 ${now} sigh.txt
-drwxr-xr-x  8 root staff   256 ${now} code/
 </pre>`;
           } else if (cmd.startsWith("cd ")) {
             const dir = cmd.split(" ")[1];
