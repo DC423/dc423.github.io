@@ -1,0 +1,33 @@
+{
+  "title": "CHA DC423 :: Monthly Ops Debrief – 06.25 (v1)",
+  "date": "2025-06-25",
+  "author": "tothehilt",
+  "content": [
+    "Start: ~1830",
+    "Location: undisclosed",
+    "Attendance: strong turnout, new and seasoned operators",
+    ">> Agenda Flow",
+    "[01] New Hackers Talk",
+    "•\tLightning intros.",
+    "[02] DCG Pulse (tothehilt)",
+    "•\tNode rep confirmed post-vote.",
+    "•\tMore cross-chapter ops alignment emphasized.",
+    "•\tReminder: participation builds capability.",
+    "•\tExplored NoogaHackers.com",
+    "•\tpull requests welcome",
+    "[03] BADBOX Intel (tothehilt)",
+    "•\tFBI/CISA issued PSA June 5 on BADBOX 2.0—mass‑compromise of cheap IoT gear (Android TV sticks, digital frames, infotainment systems, etc.)  ￼ ￼.",
+    "•\tDevices either pre‑backdoored or infected via dodgy app marketplaces.",
+    "•\tThese endpoints are recruited into a massive botnet/residential proxy fleet used for malicious activity.",
+    "•\tIndicators to watch: devices requiring Play Protect disablement, unusual outbound connections, generic “unlocked” content devices  ￼.",
+    "•\tOperators recommended: segment IoT off main nets, sniff traffic, ditch unofficial app sources, patch firmware often .",
+    "[04] Flyers (cson)",
+    "•\tDemo'd two flyers, will upload them to GitHub, anyone else welcome to add flyers for our meetings.",
+    "[05] Camera Hacking (cson)",
+    "•\tRecap on consumer cam vulns—Shodan, default creds, DNS to CN.",
+    "•\tRoot by just tapping.",
+    ">> Demo Recon",
+    "Free Discussion",
+    "EOF"
+  ]
+}

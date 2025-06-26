@@ -1,0 +1,45 @@
+
+CHA DC423 :: Monthly Ops Debrief – 06.25 (v1) 
+
+Start: ~1830
+Location: undisclosed
+Attendance: strong turnout, new and seasoned operators
+
+
+
+>> Agenda Flow
+
+[01] New Hackers Talk
+	•	Lightning intros.
+
+[02] DCG Pulse (tothehilt)
+	•	Node rep confirmed post-vote.
+	•	More cross-chapter ops alignment emphasized.
+	•	Reminder: participation builds capability.
+    •	Explored NoogaHackers.com
+	•	pull requests welcome 
+
+
+[03] BADBOX Intel (tothehilt)
+	•	FBI/CISA issued PSA June 5 on BADBOX 2.0—mass‑compromise of cheap IoT gear (Android TV sticks, digital frames, infotainment systems, etc.)  ￼ ￼.
+	•	Devices either pre‑backdoored or infected via dodgy app marketplaces.
+	•	These endpoints are recruited into a massive botnet/residential proxy fleet used for malicious activity.
+	•	Indicators to watch: devices requiring Play Protect disablement, unusual outbound connections, generic “unlocked” content devices  ￼.
+	•	Operators recommended: segment IoT off main nets, sniff traffic, ditch unofficial app sources, patch firmware often .
+
+[04] Flyers (cson)
+	•	Demo'd two flyers, will upload them to GitHub, anyone else welcome to add flyers for our meetings. 
+
+[05] Camera Hacking (cson)
+	•	Recap on consumer cam vulns—Shodan, default creds, DNS to CN.
+	•	Root by just tapping.
+
+
+>> Demo Recon
+
+
+
+Free Discussion
+
+
+EOF
