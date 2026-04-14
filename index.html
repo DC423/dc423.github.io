@@ -82,8 +82,8 @@
     /* Desktop styles */
     .desktop-view {
       height: 100vh;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
-      background-size: 100% 100%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
+      background-size: cover;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -98,6 +98,9 @@
       border: 1px solid #222;
       display: flex;
       flex-direction: column;
+      position: absolute;
+      cursor: default;
+      user-select: none;
     }
 
     .title-bar {
@@ -109,6 +112,11 @@
       color: #ccc;
       font-size: 0.9rem;
       justify-content: space-between;
+      cursor: grab;
+    }
+
+    .title-bar:active {
+      cursor: grabbing;
     }
 
     .window-controls {
@@ -192,15 +200,76 @@
     }
 
     .window.minimized {
-      transform: scale(0.1);
+      transform: scale(0.05) translateY(100vh);
       opacity: 0;
       pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .window.maximized {
-      width: 100vw;
-      height: 100vh;
+      width: 100vw !important;
+      height: 100vh !important;
+      left: 0 !important;
+      top: 0 !important;
       border-radius: 0;
+      transition: all 0.3s ease;
+    }
+
+    /* Taskbar dock for minimized window */
+    .taskbar-dock {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(34, 34, 34, 0.95);
+      border: 1px solid #00ff00;
+      padding: 8px 20px;
+      border-radius: 6px;
+      color: #33ff33;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: none;
+      z-index: 10000;
+      box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+      animation: taskbar-pulse 2s ease-in-out infinite;
+    }
+
+    .taskbar-dock:hover {
+      background: rgba(0, 255, 0, 0.15);
+      box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
+    }
+
+    @keyframes taskbar-pulse {
+      0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 0, 0.3); }
+      50% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.6); }
+    }
+
+    /* Kernel panic screen */
+    .kernel-panic-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      color: #ff3333;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      padding: 40px;
+      z-index: 99999;
+      overflow: hidden;
+      display: none;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+
+    .kernel-panic-overlay.active {
+      display: block;
+      animation: flicker 0.15s ease-in-out 3;
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
 
     .terminal {
@@ -209,6 +278,87 @@
       overflow-y: auto;
       scroll-behavior: smooth;
       border-top: 1px solid #333;
+      position: relative;
+    }
+
+    /* CRT Scanline overlay */
+    .desktop-view::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 9999;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15) 0px,
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+
+    /* Resize handle */
+    .resize-handle {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 16px;
+      height: 16px;
+      cursor: nwse-resize;
+      z-index: 10;
+    }
+
+    .resize-handle::after {
+      content: "";
+      position: absolute;
+      bottom: 3px;
+      right: 3px;
+      width: 8px;
+      height: 8px;
+      border-right: 2px solid #555;
+      border-bottom: 2px solid #555;
+    }
+
+    /* Lights-on mode */
+    body.lights-on {
+      background: #f0f0f0;
+      color: #111;
+    }
+
+    body.lights-on .window {
+      background-color: rgba(255, 255, 255, 0.97);
+      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+      border: 1px solid #ccc;
+    }
+
+    body.lights-on .terminal {
+      color: #111;
+    }
+
+    body.lights-on .title-bar {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    body.lights-on .prompt,
+    body.lights-on .terminal-content {
+      color: #111;
+    }
+
+    body.lights-on .cursor {
+      background-color: #111;
+    }
+
+    body.lights-on .desktop-view {
+      background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(240,240,240,0.7)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
+      background-size: cover;
+    }
+
+    body.lights-on .desktop-view::after {
+      display: none;
     }
 
     .terminal-content {
@@ -343,6 +493,12 @@
   <h1 class="seo-heading">Chattanooga Hackers Anonymous - Ethical Hacking & Cybersecurity Community</h1>
   <h2 class="seo-heading">NoogaHackers - Tennessee Infosec Meetup Group</h2>
   
+  <!-- Kernel Panic Overlay -->
+  <div class="kernel-panic-overlay" id="kernelPanic"></div>
+
+  <!-- Taskbar Dock (shown when minimized) -->
+  <div class="taskbar-dock" id="taskbarDock">[ root@cha:~ ] — click to restore</div>
+
   <!-- Desktop View -->
   <div class="desktop-view">
     <div class="window">
@@ -361,6 +517,7 @@
           </div>
         </div>
       </div>
+      <div class="resize-handle" id="resizeHandle"></div>
     </div>
   </div>
 
@@ -548,6 +705,7 @@
         ];
 
         let commandBuffer = "";
+        let currentDir = "~";
         let lineIndex = 0;
         let charIndex = 0;
 
@@ -555,8 +713,13 @@
           document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
         }
 
+        function getPromptPrefix() {
+          if (currentDir === ".shadow") return "root@cha:~/.shadow# ";
+          return "root@cha:~# ";
+        }
+
         function updatePrompt() {
-          promptText.innerHTML = `root@cha:~# ${commandBuffer}`;
+          promptText.innerHTML = `${getPromptPrefix()}${commandBuffer}`;
           scrollToBottom();
         }
 
@@ -576,11 +739,47 @@
           return lines;
         }
 
+        function getNextMeetingCountdown() {
+          const now = new Date();
+          // Meetings are last Wednesday of each month at 18:30 ET
+          let year = now.getFullYear();
+          let month = now.getMonth();
+          
+          function lastWednesday(y, m) {
+            const last = new Date(y, m + 1, 0); // last day of month
+            const dayOfWeek = last.getDay();
+            const diff = (dayOfWeek + 4) % 7; // days back to Wednesday
+            const wed = new Date(y, m + 1, -diff);
+            wed.setHours(18, 30, 0, 0);
+            return wed;
+          }
+          
+          let next = lastWednesday(year, month);
+          if (now > next) {
+            month++;
+            if (month > 11) { month = 0; year++; }
+            next = lastWednesday(year, month);
+          }
+          
+          const diffMs = next - now;
+          const days = Math.floor(diffMs / 86400000);
+          const hours = Math.floor((diffMs % 86400000) / 3600000);
+          
+          const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+          const dateStr = `${months[next.getMonth()]} ${next.getDate()}`;
+          
+          if (days === 0) return `NEXT MEETING: TODAY @ 18:30`;
+          if (days === 1) return `NEXT MEETING: TOMORROW @ 18:30`;
+          return `NEXT MEETING: ${dateStr} (${days}d ${hours}h)`;
+        }
+
         function buildMotdLines(ip, quote) {
           const wrappedQuote = wrapText(quote, 50);
+          const countdown = getNextMeetingCountdown();
           const footerLines = [
             "Welcome to NoogaHackers",
             `SERVER IP: ${ip}`,
+            countdown,
             ""
           ];
           const allLines = [...footerLines, ...wrappedQuote];
@@ -639,7 +838,7 @@
               updatePrompt();
             } else if (e.key === "Enter") {
               const cmdLine = document.createElement("div");
-              cmdLine.innerText = `root@cha:~# ${commandBuffer}`;
+              cmdLine.innerText = `${getPromptPrefix()}${commandBuffer}`;
               terminal.insertBefore(cmdLine, prompt);
               const cmd = commandBuffer.trim().toLowerCase();
               prompt.style.visibility = "hidden";
@@ -670,6 +869,90 @@
 
         async function handleCommand(cmd) {
           const div = document.createElement("div");
+          // === .shadow directory commands ===
+          if (currentDir === ".shadow") {
+            if (cmd === "ls") {
+              div.innerHTML = "<br>";
+              terminal.insertBefore(div, prompt);
+              scrollToBottom();
+              return;
+            } else if (cmd === "ls -a" || cmd === "ls -la" || cmd === "ls -lah" || cmd === "ls -al" || cmd === "ls -l") {
+              const now = formatLsDate();
+              div.innerHTML = `<pre>
+drwx------  2 root root      64 Jan  1 00:00 .
+drwxr-xr-x 10 root staff    320 ${now} ..
+-rwx------  1 root root   66600 Jun  6 06:06 .payload
+</pre>`;
+              terminal.insertBefore(div, prompt);
+              scrollToBottom();
+              return;
+            } else if (cmd === "cd ..") {
+              currentDir = "~";
+              updatePrompt();
+              return;
+            } else if (cmd === "cat .payload") {
+              div.innerHTML = "ELF\x7f\x01\x01\x01... &lt;binary data&gt; ...permission denied: try executing<br>";
+              terminal.insertBefore(div, prompt);
+              scrollToBottom();
+              return;
+            } else if (cmd === "./.payload" || cmd === "bash .payload" || cmd === "sh .payload" || cmd === "chmod +x .payload && ./.payload" || cmd === "exec .payload" || cmd === ".payload") {
+              // FAKE VIRUS ANIMATION
+              div.innerHTML = "Executing .payload...<br>";
+              terminal.insertBefore(div, prompt);
+              prompt.style.visibility = "hidden";
+              scrollToBottom();
+
+              const virusLines = [
+                { text: "[*] Initializing payload...", delay: 500, color: "#33ff33" },
+                { text: "[*] Connecting to C2 server... 185.234.xx.xx:4444", delay: 800, color: "#33ff33" },
+                { text: "[+] Connection established.", delay: 600, color: "#ffff00" },
+                { text: "[*] Escalating privileges...", delay: 700, color: "#33ff33" },
+                { text: "[+] ROOT ACCESS GRANTED", delay: 400, color: "#ff3333" },
+                { text: "[*] Enumerating filesystem...", delay: 500, color: "#33ff33" },
+                { text: "[*] Exfiltrating /etc/shadow...", delay: 800, color: "#33ff33" },
+                { text: "[+] 2,847 credentials harvested", delay: 600, color: "#ff3333" },
+                { text: "[*] Installing persistence...", delay: 700, color: "#33ff33" },
+                { text: "[*] Deploying cryptominer on all CPU cores...", delay: 800, color: "#33ff33" },
+                { text: "[+] Mining XMR @ 4.2 GH/s", delay: 500, color: "#ffff00" },
+                { text: "[*] Encrypting all files...", delay: 1000, color: "#ff3333" },
+                { text: "[*] ████████████████████████ 100%", delay: 800, color: "#ff3333" },
+                { text: "", delay: 300, color: "#33ff33" },
+                { text: "╔══════════════════════════════════════════╗", delay: 100, color: "#ff3333" },
+                { text: "║  YOUR FILES HAVE BEEN ENCRYPTED          ║", delay: 100, color: "#ff3333" },
+                { text: "║  Send 5 BTC to:                          ║", delay: 100, color: "#ff3333" },
+                { text: "║  4UFrKt8v3rhLiXjUVabRf6ey38VD5WerDhF1MS19 ║", delay: 100, color: "#ff3333" },
+                { text: "║  You have 72 hours.                      ║", delay: 100, color: "#ff3333" },
+                { text: "╚══════════════════════════════════════════╝", delay: 1500, color: "#ff3333" },
+                { text: "", delay: 500, color: "#33ff33" },
+                { text: "...", delay: 1000, color: "#33ff33" },
+                { text: "...just kidding. You're fine.", delay: 800, color: "#33ff33" },
+                { text: "But maybe don't run random binaries you find in hidden directories.", delay: 500, color: "#ffff00" },
+                { text: "This has been a public service announcement from NoogaHackers.", delay: 500, color: "#33ff33" },
+                { text: "Hack responsibly.", delay: 300, color: "#33ff33" },
+              ];
+
+              let vi = 0;
+              function typeVirusLine() {
+                if (vi < virusLines.length) {
+                  const vline = document.createElement("div");
+                  vline.style.color = virusLines[vi].color;
+                  vline.textContent = virusLines[vi].text;
+                  terminal.insertBefore(vline, prompt);
+                  scrollToBottom();
+                  vi++;
+                  setTimeout(typeVirusLine, virusLines[vi - 1].delay);
+                } else {
+                  prompt.style.visibility = "visible";
+                  scrollToBottom();
+                }
+              }
+              typeVirusLine();
+              return;
+            }
+            // If not a .shadow-specific command, fall through to normal commands
+          }
+
+          // === Normal directory commands ===
           if (cmd === "ls") {
             div.innerHTML = "blog/  code/  conduct/  contact/  meetings/  manifesto.txt <br>";
           }  else if (cmd === "ls -l" || cmd == "ls -la" || cmd == "ls -lah") {
@@ -680,9 +963,14 @@ drwxr-xr-x  8 root staff   256 ${now} code/
 drwxr-xr-x  6 root staff   192 ${now} conduct/
 drwxr-xr-x  4 root staff   128 ${now} contact/
 drwxr-xr-x  3 root staff    96 ${now} meetings/
+drwx------  2 root root      64 Jan  1 00:00 .shadow/
 -rw-r--r--  1 root staff  1354 ${now} manifesto.txt
 -rw-r--r--  1 root staff   921 ${now} .sigh.txt
 </pre>`;
+          } else if (cmd === "cd .shadow" || cmd === "cd .shadow/") {
+            currentDir = ".shadow";
+            updatePrompt();
+            div.innerHTML = "";
           } else if (cmd.startsWith("cd ")) {
             const dir = cmd.split(" ")[1];
             const urls = {
@@ -763,6 +1051,41 @@ drwxr-xr-x  3 root staff    96 ${now} meetings/
               out.innerText = line;
               terminal.insertBefore(out, prompt);
             });
+          } else if (cmd === "help" || cmd === "?") {
+            div.innerHTML = `<pre>
+Available commands:
+  ls              List files and directories
+  ls -l           Detailed file listing
+  cd &lt;dir&gt;        Navigate to a page (blog, code, conduct, contact, meetings)
+  cat &lt;file&gt;      Read a file (manifesto.txt, .sigh.txt, /dev/memory)
+  whoami          Display current user
+  help            Show this help message
+  clear           Clear the terminal
+  uptime          Show system uptime
+  date            Show current date/time
+  sudo lights on  Toggle light mode (surprise!)
+  sudo lights off Return to dark mode
+</pre>`;
+          } else if (cmd === "clear") {
+            terminal.innerHTML = '';
+            terminal.appendChild(prompt);
+            return;
+          } else if (cmd === "uptime") {
+            const now = new Date();
+            const boot = new Date('2012-01-01T00:00:00');
+            const diff = Math.floor((now - boot) / 1000);
+            const days = Math.floor(diff / 86400);
+            const hours = Math.floor((diff % 86400) / 3600);
+            const mins = Math.floor((diff % 3600) / 60);
+            div.innerHTML = ` ${new Date().toLocaleTimeString()} up ${days} days, ${hours}:${String(mins).padStart(2,'0')}, 1 user, load average: 0.42, 0.23, 0.15<br>`;
+          } else if (cmd === "date") {
+            div.innerHTML = `${new Date().toString()}<br>`;
+          } else if (cmd === "sudo lights on") {
+            document.body.classList.add('lights-on');
+            div.innerHTML = "Let there be light! (type 'sudo lights off' to return to the dark side)<br>";
+          } else if (cmd === "sudo lights off") {
+            document.body.classList.remove('lights-on');
+            div.innerHTML = "Welcome back to the dark side.<br>";
           } else {
             div.innerHTML = `bash: command not found: ${cmd}<br>`;
           }
@@ -771,6 +1094,182 @@ drwxr-xr-x  3 root staff    96 ${now} meetings/
         }
 
         typeBootLines();
+
+        // Draggable window functionality
+        const win = document.querySelector('.window');
+        const titleBar = document.querySelector('.title-bar');
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+
+        // Center the window initially
+        function centerWindow() {
+          const vw = window.innerWidth;
+          const vh = window.innerHeight;
+          win.style.left = (vw - win.offsetWidth) / 2 + 'px';
+          win.style.top = (vh - win.offsetHeight) / 2 + 'px';
+        }
+        centerWindow();
+
+        titleBar.addEventListener('mousedown', function (e) {
+          // Don't drag when clicking window control buttons
+          if (e.target.closest('.window-controls')) return;
+          isDragging = true;
+          dragOffsetX = e.clientX - win.offsetLeft;
+          dragOffsetY = e.clientY - win.offsetTop;
+          win.style.transition = 'none';
+        });
+
+        document.addEventListener('mousemove', function (e) {
+          if (!isDragging) return;
+          e.preventDefault();
+          let newX = e.clientX - dragOffsetX;
+          let newY = e.clientY - dragOffsetY;
+          // Keep window within viewport bounds
+          newX = Math.max(0, Math.min(newX, window.innerWidth - win.offsetWidth));
+          newY = Math.max(0, Math.min(newY, window.innerHeight - win.offsetHeight));
+          win.style.left = newX + 'px';
+          win.style.top = newY + 'px';
+        });
+
+        document.addEventListener('mouseup', function () {
+          isDragging = false;
+          win.style.transition = '';
+        });
+
+        // Re-center on resize
+        window.addEventListener('resize', centerWindow);
+
+        // Resizable window functionality
+        const resizeHandle = document.getElementById('resizeHandle');
+        let isResizing = false;
+        let resizeStartX, resizeStartY, startWidth, startHeight;
+
+        resizeHandle.addEventListener('mousedown', function (e) {
+          isResizing = true;
+          resizeStartX = e.clientX;
+          resizeStartY = e.clientY;
+          startWidth = win.offsetWidth;
+          startHeight = win.offsetHeight;
+          e.stopPropagation();
+          e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', function (e) {
+          if (!isResizing) return;
+          e.preventDefault();
+          const newWidth = Math.max(400, startWidth + (e.clientX - resizeStartX));
+          const newHeight = Math.max(250, startHeight + (e.clientY - resizeStartY));
+          win.style.width = newWidth + 'px';
+          win.style.height = newHeight + 'px';
+        });
+
+        document.addEventListener('mouseup', function () {
+          isResizing = false;
+        });
+
+        // === WINDOW CONTROL BUTTONS ===
+
+        const closeBtn = document.querySelector('.close');
+        const minimizeBtn = document.querySelector('.minimize');
+        const maximizeBtn = document.querySelector('.maximize');
+        const taskbarDock = document.getElementById('taskbarDock');
+        const kernelPanic = document.getElementById('kernelPanic');
+        let isMaximized = false;
+        let savedPos = {};
+
+        // CLOSE — Kernel Panic then reboot
+        closeBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const panicLines = [
+            "KERNEL PANIC - NOT SYNCING: Attempted to kill init!",
+            "",
+            "CPU: 0 PID: 1 Comm: init Not tainted 6.6.6-cha #423",
+            "Hardware name: NoogaHackers Terminal v4.2.3",
+            "Call Trace:",
+            " <TASK>",
+            "  dump_stack_lvl+0x48/0x70",
+            "  dump_stack+0x10/0x18",
+            "  panic+0x114/0x310",
+            "  do_exit+0xb08/0xb60",
+            "  do_group_exit+0x33/0xa0",
+            "  __x64_sys_exit_group+0x14/0x20",
+            "  do_syscall_64+0x55/0x80",
+            "  entry_SYSCALL_64_after_hwframe+0x44/0xae",
+            " </TASK>",
+            "",
+            "Kernel Offset: 0x1c000000 from 0xffffffff81000000",
+            "---[ end Kernel panic - not syncing: Attempted to kill init! ]---",
+            "",
+            "",
+            "Rebooting in 5 seconds...",
+            "Rebooting in 4 seconds...",
+            "Rebooting in 3 seconds...",
+            "Rebooting in 2 seconds...",
+            "Rebooting in 1 second...",
+          ];
+
+          kernelPanic.textContent = '';
+          kernelPanic.classList.add('active');
+          win.style.display = 'none';
+
+          let i = 0;
+          function typePanicLine() {
+            if (i < panicLines.length) {
+              kernelPanic.textContent += panicLines[i] + '\n';
+              i++;
+              const delay = i > panicLines.length - 5 ? 1000 : (50 + Math.random() * 100);
+              setTimeout(typePanicLine, delay);
+            } else {
+              // Reboot
+              setTimeout(() => {
+                kernelPanic.classList.remove('active');
+                kernelPanic.textContent = '';
+                win.style.display = 'flex';
+                centerWindow();
+              }, 1000);
+            }
+          }
+          typePanicLine();
+        });
+
+        // MINIMIZE — Shrink to taskbar dock
+        minimizeBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          win.classList.add('minimized');
+          taskbarDock.style.display = 'block';
+        });
+
+        // Restore from taskbar
+        taskbarDock.addEventListener('click', function () {
+          win.classList.remove('minimized');
+          taskbarDock.style.display = 'none';
+          // Reset transition after animation
+          setTimeout(() => { win.style.transition = ''; }, 500);
+        });
+
+        // MAXIMIZE — Toggle fullscreen
+        maximizeBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (!isMaximized) {
+            savedPos = {
+              left: win.style.left,
+              top: win.style.top,
+              width: win.style.width,
+              height: win.style.height
+            };
+            win.classList.add('maximized');
+            isMaximized = true;
+          } else {
+            win.classList.remove('maximized');
+            win.style.left = savedPos.left;
+            win.style.top = savedPos.top;
+            win.style.width = savedPos.width || '800px';
+            win.style.height = savedPos.height || '480px';
+            isMaximized = false;
+          }
+        });
+
       });
     }
   </script>
