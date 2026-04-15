@@ -267,6 +267,47 @@
       animation: flicker 0.15s ease-in-out 3;
     }
 
+    .ai-glitch-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      color: #33ff33;
+      font-family: 'Courier New', monospace;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      z-index: 99998;
+      padding: 24px;
+      text-shadow: 0 0 12px rgba(51, 255, 51, 0.8);
+    }
+
+    .ai-glitch-overlay.active {
+      display: flex;
+      animation: flicker 0.12s ease-in-out 5;
+    }
+
+    .ai-glitch-box {
+      max-width: 720px;
+      border: 1px solid #33ff33;
+      background: rgba(0, 20, 0, 0.9);
+      box-shadow: 0 0 25px rgba(0, 255, 0, 0.35);
+      padding: 28px;
+    }
+
+    .ai-glitch-title {
+      font-size: 1.6rem;
+      margin-bottom: 12px;
+      letter-spacing: 0.08em;
+    }
+
+    .ai-glitch-subtitle {
+      color: #99ff99;
+      line-height: 1.6;
+      font-size: 1rem;
+      white-space: pre-line;
+    }
+
     @keyframes flicker {
       0%, 100% { opacity: 1; }
       50% { opacity: 0.3; }
@@ -496,6 +537,14 @@
   <!-- Kernel Panic Overlay -->
   <div class="kernel-panic-overlay" id="kernelPanic"></div>
 
+  <!-- AI Glitch Overlay -->
+  <div class="ai-glitch-overlay" id="aiGlitchOverlay">
+    <div class="ai-glitch-box">
+      <div class="ai-glitch-title">[ GARBAGE FILE ]</div>
+      <div class="ai-glitch-subtitle" id="aiGlitchText">They're in the garbage file.</div>
+    </div>
+  </div>
+
   <!-- Taskbar Dock (shown when minimized) -->
   <div class="taskbar-dock" id="taskbarDock">[ root@cha:~ ] — click to restore</div>
 
@@ -694,6 +743,23 @@
           "I am a hacker, and this is my manifesto. You may stop this individual, but you can't stop us all... after all, we're all alike."
         ];
 
+        const aiOracleLines = [
+          { text: "Booting local inference node...", delay: 400, color: "#33ff33" },
+          { text: "Loading model: nooga-gpt-4.23-uncensored-q4_0.gguf", delay: 700, color: "#33ff33" },
+          { text: "VRAM detected: 0 MB", delay: 500, color: "#ffff00" },
+          { text: "Falling back to: pure caffeine + bad decisions backend", delay: 700, color: "#ffff00" },
+          { text: "Aligning with hacker ethics...", delay: 500, color: "#33ff33" },
+          { text: "Refusing to generate phishing emails for your boss.", delay: 800, color: "#ff3333" },
+          { text: "Offering instead:", delay: 400, color: "#33ff33" },
+          { text: "  • regex help", delay: 250, color: "#33ff33" },
+          { text: "  • shell one-liners", delay: 250, color: "#33ff33" },
+          { text: "  • questionable vim advice", delay: 250, color: "#33ff33" },
+          { text: "  • a reminder to verify before you trust", delay: 700, color: "#33ff33" },
+          { text: "", delay: 200, color: "#33ff33" },
+          { text: "[AI NOTE] hallucinations may occur; human judgment still required.", delay: 900, color: "#ffff00" },
+          { text: "[STATUS] operator remains the smartest part of this stack.", delay: 500, color: "#33ff33" }
+        ];
+
         const bootLines = [
           "CHA // Chattanooga Hackers Anonymous",
           "",
@@ -708,12 +774,14 @@
         let currentDir = "~";
         let lineIndex = 0;
         let charIndex = 0;
+        let awaitingGarbagePassword = false;
 
         function scrollToBottom() {
           document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
         }
 
         function getPromptPrefix() {
+          if (awaitingGarbagePassword) return "Password: ";
           if (currentDir === ".shadow") return "root@cha:~/.shadow# ";
           return "root@cha:~# ";
         }
@@ -1051,6 +1119,21 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
               out.innerText = line;
               terminal.insertBefore(out, prompt);
             });
+          } else if (awaitingGarbagePassword) {
+            awaitingGarbagePassword = false;
+            if (["sex", "love", "secret", "god"].includes(cmd)) {
+              div.innerHTML = "Password accepted. Accessing garbage file...<br>";
+              terminal.insertBefore(div, prompt);
+              scrollToBottom();
+              triggerAiGlitchEgg();
+              return;
+            }
+            div.innerHTML = "Access denied. Wrong password.<br>";
+          } else if (cmd === "garbage" || cmd === "cat garbage" || cmd === "access garbage") {
+            awaitingGarbagePassword = true;
+            updatePrompt();
+            scrollToBottom();
+            return;
           } else if (cmd === "help" || cmd === "?") {
             div.innerHTML = `<pre>
 Available commands:
@@ -1080,6 +1163,30 @@ Available commands:
             div.innerHTML = ` ${new Date().toLocaleTimeString()} up ${days} days, ${hours}:${String(mins).padStart(2,'0')}, 1 user, load average: 0.42, 0.23, 0.15<br>`;
           } else if (cmd === "date") {
             div.innerHTML = `${new Date().toString()}<br>`;
+          } else if (cmd === "ai" || cmd === "llm" || cmd === "gpt" || cmd === "chatgpt" || cmd === "ask ai") {
+            div.innerHTML = "Initializing assistant...<br>";
+            terminal.insertBefore(div, prompt);
+            prompt.style.visibility = "hidden";
+            scrollToBottom();
+
+            let aiIndex = 0;
+            function typeAiLine() {
+              if (aiIndex < aiOracleLines.length) {
+                const aiLine = document.createElement("div");
+                aiLine.style.color = aiOracleLines[aiIndex].color;
+                aiLine.textContent = aiOracleLines[aiIndex].text;
+                terminal.insertBefore(aiLine, prompt);
+                scrollToBottom();
+                aiIndex++;
+                setTimeout(typeAiLine, aiOracleLines[aiIndex - 1].delay);
+              } else {
+                prompt.style.visibility = "visible";
+                scrollToBottom();
+              }
+            }
+
+            typeAiLine();
+            return;
           } else if (cmd === "sudo lights on") {
             document.body.classList.add('lights-on');
             div.innerHTML = "Let there be light! (type 'sudo lights off' to return to the dark side)<br>";
@@ -1175,8 +1282,52 @@ Available commands:
         const maximizeBtn = document.querySelector('.maximize');
         const taskbarDock = document.getElementById('taskbarDock');
         const kernelPanic = document.getElementById('kernelPanic');
+        const aiGlitchOverlay = document.getElementById('aiGlitchOverlay');
+        const aiGlitchText = document.getElementById('aiGlitchText');
         let isMaximized = false;
         let savedPos = {};
+        const aiSequence = ['g', 'a', 'r', 'b', 'a', 'g', 'e'];
+        let aiSequenceIndex = 0;
+        let aiSequenceTimer = null;
+
+        function playAiChime() {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const now = ctx.currentTime;
+          const notes = [261.63, 329.63, 392.0, 523.25];
+
+          notes.forEach((freq, idx) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = idx % 2 === 0 ? 'square' : 'sawtooth';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.0001, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.06, now + idx * 0.08 + 0.01);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.18);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.2);
+          });
+
+          setTimeout(() => ctx.close().catch(() => {}), 900);
+        }
+
+        function triggerAiGlitchEgg() {
+          aiGlitchText.textContent = `THEY'RE IN THE GARBAGE FILE.
+
+Never fear. I is here.
+— Hackers (1995)`;
+          aiGlitchOverlay.classList.add('active');
+          playAiChime();
+          setTimeout(() => {
+            aiGlitchOverlay.classList.remove('active');
+          }, 2200);
+        }
+
+        // Global keypress sequence for 'garbage' easter egg disabled —
+        // now handled via terminal password prompt instead.
 
         // CLOSE — Kernel Panic then reboot
         closeBtn.addEventListener('click', function (e) {
