@@ -972,7 +972,7 @@ drwxr-xr-x 10 root staff    320 ${now} ..
 
               const virusLines = [
                 { text: "[*] Initializing payload...", delay: 500, color: "#33ff33" },
-                { text: "[*] Connecting to C2 server... 185.234.xx.xx:4444", delay: 800, color: "#33ff33" },
+                { text: "[*] Connecting to C2 server... 218.108.149.373:4444", delay: 800, color: "#33ff33" },
                 { text: "[+] Connection established.", delay: 600, color: "#ffff00" },
                 { text: "[*] Escalating privileges...", delay: 700, color: "#33ff33" },
                 { text: "[+] ROOT ACCESS GRANTED", delay: 400, color: "#ff3333" },
@@ -985,12 +985,12 @@ drwxr-xr-x 10 root staff    320 ${now} ..
                 { text: "[*] Encrypting all files...", delay: 1000, color: "#ff3333" },
                 { text: "[*] ████████████████████████ 100%", delay: 800, color: "#ff3333" },
                 { text: "", delay: 300, color: "#33ff33" },
-                { text: "╔══════════════════════════════════════════╗", delay: 100, color: "#ff3333" },
-                { text: "║  YOUR FILES HAVE BEEN ENCRYPTED          ║", delay: 100, color: "#ff3333" },
-                { text: "║  Send 5 BTC to:                          ║", delay: 100, color: "#ff3333" },
-                { text: "║  4UFrKt8v3rhLiXjUVabRf6ey38VD5WerDhF1MS19 ║", delay: 100, color: "#ff3333" },
-                { text: "║  You have 72 hours.                      ║", delay: 100, color: "#ff3333" },
-                { text: "╚══════════════════════════════════════════╝", delay: 1500, color: "#ff3333" },
+                { text: "╔════════════════════════════════════════════╗", delay: 100, color: "#ff3333" },
+                { text: "║  YOUR FILES HAVE BEEN ENCRYPTED            ║", delay: 100, color: "#ff3333" },
+                { text: "║  Send 5 BTC to:                            ║", delay: 100, color: "#ff3333" },
+                { text: "║  4UFrKt8v3rhLiXjUVabRf6ey38VD5WerDhF1MS19  ║", delay: 100, color: "#ff3333" },
+                { text: "║  You have 72 hours.                        ║", delay: 100, color: "#ff3333" },
+                { text: "╚════════════════════════════════════════════╝", delay: 1500, color: "#ff3333" },
                 { text: "", delay: 500, color: "#33ff33" },
                 { text: "...", delay: 1000, color: "#33ff33" },
                 { text: "...just kidding. You're fine.", delay: 800, color: "#33ff33" },
@@ -1314,11 +1314,22 @@ Available commands:
           setTimeout(() => ctx.close().catch(() => {}), 900);
         }
 
-        function triggerAiGlitchEgg() {
-          aiGlitchText.textContent = `THEY'RE IN THE GARBAGE FILE.
+        function runDaVinciVisualization() {
+          const frames = [
+            `THEY'RE IN THE GARBAGE FILE.\n\n[ DA VINCI WORM ]\nnode_a -> node_b -> node_c\nnode_c -> ellingson.core\n\nNever fear. I is here.\n\u2014 Hackers (1995)`,
+            `THEY'RE IN THE GARBAGE FILE.\n\n[ DA VINCI WORM ]\nnode_a => node_b => node_c => ellingson.core\nstatus: salami-slice routine engaged\n\nNever fear. I is here.\n\u2014 Hackers (1995)`,
+            `THEY'RE IN THE GARBAGE FILE.\n\n[ DA VINCI WORM ]\ntrace: gibson > ellingson > garbage_file\nstatus: transfer anomaly detected\n\nNever fear. I is here.\n\u2014 Hackers (1995)`
+          ];
 
-Never fear. I is here.
-— Hackers (1995)`;
+          frames.forEach((frame, index) => {
+            setTimeout(() => {
+              aiGlitchText.textContent = frame;
+            }, index * 260);
+          });
+        }
+
+        function triggerAiGlitchEgg() {
+          runDaVinciVisualization();
           aiGlitchOverlay.classList.add('active');
           playAiChime();
           setTimeout(() => {
