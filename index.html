@@ -1193,6 +1193,54 @@ Available commands:
           } else if (cmd === "sudo lights off") {
             document.body.classList.remove('lights-on');
             div.innerHTML = "Welcome back to the dark side.<br>";
+          } else if (cmd === "exit" || cmd === "shutdown" || cmd === "shutdown -h now" || cmd === "poweroff" || cmd === "halt") {
+            div.innerHTML = "";
+            terminal.insertBefore(div, prompt);
+            prompt.style.visibility = "hidden";
+
+            const shutdownLines = [
+              { text: "Broadcast message from root@cha", delay: 400, color: "#ffff00" },
+              { text: "  The system is going down for halt NOW!", delay: 600, color: "#ffff00" },
+              { text: "", delay: 300, color: "#33ff33" },
+              { text: "[  OK  ] Stopped target Graphical Interface.", delay: 400, color: "#33ff33" },
+              { text: "[  OK  ] Stopped target Multi-User System.", delay: 350, color: "#33ff33" },
+              { text: "[  OK  ] Stopping Session 1 of user root...", delay: 300, color: "#33ff33" },
+              { text: "[  OK  ] Stopped Session 1 of user root.", delay: 400, color: "#33ff33" },
+              { text: "[  OK  ] Stopping NoogaHackers Terminal Service...", delay: 500, color: "#33ff33" },
+              { text: "[  OK  ] Stopped NoogaHackers Terminal Service.", delay: 350, color: "#33ff33" },
+              { text: "[  OK  ] Stopping Hacker Ethics Alignment Daemon...", delay: 400, color: "#33ff33" },
+              { text: "[  OK  ] Stopped Hacker Ethics Alignment Daemon.", delay: 300, color: "#33ff33" },
+              { text: "[  OK  ] Unmounting /dev/gibson...", delay: 500, color: "#33ff33" },
+              { text: "[  OK  ] Reached target Shutdown.", delay: 400, color: "#33ff33" },
+              { text: "[  OK  ] Reached target Final Step.", delay: 500, color: "#33ff33" },
+              { text: "", delay: 300, color: "#33ff33" },
+              { text: "Powering off...", delay: 800, color: "#ff3333" },
+              { text: "", delay: 500, color: "#33ff33" },
+              { text: "Connection to cha closed.", delay: 1000, color: "#ffff00" },
+            ];
+
+            let si = 0;
+            function typeShutdownLine() {
+              if (si < shutdownLines.length) {
+                const sline = document.createElement("div");
+                sline.style.color = shutdownLines[si].color;
+                sline.textContent = shutdownLines[si].text;
+                terminal.insertBefore(sline, prompt);
+                scrollToBottom();
+                si++;
+                setTimeout(typeShutdownLine, shutdownLines[si - 1].delay);
+              } else {
+                setTimeout(() => {
+                  document.body.style.transition = "opacity 1s ease";
+                  document.body.style.opacity = "0";
+                  setTimeout(() => {
+                    window.location.href = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+                  }, 1200);
+                }, 500);
+              }
+            }
+            typeShutdownLine();
+            return;
           } else {
             div.innerHTML = `bash: command not found: ${cmd}<br>`;
           }
