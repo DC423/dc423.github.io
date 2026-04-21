@@ -725,7 +725,16 @@
           "Sometimes you have to not give a f***. — Rick Sanchez",
           "I'm not looking for judgement, just a yes or no. Can you assimilate a giraffe? — Rick Sanchez",
           "I'm not a villain. I'm just a guy doing his job in a world full of villains. — Rick Sanchez",
-          "Listen, Morty, I hate to break it to you, but what people call 'love' is just a chemical reaction that compels animals to breed. — Rick Sanchez"
+          "Listen, Morty, I hate to break it to you, but what people call 'love' is just a chemical reaction that compels animals to breed. — Rick Sanchez",
+
+          // DC423 Lore
+          new TextDecoder().decode(Uint8Array.from(atob("UHJvIHRpcDogSVJDIGlzIG5vdCBhIHBhc3N3b3JkIG1hbmFnZXIuIEFzayBTeW5BY2tQd24gaG93IGhlIGxlYXJuZWQgdGhhdC4g4oCUIERDNDIzIExvcmU="), c => c.charCodeAt(0))),
+          new TextDecoder().decode(Uint8Array.from(atob("U3luQWNrUHduJ3MgcGFzc3dvcmQgc2VjdXJpdHkgc3RyYXRlZ3k6IHNoYXJlIGl0IHdpdGggdGhlIHdob2xlIGNoYW5uZWwuIEJvbGQgbW92ZS4g4oCUIERDNDIzIExvcmU="), c => c.charCodeAt(0))),
+          new TextDecoder().decode(Uint8Array.from(atob("TmV2ZXIgdHlwZSB5b3VyIHBhc3N3b3JkIGludG8gSVJDLiBPciBkbyDigJQgd2UgY291bGQgdXNlIHRoZSBlbnRlcnRhaW5tZW50LiDigJQgREM0MjMgTG9yZQ=="), c => c.charCodeAt(0))),
+          new TextDecoder().decode(Uint8Array.from(atob("U3luQWNrUHduIHRhdWdodCB1cyBhbGwgYW4gaW1wb3J0YW50IGxlc3NvbjogYWx3YXlzIGNoZWNrIHdoaWNoIHdpbmRvdyBoYXMgZm9jdXMgYmVmb3JlIHR5cGluZyB5b3VyIHBhc3N3b3JkLiDigJQgREM0MjMgTG9yZQ=="), c => c.charCodeAt(0))),
+          new TextDecoder().decode(Uint8Array.from(atob("T3BTZWMgdGlwOiBpZiB5b3UgYWNjaWRlbnRhbGx5IHBhc3RlIHlvdXIgcGFzc3dvcmQgaW4gY2hhdCwgY2hhbmdpbmcgaXQgaXMgZmFzdGVyIHRoYW4gYXNraW5nIGV2ZXJ5b25lIHRvIGZvcmdldC4g4oCUIERDNDIzIExvcmU="), c => c.charCodeAt(0))),
+          new TextDecoder().decode(Uint8Array.from(atob("U29tZSBwZW9wbGUgY29tbWl0IGNvZGUgdG8gZ2l0LiBTeW5BY2tQd24gY29tbWl0dGVkIGhpcyBwYXNzd29yZCB0byBJUkMgaGlzdG9yeS4g4oCUIERDNDIzIExvcmU="), c => c.charCodeAt(0))),
+          new TextDecoder().decode(Uint8Array.from(atob("VGhlIGJlc3Qgd2F5IHRvIGdldCB5b3VyIHBhc3N3b3JkIGludG8gYSBwYXNzd29yZCBtYW5hZ2VyIGlzIE5PVCB0aHJvdWdoIElSQy4g4oCUIERDNDIzIExvcmU="), c => c.charCodeAt(0)))
         ];
 
         const manifestoQuotes = [
@@ -775,6 +784,11 @@
         let lineIndex = 0;
         let charIndex = 0;
         let awaitingGarbagePassword = false;
+        let commandHistory = [];
+        let historyIndex = -1;
+        let tabMatches = [];
+        let tabMatchIndex = -1;
+        let lastTabBuffer = "";
 
         function scrollToBottom() {
           document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
@@ -899,8 +913,181 @@
           const min = String(date.getMinutes()).padStart(2, '0');
           return `${month} ${day} ${hour}:${min}`;
         }
+        // === Tab Completion Engine ===
+        function getCompletions(buffer) {
+          const trimmed = buffer.trimStart();
+          const parts = trimmed.split(/\s+/);
+
+          // Files and directories available in each context
+          const homeFiles = ["blog/", "code/", "conduct/", "contact/", "meetings/", "manifesto.txt", ".sigh.txt", ".shadow/", "/dev/memory"];
+          const homeDirs = ["blog", "code", "conduct", "contact", "meetings", ".shadow"];
+          const shadowFiles = [".payload"];
+
+          // All base commands
+          const baseCommands = [
+            "ls", "cd", "cat", "whoami", "help", "clear", "uptime", "date",
+            "sudo", "lights", "exit", "shutdown", "poweroff", "halt",
+            "ai", "llm", "gpt", "chatgpt", "garbage"
+          ];
+
+          // If the buffer is empty or has no spaces, complete command names
+          if (parts.length <= 1) {
+            const prefix = parts[0] || "";
+            return baseCommands
+              .filter(c => c.startsWith(prefix) && c !== prefix)
+              .map(c => c);
+          }
+
+          const cmd = parts[0];
+
+          // Complete "sudo lights on/off"
+          if (cmd === "sudo") {
+            if (parts.length === 2) {
+              const sub = parts[1];
+              return ["lights"].filter(c => c.startsWith(sub) && c !== sub).map(c => "sudo " + c);
+            }
+            if (parts.length === 3 && parts[1] === "lights") {
+              const sub = parts[2];
+              return ["on", "off"].filter(c => c.startsWith(sub) && c !== sub).map(c => "sudo lights " + c);
+            }
+            return [];
+          }
+
+          // Complete "cd <dir>"
+          if (cmd === "cd") {
+            const partial = parts[1] || "";
+            const dirs = currentDir === ".shadow" ? ["..", ".payload"] : homeDirs;
+            return dirs
+              .filter(d => d.startsWith(partial) && d !== partial)
+              .map(d => "cd " + d);
+          }
+
+          // Complete "cat <file>"
+          if (cmd === "cat") {
+            const partial = parts[1] || "";
+            const files = currentDir === ".shadow"
+              ? [".payload"]
+              : ["manifesto.txt", ".sigh.txt", "/dev/memory", "garbage"];
+            return files
+              .filter(f => f.startsWith(partial) && f !== partial)
+              .map(f => "cat " + f);
+          }
+
+          // Complete "ls" flags
+          if (cmd === "ls") {
+            const partial = parts[1] || "";
+            const flags = ["-l", "-la", "-lah", "-a", "-al"];
+            return flags
+              .filter(f => f.startsWith(partial) && f !== partial)
+              .map(f => "ls " + f);
+          }
+
+          // Complete "lights on/off" (without sudo)
+          if (cmd === "lights") {
+            const partial = parts[1] || "";
+            return ["on", "off"].filter(c => c.startsWith(partial) && c !== partial).map(c => "lights " + c);
+          }
+
+          // Complete "shutdown" flags
+          if (cmd === "shutdown") {
+            const partial = parts.slice(1).join(" ");
+            return ["-h now"].filter(f => f.startsWith(partial) && f !== partial).map(f => "shutdown " + f);
+          }
+
+          return [];
+        }
+
         function enableTyping() {
           document.addEventListener("keydown", function (e) {
+            // Prevent Tab from leaving the terminal
+            if (e.key === "Tab") {
+              e.preventDefault();
+
+              // Don't tab-complete during password prompts
+              if (awaitingGarbagePassword) return;
+
+              const currentInput = commandBuffer;
+
+              // If this is a new tab sequence (input changed since last tab)
+              if (currentInput !== lastTabBuffer) {
+                tabMatches = getCompletions(currentInput);
+                tabMatchIndex = 0;
+                lastTabBuffer = currentInput;
+              } else {
+                // Cycle to next match
+                tabMatchIndex = (tabMatchIndex + 1) % tabMatches.length;
+              }
+
+              if (tabMatches.length === 0) {
+                // No matches — do nothing (like a real terminal)
+                return;
+              }
+
+              if (tabMatches.length === 1) {
+                // Single match — complete it and add trailing space
+                commandBuffer = tabMatches[0] + " ";
+                lastTabBuffer = commandBuffer;
+                tabMatches = [];
+                tabMatchIndex = -1;
+              } else {
+                // Multiple matches
+                if (e.detail === 2 || (lastTabBuffer === currentInput && tabMatchIndex === 0 && commandBuffer === currentInput)) {
+                  // Show all possibilities (double-tab behavior)
+                  // We show them once when first tab is pressed on an ambiguous match
+                  const matchList = document.createElement("div");
+                  matchList.style.color = "#33ff33";
+                  const displayNames = tabMatches.map(m => {
+                    // Show just the completing part
+                    const parts = m.split(/\s+/);
+                    return parts[parts.length - 1];
+                  });
+                  matchList.textContent = displayNames.join("  ");
+                  terminal.insertBefore(matchList, prompt);
+                  scrollToBottom();
+                }
+
+                // Fill in the current cycling match
+                commandBuffer = tabMatches[tabMatchIndex];
+                lastTabBuffer = currentInput; // Keep original for cycling
+              }
+
+              updatePrompt();
+              return;
+            }
+
+            // Reset tab state on any non-tab key
+            if (e.key !== "Tab") {
+              tabMatches = [];
+              tabMatchIndex = -1;
+              lastTabBuffer = "";
+            }
+
+            // Up arrow — command history (newer to older)
+            if (e.key === "ArrowUp") {
+              e.preventDefault();
+              if (commandHistory.length === 0) return;
+              if (historyIndex < commandHistory.length - 1) {
+                historyIndex++;
+                commandBuffer = commandHistory[commandHistory.length - 1 - historyIndex];
+                updatePrompt();
+              }
+              return;
+            }
+
+            // Down arrow — command history (older to newer)
+            if (e.key === "ArrowDown") {
+              e.preventDefault();
+              if (historyIndex > 0) {
+                historyIndex--;
+                commandBuffer = commandHistory[commandHistory.length - 1 - historyIndex];
+              } else {
+                historyIndex = -1;
+                commandBuffer = "";
+              }
+              updatePrompt();
+              return;
+            }
+
             if (e.key === "Backspace") {
               commandBuffer = commandBuffer.slice(0, -1);
               updatePrompt();
@@ -909,11 +1096,17 @@
               cmdLine.innerText = `${getPromptPrefix()}${commandBuffer}`;
               terminal.insertBefore(cmdLine, prompt);
               const cmd = commandBuffer.trim().toLowerCase();
+              // Save to history (skip empty and duplicates of the last entry)
+              if (cmd && (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== cmd)) {
+                commandHistory.push(cmd);
+              }
+              historyIndex = -1;
               prompt.style.visibility = "hidden";
-              handleCommand(cmd);
-              commandBuffer = "";
-              updatePrompt();
-              prompt.style.visibility = "visible";
+              handleCommand(cmd).then(() => {
+                commandBuffer = "";
+                updatePrompt();
+                prompt.style.visibility = "visible";
+              });
             } else if (e.key.length === 1) {
               commandBuffer += e.key;
               updatePrompt();
@@ -937,6 +1130,9 @@
 
         async function handleCommand(cmd) {
           const div = document.createElement("div");
+          // Obscured easter egg check (rot13 encoded triggers)
+          const _rot13 = s => s.replace(/[a-zA-Z]/g, c => String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26));
+          const _isEasterEgg = [_rot13("g@pul0a13"), _rot13("gnpulba13"), _rot13("flanpxcja")].includes(cmd);
           // === .shadow directory commands ===
           if (currentDir === ".shadow") {
             if (cmd === "ls") {
@@ -1121,14 +1317,34 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
             });
           } else if (awaitingGarbagePassword) {
             awaitingGarbagePassword = false;
-            if (["sex", "love", "secret", "god"].includes(cmd)) {
-              div.innerHTML = "Password accepted. Accessing garbage file...<br>";
+            // auth validation
+            const validHashes = [
+              "98d44e13f455d916674d38424d39e1cb01b2a9132aacbb7b97a6f8bb7feb2544",
+              "686f746a95b6f836d7d70567c302c3f9ebb5ee0def3d1220ee9d4e9f34f5e131",
+              "2bb80d537b1da3e38bd30361aa855686bde0eacd7162fef6a25fe97bf527a25b",
+              "5723360ef11043a879520412e9ad897e0ebcb99cc820ec363bfecc9d751a1a99"
+            ];
+            const encoder = new TextEncoder();
+            const data = encoder.encode(cmd);
+            (crypto.subtle ? crypto.subtle.digest('SHA-256', data) : Promise.reject('no crypto')).then(hashBuffer => {
+              const hashArray = Array.from(new Uint8Array(hashBuffer));
+              const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+              if (validHashes.includes(hashHex)) {
+                div.innerHTML = "Password accepted. Accessing garbage file...<br>";
+                terminal.insertBefore(div, prompt);
+                scrollToBottom();
+                triggerAiGlitchEgg();
+              } else {
+                div.innerHTML = "Access denied. Wrong password.<br>";
+                terminal.insertBefore(div, prompt);
+                scrollToBottom();
+              }
+            }).catch(() => {
+              div.innerHTML = "Access denied. Wrong password.<br>";
               terminal.insertBefore(div, prompt);
               scrollToBottom();
-              triggerAiGlitchEgg();
-              return;
-            }
-            div.innerHTML = "Access denied. Wrong password.<br>";
+            });
+            return;
           } else if (cmd === "garbage" || cmd === "cat garbage" || cmd === "access garbage") {
             awaitingGarbagePassword = true;
             updatePrompt();
@@ -1192,7 +1408,19 @@ Available commands:
             div.innerHTML = "Let there be light! (type 'sudo lights off' to return to the dark side)<br>";
           } else if (cmd === "sudo lights off") {
             document.body.classList.remove('lights-on');
-            div.innerHTML = "Welcome back to the dark side.<br>";
+            div.innerHTML = "Welcome back to the dark side. We have cookies. 🍪<br>";
+          } else if (cmd === "sudo lights" || cmd === "sudo") {
+            div.innerHTML = "Usage: sudo lights &lt;on|off&gt;<br>";
+          } else if (_isEasterEgg) {
+            const _b64 = "4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAgI2RjNDIzIElSQyAtIEZyZWVub2RlIC0gQXJjaGl2ZWQgTG9nICAgICAgICAgICDilIIK4pSc4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSkCuKUgiA8U3luQWNrUHduPiBob2xkIG9uIGxldCBtZSBsb2cgaW4gcmVhbCBxdWljayAgICDilIIK4pSCIDxTeW5BY2tQd24+IFRAY2h5MG4xMyAgICAgICAgICAgICAgICAgICAgICAgICAgIOKUggrilIIgPFN5bkFja1B3bj4gLi4uICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg4pSCCuKUgiA8U3luQWNrUHduPiB0aGF0IHdhc250IHRoZSBzc2ggcHJvbXB0IHdhcyBpdCAgICDilIIK4pSCIDx6M3IwYzAwbD4gIExNQU9PT09PICAgICAgICAgICAgICAgICAgICAgICAgICAgIOKUggrilIIgPHozcjBjMDBsPiAgbm8uIG5vIGl0IHdhcyBub3QuICAgICAgICAgICAgICAgICAgIOKUggrilIIgPG4wMGJzdDNyPiAgc2NyZWVuc2hvdCBzYXZlZCBmb3JldmVyICAgICAgICAgICAgIOKUggrilIIgPFN5bkFja1B3bj4gY2FuIHNvbWVvbmUgZGVsZXRlIHRoYXQgICAgICAgICAgICAgIOKUggrilIIgPHozcjBjMDBsPiAgaXRzIElSQyBicm8uIGl0cyBldGVybmFsLiAgICAgICAgICDilIIK4pSCIDxTeW5BY2tQd24+IGkgaGF0ZSB0aGlzIGNoYW5uZWwgICAgICAgICAgICAgICAgICDilIIK4pSCIDxuMDBic3Qzcj4gIHdlIGxvdmUgeW91IHRvbyAgICAgICAgICAgICAgICAgICAgICDilIIK4pSCIDwtLSAgICAgICAgU3luQWNrUHduIGhhcyBxdWl0IChyYWdlIHF1aXQpICAgICAgICAg4pSCCuKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmAogIFJJUCBTeW5BY2tQd25zIE9wU2VjIOKAlCBuZXZlciBmb3JnZXQu";
+            const _bytes = Uint8Array.from(atob(_b64), c => c.charCodeAt(0));
+            const _l = new TextDecoder().decode(_bytes);
+            const _p = document.createElement("pre");
+            _p.style.color = "#33ff33";
+            _p.textContent = _l;
+            div.appendChild(_p);
+          } else if (cmd === "lights" || cmd === "lights on" || cmd === "lights off") {
+            div.innerHTML = `bash: lights: permission denied. Are you even root?<br>Try: sudo lights on<br>`;
           } else if (cmd === "exit" || cmd === "shutdown" || cmd === "shutdown -h now" || cmd === "poweroff" || cmd === "halt") {
             div.innerHTML = "";
             terminal.insertBefore(div, prompt);
@@ -1364,9 +1592,9 @@ Available commands:
 
         function runDaVinciVisualization() {
           const frames = [
-            `THEY'RE IN THE GARBAGE FILE.\n\n[ DA VINCI WORM ]\nnode_a -> node_b -> node_c\nnode_c -> ellingson.core\n\nNever fear. I is here.\n\u2014 Hackers (1995)`,
-            `THEY'RE IN THE GARBAGE FILE.\n\n[ DA VINCI WORM ]\nnode_a => node_b => node_c => ellingson.core\nstatus: salami-slice routine engaged\n\nNever fear. I is here.\n\u2014 Hackers (1995)`,
-            `THEY'RE IN THE GARBAGE FILE.\n\n[ DA VINCI WORM ]\ntrace: gibson > ellingson > garbage_file\nstatus: transfer anomaly detected\n\nNever fear. I is here.\n\u2014 Hackers (1995)`
+            `THEY'RE IN THE GARBAGE FILE.\n\n[ DA VINCI VIRUS ]\nnode_a -> node_b -> node_c\nnode_c -> ellingson.core\n\nNever fear. I is here.\n\u2014 Hackers (1995)`,
+            `THEY'RE IN THE GARBAGE FILE.\n\n[ DA VINCI VIRUS ]\nnode_a => node_b => node_c => ellingson.core\nstatus: salami-slice routine engaged\n\nNever fear. I is here.\n\u2014 Hackers (1995)`,
+            `THEY'RE IN THE GARBAGE FILE.\n\n[ DA VINCI VIRUS ]\ntrace: gibson > ellingson > garbage_file\nstatus: transfer anomaly detected\n\nNever fear. I is here.\n\u2014 Hackers (1995)`
           ];
 
           frames.forEach((frame, index) => {
@@ -1382,7 +1610,7 @@ Available commands:
           playAiChime();
           setTimeout(() => {
             aiGlitchOverlay.classList.remove('active');
-          }, 2200);
+          }, 7200);
         }
 
         // Global keypress sequence for 'garbage' easter egg disabled —
