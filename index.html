@@ -1306,20 +1306,27 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
             const encoded = `
               PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FMVFlQRSA9PT0KTGFzdCB
               zZWVuIHVuZGVyIHRoZSBob29kLCBzb2NrZXQgaW4gaGFuZCwgYmFzaC
-              BpbiBicmFpbi4KSGUgY291bGQgZGVidWcgYSBjcmFua2hhZnQgYW5kI
-              GEga2VybmVsIHBhbmljIHdpdGggdGhlIHNhbWUgY2FsbS4KVGhlIDEw
-              bW0gc29ja2V0IGlzIHN0aWxsIG1pc3NpbmcuClNvIGlzIGEgcGllY2U
-              gb2Ygb3VyIGNyZXcuCmdvbmUgdG8gdGhlIGdyZWF0IGdhcmFnZSBpbi
-              B0aGUgc2t5LApidXQgaGlzIGhhY2tzIHN0aWxsIGVjaG8gaW4gdGhlI
-              HdhbGxzLgojIGVjaG8gJE1FQ0hBTklDQUxUWVBFID4gL2Rldi9sZWdh
-              Y3kKUklQIE1lY2hhbmljYWxUeXBlIDE5ODQgLSAyMDI0
+              BpbiBicmFpbi4KSGUgY291bGQgZGVidWcgYSBjcmFua3NoYWZ0IGFu
+              ZCBhIGtlcm5lbCBwYW5pYyB3aXRoIHRoZSBzYW1lIGNhbG0uClRo
+              ZSAxMG1tIHNvY2tldCBpcyBzdGlsbCBtaXNzaW5nLgpTbyBpcyBh
+              IHBpZWNlIG9mIG91ciBjcmV3Lgpnb25lIHRvIHRoZSBncmVhdCBn
+              YXJhZ2UgaW4gdGhlIHNreSwKYnV0IGhpcyBoYWNrcyBzdGlsbCBl
+              Y2hvIGluIHRoZSB3YWxscy4KUklQIE1lY2hhbmljYWxUeXBlIDE5
+              ODQgLSAyMDI0
             `.replace(/\s+/g, '');
-            const lines = atob(encoded).split('\n');
-            lines.forEach(line => {
-              const out = document.createElement('div');
-              out.innerText = line;
-              terminal.insertBefore(out, prompt);
-            });
+            const lines = atob(encoded).split('\n').filter(Boolean);
+            const width = Math.max(...lines.map(line => line.length), 48);
+            const border = `+${'-'.repeat(width + 2)}+`;
+            const formatted = [
+              border,
+              ...lines.map(line => `| ${line.padEnd(width, ' ')} |`),
+              border
+            ].join('\n');
+            const out = document.createElement('pre');
+            out.style.color = '#33ff33';
+            out.style.margin = '8px 0';
+            out.textContent = formatted;
+            terminal.insertBefore(out, prompt);
           } else if (awaitingGarbagePassword) {
             awaitingGarbagePassword = false;
             // auth validation
