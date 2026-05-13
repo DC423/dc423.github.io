@@ -930,7 +930,7 @@
 
           // All base commands
           const baseCommands = [
-            "ls", "cd", "cat", "whoami", "help", "clear", "uptime", "date",
+            "ls", "cd", "cat", "pwd", "whoami", "help", "clear", "uptime", "date",
             "sudo", "lights", "exit", "shutdown", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage"
           ];
@@ -1224,6 +1224,8 @@ drwxr-xr-x 10 root staff    320 ${now} ..
           // === Normal directory commands ===
           if (cmd === "ls") {
             div.innerHTML = "blog/  code/  conduct/  contact/  meetings/  manifesto.txt <br>";
+          } else if (cmd === "pwd") {
+            div.innerHTML = currentDir === ".shadow" ? "/root/.shadow<br>" : "/root<br>";
           }  else if (cmd === "ls -l" || cmd == "ls -la" || cmd == "ls -lah") {
               const now = formatLsDate();
               div.innerHTML = `<pre>
@@ -1369,6 +1371,7 @@ Available commands:
   ls -l           Detailed file listing
   cd &lt;dir&gt;        Navigate to a page (blog, code, conduct, contact, meetings)
   cat &lt;file&gt;      Read a file (manifesto.txt, .sigh.txt, /dev/memory)
+  pwd             Print current working directory
   whoami          Display current user
   help            Show this help message
   clear           Clear the terminal
