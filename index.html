@@ -931,6 +931,8 @@
           // All base commands
           const baseCommands = [
             "ls", "cd", "cat", "pwd", "whoami", "help", "clear", "uptime", "date",
+            "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free",
+            "netstat", "ss", "last", "w",
             "sudo", "lights", "exit", "shutdown", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage"
           ];
@@ -985,6 +987,37 @@
             return flags
               .filter(f => f.startsWith(partial) && f !== partial)
               .map(f => "ls " + f);
+          }
+
+          // Complete common flags/subcommands
+          if (cmd === "uname") {
+            const partial = parts[1] || "";
+            return ["-a"].filter(f => f.startsWith(partial) && f !== partial).map(f => "uname " + f);
+          }
+
+          if (cmd === "ip") {
+            const partial = parts.slice(1).join(" ");
+            return ["addr", "addr show", "a"].filter(f => f.startsWith(partial) && f !== partial).map(f => "ip " + f);
+          }
+
+          if (cmd === "iptables") {
+            const partial = parts.slice(1).join(" ");
+            return ["-L", "-S", "-F"].filter(f => f.startsWith(partial) && f !== partial).map(f => "iptables " + f);
+          }
+
+          if (cmd === "netstat") {
+            const partial = parts.slice(1).join(" ");
+            return ["-tulnp"].filter(f => f.startsWith(partial) && f !== partial).map(f => "netstat " + f);
+          }
+
+          if (cmd === "ss") {
+            const partial = parts.slice(1).join(" ");
+            return ["-tulnp"].filter(f => f.startsWith(partial) && f !== partial).map(f => "ss " + f);
+          }
+
+          if (cmd === "df" || cmd === "free") {
+            const partial = parts[1] || "";
+            return ["-h"].filter(f => f.startsWith(partial) && f !== partial).map(f => `${cmd} ${f}`);
           }
 
           // Complete "lights on/off" (without sudo)
@@ -1226,6 +1259,116 @@ drwxr-xr-x 10 root staff    320 ${now} ..
             div.innerHTML = "blog/  code/  conduct/  contact/  meetings/  manifesto.txt <br>";
           } else if (cmd === "pwd") {
             div.innerHTML = currentDir === ".shadow" ? "/root/.shadow<br>" : "/root<br>";
+          } else if (cmd === "ifconfig" || cmd === "ip addr" || cmd === "ip addr show" || cmd === "ip a") {
+            div.innerHTML = `<pre>
+eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+        inet 10.4.23.42  netmask 255.255.255.0  broadcast 10.4.23.255
+        inet6 fe80::dcff:fe04:2301  prefixlen 64  scopeid 0x20&lt;link&gt;
+        ether de:c0:de:04:23:01  txqueuelen 1000  (Ethernet)
+        RX packets 423042  bytes 8675309
+        TX packets 2600    bytes 13371337
+
+lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536
+        inet 127.0.0.1  netmask 255.0.0.0
+        loop  txqueuelen 1000  (Local Loopback)
+</pre>`;
+          } else if (cmd === "iptables" || cmd === "iptables -l" || cmd === "iptables -s") {
+            div.innerHTML = `<pre>
+Chain INPUT (policy DROP)
+target     prot opt source               destination
+ACCEPT     all  --  127.0.0.1            anywhere             /* trust yourself, allegedly */
+ACCEPT     tcp  --  10.4.23.0/24         anywhere             tcp dpt:ssh /* local hackers only */
+DROP       all  --  script-kiddies        anywhere             /* nice try, default creds */
+DROP       all  --  marketing-vlans       anywhere             /* too many tracking pixels */
+ACCEPT     icmp --  anywhere             anywhere             /* ping is not a crime */
+REJECT     tcp  --  printer              anywhere             reject-with admin-prohibited /* printer knows what it did */
+
+Chain FORWARD (policy DROP)
+target     prot opt source               destination
+DROP       all  --  IoT                  crown-jewels          /* nope */
+ACCEPT     all  --  curiosity            lab-network           /* supervised chaos */
+DNAT       all  --  fbi-party-van        anywhere              to:2600 /* if they knock, forward to phreaks */
+
+Chain OUTPUT (policy ACCEPT)
+target     prot opt source               destination
+ACCEPT     all  --  anywhere             coffee-maker          /* critical infrastructure */
+LOG        all  --  anywhere             internet             LOG prefix "probably-dns: "
+</pre>`;
+          } else if (cmd === "iptables -f") {
+            div.innerHTML = "iptables: refusing to flush rules on a production-looking fake firewall. buy the firewall a coffee first.<br>";
+          } else if (cmd === "netstat" || cmd === "netstat -tulnp" || cmd === "ss" || cmd === "ss -tulnp") {
+            div.innerHTML = `<pre>
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      423/sshd
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      80/nginx
+tcp        0      0 127.0.0.1:31337         0.0.0.0:*               LISTEN      1337/elite-daemon
+tcp        0      0 127.0.0.1:2600          0.0.0.0:*               LISTEN      2600/phreak-switch
+udp        0      0 0.0.0.0:53              0.0.0.0:*                           53/probably-dns
+udp        0      0 10.4.23.42:123          0.0.0.0:*                           123/time-is-fake
+</pre>`;
+          } else if (cmd === "last") {
+            div.innerHTML = `<pre>
+root         pts/0        10.4.23.13       Thu May 14 11:31   still logged in
+operator     tty1         console          Thu May 14 09:00 - 11:30  (02:30)
+crashoverride pts/3       gibson           Wed May 13 23:59 - 00:00  (00:01)
+acidburn     pts/2        ellingson        Wed May 13 23:58 - 23:59  (00:01)
+synackpwn    irc          freenode         never logged out, never lived it down
+
+wtmp begins Fri Jan 01 00:00:00 2012
+</pre>`;
+          } else if (cmd === "w") {
+            div.innerHTML = `<pre>
+ ${new Date().toLocaleTimeString()} up 5234 days,  4 users,  load average: 0.42, 0.23, 0.15
+USER         TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+root         pts/0    10.4.23.13       09:00    0.00s  0.42s  0.23s typing very carefully
+operator     tty1     console          09:00    4:23   1.37s  0.01s watching the logs blink
+crashoverride pts/3   gibson           23:59    25y    0.00s  0.00s hacking the planet
+acidburn     pts/2    ellingson        23:58    25y    0.00s  0.00s making it pretty
+</pre>`;
+          } else if (cmd === "hostname") {
+            div.innerHTML = "cha-terminal<br>";
+          } else if (cmd === "id") {
+            div.innerHTML = "uid=0(root) gid=0(root) groups=0(root),423(cha),2600(phreaks)<br>";
+          } else if (cmd === "uname" || cmd === "uname -a") {
+            div.innerHTML = "Linux cha-terminal 6.6.6-cha #423 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux<br>";
+          } else if (cmd === "env") {
+            div.innerHTML = `<pre>
+USER=root
+HOME=/root
+SHELL=/bin/bash
+TERM=xterm-256color
+HOSTNAME=cha-terminal
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+EDITOR=vim
+CHA_NODE=dc423
+HACK_THE_PLANET=true
+</pre>`;
+          } else if (cmd === "history") {
+            const recent = commandHistory.slice(-12);
+            div.innerHTML = recent.length
+              ? `<pre>${recent.map((entry, index) => `${String(index + 1).padStart(4, ' ')}  ${entry}`).join('\n')}</pre>`
+              : "<br>";
+          } else if (cmd === "ps" || cmd === "ps aux") {
+            div.innerHTML = `<pre>
+USER       PID %CPU %MEM COMMAND
+root         1  0.0  0.1 /sbin/init --terminal-mode
+root       423  4.2  2.3 /usr/bin/noogahackers-motd
+root      1337  0.1  0.4 /bin/bash
+root      2600  0.0  0.2 ./curiosity-daemon
+</pre>`;
+          } else if (cmd === "df" || cmd === "df -h") {
+            div.innerHTML = `<pre>
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/gibson      42G   23G   19G  55% /
+tmpfs           423M  4.2M  419M   1% /run
+/dev/memory      10M   10M     0 100% /memories
+</pre>`;
+          } else if (cmd === "free" || cmd === "free -h") {
+            div.innerHTML = `<pre>
+               total        used        free      shared  buff/cache   available
+Mem:           4.2Gi       1.3Gi       2.3Gi       0.0Gi       0.6Gi       2.6Gi
+Swap:          0.0Gi       0.0Gi       0.0Gi
+</pre>`;
           }  else if (cmd === "ls -l" || cmd == "ls -la" || cmd == "ls -lah") {
               const now = formatLsDate();
               div.innerHTML = `<pre>
@@ -1373,6 +1516,20 @@ Available commands:
   cat &lt;file&gt;      Read a file (manifesto.txt, .sigh.txt, /dev/memory)
   pwd             Print current working directory
   whoami          Display current user
+  ifconfig        Show network interface info
+  iptables -L     Show firewall rules, allegedly
+  hostname        Show system hostname
+  id              Show current user and groups
+  uname -a        Show kernel/system info
+  env             Show environment variables
+  history         Show recent command history
+  ps              Show running processes
+  netstat -tulnp  Show listening services
+  ss -tulnp       Show socket summary
+  last            Show recent logins
+  w               Show who is logged in
+  df -h           Show filesystem usage
+  free -h         Show memory usage
   help            Show this help message
   clear           Clear the terminal
   uptime          Show system uptime
