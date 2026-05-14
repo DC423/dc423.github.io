@@ -1315,7 +1315,7 @@ udp        0      0 ${serverIp}:123          0.0.0.0:*                          
 </pre>`;
           } else if (cmd === "last") {
             div.innerHTML = `<pre>
-root         pts/0        10.4.23.13       Thu May 14 11:31   still logged in
+root         pts/0        ${serverIp}       Thu May 14 11:31   still logged in
 operator     tty1         console          Thu May 14 09:00 - 11:30  (02:30)
 crashoverride pts/3       gibson           Wed May 13 23:59 - 00:00  (00:01)
 acidburn     pts/2        ellingson        Wed May 13 23:58 - 23:59  (00:01)
@@ -1327,7 +1327,7 @@ wtmp begins Fri Jan 01 00:00:00 2012
             div.innerHTML = `<pre>
  ${new Date().toLocaleTimeString()} up 5234 days,  4 users,  load average: 0.42, 0.23, 0.15
 USER         TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
-root         pts/0    10.4.23.13       09:00    0.00s  0.42s  0.23s typing very carefully
+root         pts/0    ${serverIp}       09:00    0.00s  0.42s  0.23s typing very carefully
 operator     tty1     console          09:00    4:23   1.37s  0.01s watching the logs blink
 crashoverride pts/3   gibson           23:59    25y    0.00s  0.00s hacking the planet
 acidburn     pts/2    ellingson        23:58    25y    0.00s  0.00s making it pretty
