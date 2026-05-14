@@ -794,6 +794,7 @@
         let tabMatches = [];
         let tabMatchIndex = -1;
         let lastTabBuffer = "";
+        let serverIp = "218.108.149.373";
 
         function scrollToBottom() {
           document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
@@ -895,8 +896,14 @@
             const quote = motdQuotes[Math.floor(Math.random() * motdQuotes.length)];
             fetch("https://api.ipify.org?format=json")
               .then(r => r.json())
-              .then(data => buildMotdLines(data.ip, quote))
-              .catch(() => buildMotdLines("218.108.149.373", quote))
+              .then(data => {
+                serverIp = data.ip;
+                return buildMotdLines(serverIp, quote);
+              })
+              .catch(() => {
+                serverIp = "218.108.149.373";
+                return buildMotdLines(serverIp, quote);
+              })
               .then(motd => {
                 motd.forEach(l => {
                   const div = document.createElement("div");
@@ -1262,7 +1269,7 @@ drwxr-xr-x 10 root staff    320 ${now} ..
           } else if (cmd === "ifconfig" || cmd === "ip addr" || cmd === "ip addr show" || cmd === "ip a") {
             div.innerHTML = `<pre>
 eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
-        inet 10.4.23.42  netmask 255.255.255.0  broadcast 10.4.23.255
+        inet ${serverIp}  netmask 255.255.255.255  broadcast ${serverIp}
         inet6 fe80::dcff:fe04:2301  prefixlen 64  scopeid 0x20&lt;link&gt;
         ether de:c0:de:04:23:01  txqueuelen 1000  (Ethernet)
         RX packets 423042  bytes 8675309
@@ -1304,7 +1311,7 @@ tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      
 tcp        0      0 127.0.0.1:31337         0.0.0.0:*               LISTEN      1337/elite-daemon
 tcp        0      0 127.0.0.1:2600          0.0.0.0:*               LISTEN      2600/phreak-switch
 udp        0      0 0.0.0.0:53              0.0.0.0:*                           53/probably-dns
-udp        0      0 10.4.23.42:123          0.0.0.0:*                           123/time-is-fake
+udp        0      0 ${serverIp}:123          0.0.0.0:*                           123/time-is-fake
 </pre>`;
           } else if (cmd === "last") {
             div.innerHTML = `<pre>
