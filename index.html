@@ -940,7 +940,7 @@
             "ls", "cd", "cat", "pwd", "whoami", "help", "clear", "uptime", "date",
             "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free",
             "netstat", "ss", "last", "w",
-            "sudo", "lights", "exit", "shutdown", "poweroff", "halt",
+            "sudo", "lights", "exit", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage"
           ];
 
@@ -1037,6 +1037,12 @@
           if (cmd === "shutdown") {
             const partial = parts.slice(1).join(" ");
             return ["-h now"].filter(f => f.startsWith(partial) && f !== partial).map(f => "shutdown " + f);
+          }
+
+          // Complete "init 0" shutdown alias
+          if (cmd === "init") {
+            const partial = parts[1] || "";
+            return ["0"].filter(f => f.startsWith(partial) && f !== partial).map(f => "init " + f);
           }
 
           return [];
@@ -1541,6 +1547,7 @@ Available commands:
   clear           Clear the terminal
   uptime          Show system uptime
   date            Show current date/time
+  init 0          Shutdown the system
   sudo lights on  Toggle light mode (surprise!)
   sudo lights off Return to dark mode
 </pre>`;
@@ -1600,7 +1607,7 @@ Available commands:
             div.appendChild(_p);
           } else if (cmd === "lights" || cmd === "lights on" || cmd === "lights off") {
             div.innerHTML = `bash: lights: permission denied. Are you even root?<br>Try: sudo lights on<br>`;
-          } else if (cmd === "exit" || cmd === "shutdown" || cmd === "shutdown -h now" || cmd === "poweroff" || cmd === "halt") {
+          } else if (cmd === "exit" || cmd === "shutdown" || cmd === "shutdown -h now" || cmd === "init 0" || cmd === "poweroff" || cmd === "halt") {
             div.innerHTML = "";
             terminal.insertBefore(div, prompt);
             prompt.style.visibility = "hidden";
