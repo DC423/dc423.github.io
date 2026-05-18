@@ -511,6 +511,49 @@
       text-align: left;
     }
 
+    .pocket-terminal {
+      margin: 30px 0;
+      border: 1px solid #33ff33;
+      background: rgba(0, 0, 0, 0.72);
+      box-shadow: 0 0 18px rgba(51, 255, 51, 0.28);
+      text-align: left;
+      font-size: 0.85rem;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .pocket-terminal-title {
+      background: #111;
+      border-bottom: 1px solid #224422;
+      color: #99ff99;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+    }
+
+    .pocket-terminal-body {
+      padding: 12px;
+      line-height: 1.55;
+      color: #33ff33;
+    }
+
+    .pocket-terminal-prompt {
+      color: #66ff66;
+      font-weight: bold;
+    }
+
+    .pocket-command {
+      display: inline-block;
+      color: #ffff00;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(255, 255, 0, 0.55);
+      margin: 0 4px;
+    }
+
+    .pocket-command:hover {
+      color: #fff866;
+      text-shadow: 0 0 8px rgba(255, 255, 0, 0.7);
+    }
+
     /* Media queries */
     @media (max-width: 768px) {
       .desktop-view {
@@ -593,6 +636,21 @@
       <p>Chattanooga Hackers Anonymous (CHA) is a local collective of ethical hackers, cybersecurity professionals, and infosec enthusiasts in Tennessee. We focus on education, community building, and responsible security research.</p>
       
       <p>Our group hosts regular meetups, training sessions, and participates in information security events. Whether you're interested in penetration testing, red team operations, blue team defense, or just learning about cybersecurity, you'll find like-minded individuals in our community.</p>
+    </div>
+
+    <div class="pocket-terminal" aria-label="Pocket terminal quick links">
+      <div class="pocket-terminal-title">pocket-terminal // read-only // touchscreen containment mode</div>
+      <div class="pocket-terminal-body">
+        <div><span class="pocket-terminal-prompt">guest@cha:~$</span> ./pocket-terminal</div>
+        <div>Fine. You found the pocket terminal.</div>
+        <div>Available taps:
+          <a href="meetings.html" class="pocket-command">meetings</a>
+          <a href="contact.html" class="pocket-command">contact</a>
+          <a href="coc.html" class="pocket-command">conduct</a>
+        </div>
+        <div><span class="pocket-terminal-prompt">guest@cha:~$</span> help</div>
+        <div>For root shell: rotate device into a laptop.</div>
+      </div>
     </div>
 
     <div class="mobile-links">
