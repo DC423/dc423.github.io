@@ -853,6 +853,7 @@
         let tabMatchIndex = -1;
         let lastTabBuffer = "";
         let serverIp = "218.108.149.373";
+        let previousDir = "~";
 
         function scrollToBottom() {
           document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
@@ -1259,7 +1260,8 @@ drwxr-xr-x 10 root staff    320 ${now} ..
               terminal.insertBefore(div, prompt);
               scrollToBottom();
               return;
-            } else if (cmd === "cd ..") {
+            } else if (cmd === "cd .." || cmd === "cd ../") {
+              previousDir = currentDir;
               currentDir = "~";
               updatePrompt();
               return;
@@ -1452,7 +1454,43 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
 -rw-r--r--  1 root staff  1354 ${now} manifesto.txt
 -rw-r--r--  1 root staff   921 ${now} .sigh.txt
 </pre>`;
+          } else if (cmd === "cd" || cmd === "cd ~" || cmd === "cd ~/") {
+            // cd with no args or cd ~ → go home
+            if (currentDir !== "~") {
+              previousDir = currentDir;
+              currentDir = "~";
+              updatePrompt();
+            }
+            div.innerHTML = "";
+          } else if (cmd === "cd -") {
+            // cd - → swap to previous directory
+            const tmp = currentDir;
+            currentDir = previousDir;
+            previousDir = tmp;
+            const displayPath = currentDir === "~" ? "/root" : "/root/" + currentDir;
+            div.innerHTML = displayPath + "<br>";
+            updatePrompt();
+          } else if (cmd === "cd .") {
+            // cd . → stay in current directory
+            div.innerHTML = "";
+          } else if (cmd === "cd /" || cmd === "cd /root" || cmd === "cd /root/") {
+            // cd / or cd /root → go home
+            if (currentDir !== "~") {
+              previousDir = currentDir;
+              currentDir = "~";
+              updatePrompt();
+            }
+            div.innerHTML = "";
+          } else if (cmd === "cd .." || cmd === "cd ../") {
+            // cd .. → go up (from .shadow to home, from home stay)
+            if (currentDir === ".shadow") {
+              previousDir = currentDir;
+              currentDir = "~";
+              updatePrompt();
+            }
+            div.innerHTML = "";
           } else if (cmd === "cd .shadow" || cmd === "cd .shadow/") {
+            previousDir = currentDir;
             currentDir = ".shadow";
             updatePrompt();
             div.innerHTML = "";
