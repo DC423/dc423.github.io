@@ -1191,6 +1191,7 @@
         let lastTabBuffer = "";
         let serverIp = "218.108.149.373";
         const deadbeefMac = `de:ad:be:ef:${Array.from({ length: 2 }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join(':')}`;
+        const randomLinkLocalIpv6 = `fe80::${Array.from({ length: 4 }, () => Math.floor(Math.random() * 0x10000).toString(16).padStart(4, '0')).join(':')}`;
         let previousDir = "~";
 
         function scrollToBottom() {
@@ -1674,7 +1675,7 @@ drwxr-xr-x 10 root staff    320 ${now} ..
             div.innerHTML = `<pre>
 eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
         inet ${serverIp}  netmask 255.255.255.255  broadcast ${serverIp}
-        inet6 fe80::dcff:fe04:2301  prefixlen 64  scopeid 0x20&lt;link&gt;
+        inet6 ${randomLinkLocalIpv6}  prefixlen 64  scopeid 0x20&lt;link&gt;
         ether ${deadbeefMac}  txqueuelen 1000  (Ethernet)
         RX packets 423042  bytes 8675309
         TX packets 2600    bytes 13371337
