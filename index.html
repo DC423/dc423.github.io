@@ -90,6 +90,194 @@
       overflow: hidden;
     }
 
+    .xfce-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 28px;
+      background: linear-gradient(to bottom, rgba(42, 42, 42, 0.96), rgba(20, 20, 20, 0.96));
+      border-bottom: 1px solid rgba(51, 255, 51, 0.35);
+      box-shadow: 0 1px 10px rgba(0, 255, 0, 0.18);
+      color: #d8ffd8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      font-size: 0.78rem;
+      z-index: 10000;
+      user-select: none;
+    }
+
+    .xfce-panel-left,
+    .xfce-panel-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .xfce-menu-button,
+    .xfce-task-button,
+    .xfce-panel-item {
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid rgba(51, 255, 51, 0.28);
+      background: rgba(0, 0, 0, 0.35);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      padding: 0 8px;
+      white-space: nowrap;
+    }
+
+    .xfce-menu-button {
+      color: #33ff33;
+      font-weight: bold;
+      text-shadow: 0 0 6px rgba(51, 255, 51, 0.65);
+      cursor: pointer;
+    }
+
+    .xfce-menu-button:hover,
+    .xfce-menu-button.open,
+    .xfce-task-button:hover {
+      background: rgba(51, 255, 51, 0.14);
+      border-color: rgba(51, 255, 51, 0.65);
+    }
+
+    .xfce-task-button {
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #b8ffb8;
+      cursor: pointer;
+    }
+
+    .xfce-task-button.minimized-task {
+      color: #777;
+      border-style: dashed;
+      opacity: 0.82;
+    }
+
+    .xfce-panel-right {
+      margin-left: auto;
+    }
+
+    .xfce-weather {
+      color: #9dff9d;
+    }
+
+    .xfce-clock {
+      color: #ffffff;
+      min-width: 150px;
+      justify-content: center;
+    }
+
+    .xfce-menu {
+      position: fixed;
+      top: 30px;
+      left: 8px;
+      width: 270px;
+      background: rgba(12, 12, 12, 0.97);
+      border: 1px solid rgba(51, 255, 51, 0.55);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65), 0 0 18px rgba(0, 255, 0, 0.22);
+      color: #d8ffd8;
+      z-index: 10001;
+      display: none;
+      user-select: none;
+    }
+
+    .xfce-menu.open {
+      display: block;
+    }
+
+    .xfce-menu-header {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(51, 255, 51, 0.22);
+      color: #33ff33;
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
+    }
+
+    .xfce-menu-section {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(51, 255, 51, 0.12);
+    }
+
+    .xfce-menu-section:last-child {
+      border-bottom: 0;
+    }
+
+    .xfce-menu-label {
+      padding: 5px 12px;
+      color: #77aa77;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .xfce-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: #d8ffd8;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.78rem;
+      text-align: left;
+      padding: 7px 12px;
+      cursor: pointer;
+    }
+
+    .xfce-menu-item:hover,
+    .xfce-menu-item:focus {
+      outline: none;
+      background: rgba(51, 255, 51, 0.14);
+      color: #ffffff;
+    }
+
+    .xfce-menu-icon {
+      width: 18px;
+      color: #33ff33;
+      text-align: center;
+    }
+
+    .screen-lock-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(0, 32, 0, 0.98), rgba(0, 0, 0, 0.98));
+      color: #33ff33;
+      z-index: 10002;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      text-shadow: 0 0 12px rgba(51, 255, 51, 0.7);
+    }
+
+    .screen-lock-overlay.active {
+      display: flex;
+    }
+
+    .screen-lock-box {
+      border: 1px solid #33ff33;
+      background: rgba(0, 0, 0, 0.7);
+      box-shadow: 0 0 30px rgba(51, 255, 51, 0.28);
+      padding: 28px 34px;
+      max-width: 520px;
+    }
+
+    .screen-lock-title {
+      font-size: 1.4rem;
+      margin-bottom: 10px;
+    }
+
+    .screen-lock-hint {
+      color: #aaffaa;
+      font-size: 0.9rem;
+    }
+
     .window {
       width: 800px;
       height: 480px;
@@ -208,9 +396,9 @@
 
     .window.maximized {
       width: 100vw !important;
-      height: 100vh !important;
+      height: calc(100vh - 28px) !important;
       left: 0 !important;
-      top: 0 !important;
+      top: 28px !important;
       border-radius: 0;
       transition: all 0.3s ease;
     }
@@ -593,11 +781,53 @@
     </div>
   </div>
 
+  <!-- Screen Lock Overlay -->
+  <div class="screen-lock-overlay" id="screenLockOverlay" aria-hidden="true">
+    <div class="screen-lock-box">
+      <div class="screen-lock-title">cha-terminal locked</div>
+      <div class="screen-lock-hint">Press any key or click to unlock. Remember: focus before passwords.</div>
+    </div>
+  </div>
+
   <!-- Taskbar Dock (shown when minimized) -->
   <div class="taskbar-dock" id="taskbarDock">[ root@cha:~ ] — click to restore</div>
 
   <!-- Desktop View -->
   <div class="desktop-view">
+    <div class="xfce-panel" role="toolbar" aria-label="Desktop top panel">
+      <div class="xfce-panel-left">
+        <div class="xfce-menu-button" id="xfceMenuButton" tabindex="0">⌘ Applications</div>
+        <div class="xfce-task-button" id="xfceTaskButton" tabindex="0">▣ root@cha:~ — Terminal</div>
+      </div>
+      <div class="xfce-panel-right">
+        <div class="xfce-panel-item xfce-weather" id="xfceWeather">loading wx...</div>
+        <div class="xfce-panel-item xfce-clock" id="xfceClock">-- --- ---- --:--:--</div>
+      </div>
+    </div>
+    <div class="xfce-menu" id="xfceMenu" role="menu" aria-label="Applications menu">
+      <div class="xfce-menu-header">CHA Desktop</div>
+      <div class="xfce-menu-section">
+        <div class="xfce-menu-label">Places</div>
+        <button class="xfce-menu-item" data-action="terminal"><span class="xfce-menu-icon">▣</span> Terminal</button>
+        <button class="xfce-menu-item" data-action="meetings"><span class="xfce-menu-icon">📅</span> Meetings</button>
+        <button class="xfce-menu-item" data-action="blog"><span class="xfce-menu-icon">📝</span> Blog</button>
+        <button class="xfce-menu-item" data-action="contact"><span class="xfce-menu-icon">✉</span> Contact</button>
+        <button class="xfce-menu-item" data-action="conduct"><span class="xfce-menu-icon">⚖</span> Code of Conduct</button>
+        <button class="xfce-menu-item" data-action="code"><span class="xfce-menu-icon">⌘</span> Source Tree</button>
+      </div>
+      <div class="xfce-menu-section">
+        <div class="xfce-menu-label">Utilities</div>
+        <button class="xfce-menu-item" data-action="lights-on"><span class="xfce-menu-icon">☀</span> Lights On</button>
+        <button class="xfce-menu-item" data-action="lights-off"><span class="xfce-menu-icon">☾</span> Lights Off</button>
+        <button class="xfce-menu-item" data-action="weather"><span class="xfce-menu-icon">☁</span> Refresh Weather</button>
+      </div>
+      <div class="xfce-menu-section">
+        <div class="xfce-menu-label">System</div>
+        <button class="xfce-menu-item" data-action="lock"><span class="xfce-menu-icon">🔒</span> Lock Screen</button>
+        <button class="xfce-menu-item" data-action="reboot"><span class="xfce-menu-icon">↻</span> Reboot Session</button>
+        <button class="xfce-menu-item" data-action="shutdown"><span class="xfce-menu-icon">⏻</span> Shutdown</button>
+      </div>
+    </div>
     <div class="window">
       <div class="title-bar">
         <div class="window-controls">
@@ -672,6 +902,81 @@
         const terminal = document.getElementById('terminalContent');
         const prompt = document.getElementById('promptLine');
         const promptText = document.getElementById('promptText');
+        const xfceWeather = document.getElementById('xfceWeather');
+        const xfceClock = document.getElementById('xfceClock');
+        const xfceMenuButton = document.getElementById('xfceMenuButton');
+        const xfceMenu = document.getElementById('xfceMenu');
+        const xfceTaskButton = document.getElementById('xfceTaskButton');
+        const screenLockOverlay = document.getElementById('screenLockOverlay');
+
+        function updatePanelClock() {
+          if (!xfceClock) return;
+          const now = new Date();
+          xfceClock.textContent = now.toLocaleString(undefined, {
+            weekday: 'short',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          });
+        }
+
+        function cToF(celsius) {
+          return (celsius * 9 / 5) + 32;
+        }
+
+        function msToMph(ms) {
+          return ms * 2.236936;
+        }
+
+        function weatherEmoji(description) {
+          const wx = (description || '').toLowerCase();
+          if (wx.includes('thunder')) return '⛈️';
+          if (wx.includes('snow') || wx.includes('sleet') || wx.includes('ice')) return '❄️';
+          if (wx.includes('rain') || wx.includes('drizzle') || wx.includes('shower')) return '🌧️';
+          if (wx.includes('fog') || wx.includes('mist') || wx.includes('haze') || wx.includes('smoke')) return '🌫️';
+          if (wx.includes('wind') || wx.includes('breezy') || wx.includes('gust')) return '💨';
+          if (wx.includes('partly') || wx.includes('mostly cloudy') || wx.includes('few clouds') || wx.includes('scattered')) return '⛅';
+          if (wx.includes('cloud') || wx.includes('overcast')) return '☁️';
+          if (wx.includes('clear') || wx.includes('sunny') || wx.includes('fair')) return '☀️';
+          return '🌡️';
+        }
+
+        async function updatePanelWeather() {
+          if (!xfceWeather) return;
+          try {
+            const response = await fetch('https://api.weather.gov/stations/KCHA/observations/latest', {
+              headers: { 'Accept': 'application/geo+json, application/json' }
+            });
+            if (!response.ok) throw new Error(`weather status ${response.status}`);
+
+            const data = await response.json();
+            const props = data.properties || {};
+            const tempC = props.temperature && typeof props.temperature.value === 'number'
+              ? props.temperature.value
+              : null;
+            const windMs = props.windSpeed && typeof props.windSpeed.value === 'number'
+              ? props.windSpeed.value
+              : null;
+            const description = props.textDescription || 'observed';
+            const temp = tempC === null ? '--°F' : `${Math.round(cToF(tempC))}°F`;
+            const wind = windMs === null ? '' : ` ${Math.round(msToMph(windMs))}mph`;
+
+            xfceWeather.textContent = `${weatherEmoji(description)} ${temp}${wind}`;
+            xfceWeather.title = props.timestamp
+              ? `${description} — latest observation: ${props.timestamp}`
+              : description;
+          } catch (error) {
+            xfceWeather.textContent = '🌡️ weather unavailable';
+            xfceWeather.title = 'Could not load latest weather.gov observation';
+          }
+        }
+
+        updatePanelClock();
+        setInterval(updatePanelClock, 1000);
+        updatePanelWeather();
+        setInterval(updatePanelWeather, 10 * 60 * 1000);
 
         const motdQuotes = [
           // Cybersecurity & Hacker Culture
@@ -1985,19 +2290,125 @@ Available commands:
           typePanicLine();
         });
 
-        // MINIMIZE — Shrink to taskbar dock
-        minimizeBtn.addEventListener('click', function (e) {
-          e.stopPropagation();
+        // === PANEL INTERACTIVITY ===
+
+        // Helper: minimize/restore the terminal
+        function minimizeTerminal() {
           win.classList.add('minimized');
+          xfceTaskButton.classList.add('minimized-task');
+          xfceTaskButton.textContent = '▣ root@cha:~ — Terminal (minimized)';
           taskbarDock.style.display = 'block';
+        }
+
+        function restoreTerminal() {
+          win.classList.remove('minimized');
+          xfceTaskButton.classList.remove('minimized-task');
+          xfceTaskButton.textContent = '▣ root@cha:~ — Terminal';
+          taskbarDock.style.display = 'none';
+          setTimeout(() => { win.style.transition = ''; }, 500);
+        }
+
+        // Applications menu toggle
+        function toggleMenu() {
+          const isOpen = xfceMenu.classList.toggle('open');
+          xfceMenuButton.classList.toggle('open', isOpen);
+        }
+
+        function closeMenu() {
+          xfceMenu.classList.remove('open');
+          xfceMenuButton.classList.remove('open');
+        }
+
+        xfceMenuButton.addEventListener('click', function (e) {
+          e.stopPropagation();
+          toggleMenu();
         });
 
-        // Restore from taskbar
+        // Close menu when clicking outside
+        document.addEventListener('click', function (e) {
+          if (!xfceMenu.contains(e.target) && !xfceMenuButton.contains(e.target)) {
+            closeMenu();
+          }
+        });
+
+        // Menu item actions
+        xfceMenu.addEventListener('click', function (e) {
+          const item = e.target.closest('.xfce-menu-item');
+          if (!item) return;
+          const action = item.dataset.action;
+          closeMenu();
+
+          switch (action) {
+            case 'terminal':
+              restoreTerminal();
+              break;
+            case 'meetings':
+              window.location.href = 'meetings.html';
+              break;
+            case 'blog':
+              window.location.href = 'blog.html';
+              break;
+            case 'contact':
+              window.location.href = 'contact.html';
+              break;
+            case 'conduct':
+              window.location.href = 'coc.html';
+              break;
+            case 'code':
+              window.open('https://github.com/dc423', '_blank');
+              break;
+            case 'lights-on':
+              document.body.classList.add('lights-on');
+              break;
+            case 'lights-off':
+              document.body.classList.remove('lights-on');
+              break;
+            case 'weather':
+              xfceWeather.textContent = '🌡️ refreshing...';
+              updatePanelWeather();
+              break;
+            case 'lock':
+              screenLockOverlay.classList.add('active');
+              screenLockOverlay.setAttribute('aria-hidden', 'false');
+              break;
+            case 'reboot':
+              window.location.reload();
+              break;
+            case 'shutdown':
+              handleCommand('shutdown');
+              break;
+          }
+        });
+
+        // Screen lock: dismiss on any key or click
+        function unlockScreen() {
+          if (screenLockOverlay.classList.contains('active')) {
+            screenLockOverlay.classList.remove('active');
+            screenLockOverlay.setAttribute('aria-hidden', 'true');
+          }
+        }
+        screenLockOverlay.addEventListener('click', unlockScreen);
+        screenLockOverlay.addEventListener('keydown', unlockScreen);
+
+        // Task button: click to minimize/restore terminal
+        xfceTaskButton.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (win.classList.contains('minimized')) {
+            restoreTerminal();
+          } else {
+            minimizeTerminal();
+          }
+        });
+
+        // MINIMIZE — Shrink to taskbar dock (window button)
+        minimizeBtn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          minimizeTerminal();
+        });
+
+        // Restore from taskbar dock
         taskbarDock.addEventListener('click', function () {
-          win.classList.remove('minimized');
-          taskbarDock.style.display = 'none';
-          // Reset transition after animation
-          setTimeout(() => { win.style.transition = ''; }, 500);
+          restoreTerminal();
         });
 
         // MAXIMIZE — Toggle fullscreen
