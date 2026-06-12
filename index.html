@@ -2090,6 +2090,8 @@ Available commands:
             }
             typeShutdownLine();
             return;
+          } else if (cmd === "dir") {
+            div.innerHTML = `bash: dir: command not found<br>This isn't DOS, champ. Try 'ls'.<br>`;
           } else {
             div.innerHTML = `bash: command not found: ${cmd}<br>`;
           }
