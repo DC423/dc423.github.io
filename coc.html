@@ -5,9 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CHA Code of Conduct</title>
   <style>
+    :root {
+      --cha-green: #33ff33;
+      --cha-bright: #00ff00;
+      --cha-dim: #8cff8c;
+      --cha-panel: rgba(0, 0, 0, 0.92);
+      --cha-title: #1e1e1e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)),
         url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
       background-size: cover;
@@ -20,18 +32,71 @@
       box-sizing: border-box;
     }
 
-    .terminal-box {
-      max-width: 800px;
+    .static-window {
+      max-width: 880px;
       width: 100%;
-      background-color: rgba(0, 0, 0, 0.95);
-      border: 1px solid #33ff33;
-      padding: 20px;
-      box-shadow: 0 0 20px #00ff00;
+      max-height: calc(100vh - 40px);
+      background: var(--cha-panel);
+      border: 1px solid #222;
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.75);
+      backdrop-filter: blur(2px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title-bar {
+      min-height: 32px;
+      background: var(--cha-title);
+      color: #cfcfcf;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      border-bottom: 1px solid #333;
+      font-size: 0.9rem;
+      flex: 0 0 auto;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-controls span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .window-controls span:nth-child(1) { background: #ff5f57; }
+    .window-controls span:nth-child(2) { background: #ffbd30; }
+    .window-controls span:nth-child(3) { background: #28c940; }
+
+    .window-title {
+      margin-left: auto;
+      margin-right: auto;
+      color: #d8ffd8;
+    }
+
+    .content {
+      padding: 26px;
       overflow-y: auto;
     }
 
     h1, h2 {
-      color: #00ff00;
+      color: var(--cha-bright);
+      text-shadow: 0 0 10px rgba(0, 255, 0, 0.65);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    h1::before {
+      content: "root@cha:~# ";
+      color: var(--cha-dim);
+      font-size: 0.75em;
     }
 
     p {
@@ -46,7 +111,13 @@
 
     a {
       color: #33ff33;
-      text-decoration: underline;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(51, 255, 51, 0.55);
+    }
+
+    a:hover {
+      color: #ffffff;
+      text-shadow: 0 0 8px rgba(51, 255, 51, 0.8);
     }
 
     .back {
@@ -73,8 +144,13 @@
   </style>
 </head>
 <body>
-  <div class="terminal-box">
-    <h1>Code of Conduct</h1>
+  <div class="static-window">
+    <div class="title-bar" aria-hidden="true">
+      <div class="window-controls"><span></span><span></span><span></span></div>
+      <div class="window-title">conduct — static viewer</div>
+    </div>
+    <div class="content">
+      <h1>code of conduct</h1>
 
     <p>
       Chattanooga Hackers Anonymous (CHA) is a collective committed to fostering a safe, welcoming, and inclusive environment for all participants—regardless of background, experience, or skill level.
@@ -120,7 +196,8 @@
       If you experience or witness any behavior that violates this code, please report it to a core member immediately. All reports will be handled with discretion.
     </p>
 
-    <a class="back" href="index.html">&lt; back to terminal</a>
+      <a class="back" href="index.html">&lt; back to terminal</a>
+    </div>
   </div>
 </body>
 </html>

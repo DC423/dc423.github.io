@@ -5,9 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CHA // Contact</title>
   <style>
+    :root {
+      --cha-green: #33ff33;
+      --cha-bright: #00ff00;
+      --cha-dim: #8cff8c;
+      --cha-panel: rgba(0, 0, 0, 0.92);
+      --cha-title: #1e1e1e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      height: 100vh;
+      min-height: 100vh;
       background: 
         linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)), 
         url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
@@ -16,24 +28,97 @@
       background-color: #000;
       color: #33ff33;
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      padding: 40px;
+      padding: 32px;
     }
-    h1 {
-      color: #00ff00;
+
+    .static-window {
+      width: min(760px, 100%);
+      background: var(--cha-panel);
+      border: 1px solid #222;
+      box-shadow: 0 0 30px rgba(0, 255, 0, 0.75);
+      backdrop-filter: blur(2px);
     }
+
+    .title-bar {
+      min-height: 32px;
+      background: var(--cha-title);
+      color: #cfcfcf;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      border-bottom: 1px solid #333;
+      font-size: 0.9rem;
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 6px;
+    }
+
+    .window-controls span {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      background: #444;
+    }
+
+    .window-controls span:nth-child(1) { background: #ff5f57; }
+    .window-controls span:nth-child(2) { background: #ffbd30; }
+    .window-controls span:nth-child(3) { background: #28c940; }
+
+    .window-title {
+      margin-left: auto;
+      margin-right: auto;
+      color: #d8ffd8;
+    }
+
     .content {
-      max-width: 700px;
-      text-align: left;
-      border: 1px solid #00ff00;
-      padding: 20px;
-      background-color: #010;
-      box-shadow: 0 0 20px #0f0;
+      padding: 26px;
+      line-height: 1.65;
     }
+
+    h1 {
+      color: var(--cha-bright);
+      margin: 0 0 18px;
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      text-shadow: 0 0 12px rgba(0, 255, 0, 0.8);
+    }
+
+    h1::before {
+      content: "root@cha:~# ";
+      color: var(--cha-dim);
+      font-size: 0.75em;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    strong {
+      color: #ffffff;
+    }
+
     a {
-      color: #00ff00;
+      color: var(--cha-green);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(51, 255, 51, 0.55);
     }
+
+    a:hover {
+      color: #ffffff;
+      text-shadow: 0 0 8px rgba(51, 255, 51, 0.8);
+    }
+
+    .nav-line {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px dashed rgba(51, 255, 51, 0.4);
+    }
+
     .hidden-egg {
       display: none;
     }
@@ -51,16 +136,21 @@
   </style>
 </head>
 <body>
-  <h1>CHA // Contact</h1>
-  <div class="content">
-    <p><strong>Email:</strong> <a href="mailto:[FINDUS]@noogahackers.org">[FINDUS]@noogahackers.org</a></p>
-
-    <p><strong>PGP Key:</strong> Available upon request</p>
-    <p><strong>Social:</strong> #DC423 Freenode</p>
-    <p><strong>Twitter:</strong><a href="https://x.com/CHADC423">twitter.com/CHADC423</a></p>
-    <p><strong>Reddit:</strong><a href="https://www.reddit.com/user/DC423/">u/DC423</a></p>
-    <p><strong>GitHub:</strong><a href="https://github.com/DC423">DC423</a></p>
-    <p><a href="index.html">← Return to terminal</a></p>
+  <div class="static-window">
+    <div class="title-bar" aria-hidden="true">
+      <div class="window-controls"><span></span><span></span><span></span></div>
+      <div class="window-title">contact — static viewer</div>
+    </div>
+    <div class="content">
+      <h1>contact</h1>
+      <p><strong>Email:</strong> <a href="mailto:[FINDUS]@noogahackers.com">[FINDUS]@noogahackers.com</a></p>
+      <p><strong>PGP Key:</strong> Available upon request</p>
+      <p><strong>Social:</strong> #DC423 Freenode</p>
+      <p><strong>Twitter:</strong> <a href="https://x.com/CHADC423">twitter.com/CHADC423</a></p>
+      <p><strong>Reddit:</strong> <a href="https://www.reddit.com/user/DC423/">u/DC423</a></p>
+      <p><strong>GitHub:</strong> <a href="https://github.com/DC423">DC423</a></p>
+      <p class="nav-line"><a href="index.html">← Return to terminal</a></p>
+    </div>
   </div>
 
   <!-- Thought it would be that easy? -->
