@@ -1339,7 +1339,7 @@
             "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free",
             "netstat", "ss", "last", "w",
             "sudo", "lights", "exit", "shutdown", "init", "poweroff", "halt",
-            "ai", "llm", "gpt", "chatgpt", "garbage"
+            "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -1418,6 +1418,12 @@
           if (cmd === "ss") {
             const partial = parts.slice(1).join(" ");
             return ["-tulnp"].filter(f => f.startsWith(partial) && f !== partial).map(f => "ss " + f);
+          }
+
+          // Complete basic SDR commands
+          if (cmd === "sdr") {
+            const partial = parts.slice(1).join(" ");
+            return ["scan"].filter(f => f.startsWith(partial) && f !== partial).map(f => "sdr " + f);
           }
 
           if (cmd === "df" || cmd === "free") {
@@ -1978,6 +1984,8 @@ Available commands:
   w               Show who is logged in
   df -h           Show filesystem usage
   free -h         Show memory usage
+  rtl_test        Probe the fake RTL-SDR dongle
+  sdr scan        Scan the air for hidden signals
   help            Show this help message
   clear           Clear the terminal
   uptime          Show system uptime
@@ -2024,6 +2032,35 @@ Available commands:
 
             typeAiLine();
             return;
+          } else if (cmd === "rtl_test") {
+            div.innerHTML = `<pre>
+Found 1 device(s):
+  0: Realtek, RTL2838UHIDIR, SN: CHA0423
+
+Using device 0: Generic RTL2832U OEM
+Found Rafael Micro R820T tuner
+Sampling at 2.400 MS/s.
+Tuner gain set to auto.
+
+[STATUS] CHA SDR node ready.
+Try: sdr scan
+</pre>`;
+          } else if (cmd === "sdr") {
+            div.innerHTML = "Usage: sdr scan<br>";
+          } else if (cmd === "sdr scan") {
+            div.innerHTML = `<pre>
+rtl_power: sweeping 24 MHz - 1.7 GHz...
+
+  24.000 MHz  noise floor        -52 dB
+ 144.390 MHz  APRS burst         -31 dB
+ 162.550 MHz  NOAA carrier       -25 dB
+ 315.000 MHz  weak OOK pulses    -44 dB
+ 433.920 MHz  CHA beacon         -18 dB  &lt;&lt; strongest
+ 915.000 MHz  chirp-looking RF   -39 dB
+
+Hidden signal found: 433.920 MHz
+Message: CQ CQ CQ DE CHA // NOOGA HACKERS ON THE AIR
+</pre>`;
           } else if (cmd === "sudo lights on") {
             document.body.classList.add('lights-on');
             div.innerHTML = "Let there be light! (type 'sudo lights off' to return to the dark side)<br>";
