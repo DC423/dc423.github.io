@@ -1184,6 +1184,8 @@
         let lineIndex = 0;
         let charIndex = 0;
         let awaitingGarbagePassword = false;
+        let awaitingSshPassword = false;
+        let pendingSshTarget = "";
         let commandHistory = [];
         let historyIndex = -1;
         let tabMatches = [];
@@ -1199,6 +1201,7 @@
         }
 
         function getPromptPrefix() {
+          if (awaitingSshPassword) return `${pendingSshTarget}'s password: `;
           if (awaitingGarbagePassword) return "Password: ";
           if (currentDir === ".shadow") return "root@cha:~/.shadow# ";
           return "root@cha:~# ";
@@ -1336,7 +1339,7 @@
           // All base commands
           const baseCommands = [
             "ls", "cd", "cat", "pwd", "whoami", "help", "clear", "uptime", "date",
-            "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free",
+            "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free", "ssh",
             "netstat", "ss", "last", "w",
             "sudo", "lights", "exit", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup"
@@ -1476,7 +1479,7 @@
               e.preventDefault();
 
               // Don't tab-complete during password prompts
-              if (awaitingGarbagePassword) return;
+              if (awaitingGarbagePassword || awaitingSshPassword) return;
 
               const currentInput = commandBuffer;
 
@@ -1569,7 +1572,7 @@
               terminal.insertBefore(cmdLine, prompt);
               const cmd = commandBuffer.trim().toLowerCase();
               // Save to history (skip empty and duplicates of the last entry)
-              if (cmd && (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== cmd)) {
+              if (cmd && !awaitingGarbagePassword && !awaitingSshPassword && (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== cmd)) {
                 commandHistory.push(cmd);
               }
               historyIndex = -1;
@@ -1605,6 +1608,42 @@
           // Obscured easter egg check (rot13 encoded triggers)
           const _rot13 = s => s.replace(/[a-zA-Z]/g, c => String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26));
           const _isEasterEgg = [_rot13("g@pul0a13"), _rot13("gnpulba13"), _rot13("flanpxcja")].includes(cmd);
+          if (awaitingSshPassword) {
+            const target = pendingSshTarget || "root@unknown";
+            awaitingSshPassword = false;
+            pendingSshTarget = "";
+
+            if (cmd !== "root") {
+              div.innerHTML = `Permission denied, please try again.<br>Connection to ${target.split('@')[1] || 'host'} closed.<br>`;
+              terminal.insertBefore(div, prompt);
+              scrollToBottom();
+              return;
+            }
+
+            terminal.insertBefore(div, prompt);
+            const host = target.split('@')[1] || 'host';
+            const sshLines = [
+              { text: `Authenticated to ${host} ([127.0.0.1]:22) using "password".`, delay: 650, color: "#33ff33" },
+              { text: "Last login: definitely not from your box", delay: 850, color: "#33ff33" },
+              { text: "root@probably-owned:~# id", delay: 900, color: "#33ff33" },
+              { text: "uid=0(root) gid=0(root) groups=0(root)", delay: 900, color: "#33ff33" },
+              { text: "", delay: 400, color: "#33ff33" },
+              { text: "[honeypot] default credential login detected", delay: 900, color: "#ffff00" },
+              { text: "Connection reset by peer.", delay: 700, color: "#ff3333" },
+              { text: "you aren't a skid are you?", delay: 300, color: "#ffff00" }
+            ];
+
+            for (const line of sshLines) {
+              await new Promise(resolve => setTimeout(resolve, line.delay));
+              const sshLine = document.createElement("div");
+              sshLine.style.color = line.color;
+              sshLine.textContent = line.text;
+              terminal.insertBefore(sshLine, prompt);
+              scrollToBottom();
+            }
+            return;
+          }
+
           // === .shadow directory commands ===
           if (currentDir === ".shadow") {
             if (cmd === "ls") {
@@ -1989,6 +2028,7 @@ Available commands:
   strings &lt;file&gt;  Print readable strings from a binary
   pwd             Print current working directory
   whoami          Display current user
+  ssh root@host   Try an SSH login, if you must
   ifconfig        Show network interface info
   iptables -L     Show firewall rules, allegedly
   hostname        Show system hostname
@@ -2029,6 +2069,16 @@ Available commands:
             div.innerHTML = ` ${new Date().toLocaleTimeString()} up ${days} days, ${hours}:${String(mins).padStart(2,'0')}, 1 user, load average: 0.42, 0.23, 0.15<br>`;
           } else if (cmd === "date") {
             div.innerHTML = `${new Date().toString()}<br>`;
+          } else if (cmd.startsWith("ssh ")) {
+            const match = cmd.match(/^ssh\s+(?:-p\s+\d+\s+)?root@([^\s]+)$/);
+            if (match) {
+              pendingSshTarget = `root@${match[1]}`;
+              awaitingSshPassword = true;
+              updatePrompt();
+              scrollToBottom();
+              return;
+            }
+            div.innerHTML = "ssh: this fake lab only accepts the form: ssh root@host<br>";
           } else if (cmd === "ai" || cmd === "llm" || cmd === "gpt" || cmd === "chatgpt" || cmd === "ask ai") {
             div.innerHTML = "Initializing assistant...<br>";
             terminal.insertBefore(div, prompt);
