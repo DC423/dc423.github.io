@@ -1329,7 +1329,7 @@
           const parts = trimmed.split(/\s+/);
 
           // Files and directories available in each context
-          const homeFiles = ["blog/", "code/", "conduct/", "contact/", "meetings/", "manifesto.txt", ".sigh.txt", ".shadow/", "/dev/memory"];
+          const homeFiles = ["blog/", "code/", "conduct/", "contact/", "meetings/", "manifesto.txt", ".sigh.txt", "wannacry.exe", ".shadow/", "/dev/memory"];
           const homeDirs = ["blog", "code", "conduct", "contact", "meetings", ".shadow"];
           const shadowFiles = [".payload"];
 
@@ -1339,7 +1339,7 @@
             "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free",
             "netstat", "ss", "last", "w",
             "sudo", "lights", "exit", "shutdown", "init", "poweroff", "halt",
-            "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "wannacry", "dig", "curl", "nslookup"
+            "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -1379,10 +1379,18 @@
             const partial = parts[1] || "";
             const files = currentDir === ".shadow"
               ? [".payload"]
-              : ["manifesto.txt", ".sigh.txt", "/dev/memory", "garbage"];
+              : ["manifesto.txt", ".sigh.txt", "wannacry.exe", "/dev/memory", "garbage"];
             return files
               .filter(f => f.startsWith(partial) && f !== partial)
               .map(f => "cat " + f);
+          }
+
+          // Complete "strings <file>"
+          if (cmd === "strings") {
+            const partial = parts[1] || "";
+            return ["wannacry.exe"]
+              .filter(f => f.startsWith(partial) && f !== partial)
+              .map(f => "strings " + f);
           }
 
           // Complete "ls" flags
@@ -1683,7 +1691,7 @@ drwxr-xr-x 10 root staff    320 ${now} ..
 
           // === Normal directory commands ===
           if (cmd === "ls") {
-            div.innerHTML = "blog/  code/  conduct/  contact/  meetings/  manifesto.txt <br>";
+            div.innerHTML = "blog/  code/  conduct/  contact/  meetings/  manifesto.txt  wannacry.exe <br>";
           } else if (cmd === "pwd") {
             div.innerHTML = currentDir === ".shadow" ? "/root/.shadow<br>" : "/root<br>";
           } else if (cmd === "ifconfig" || cmd === "ip addr" || cmd === "ip addr show" || cmd === "ip a") {
@@ -1807,6 +1815,7 @@ drwxr-xr-x  3 root staff    96 ${now} meetings/
 drwx------  2 root root      64 Jan  1 00:00 .shadow/
 -rw-r--r--  1 root staff  1354 ${now} manifesto.txt
 -rw-r--r--  1 root staff   921 ${now} .sigh.txt
+-rw-r--r--  1 root staff 3514368 May 12  2017 wannacry.exe
 </pre>`;
           } else if (cmd === "cd" || cmd === "cd ~" || cmd === "cd ~/") {
             // cd with no args or cd ~ → go home
@@ -1977,6 +1986,7 @@ Available commands:
   ls -l           Detailed file listing
   cd &lt;dir&gt;        Navigate to a page (blog, code, conduct, contact, meetings)
   cat &lt;file&gt;      Read a file (manifesto.txt, .sigh.txt, /dev/memory)
+  strings &lt;file&gt;  Print readable strings from a binary
   pwd             Print current working directory
   whoami          Display current user
   ifconfig        Show network interface info
@@ -1995,7 +2005,6 @@ Available commands:
   free -h         Show memory usage
   rtl_test        Probe the fake RTL-SDR dongle
   sdr scan        Scan the air for hidden signals
-  wannacry        Inspect the famous kill-switch domain
   dig &lt;domain&gt;    Query DNS records
   curl &lt;url&gt;      Fetch a URL, carefully
   help            Show this help message
@@ -2073,17 +2082,31 @@ rtl_power: sweeping 24 MHz - 1.7 GHz...
 Hidden signal found: 433.920 MHz
 Message: CQ CQ CQ DE CHA // NOOGA HACKERS ON THE AIR
 </pre>`;
-          } else if (cmd === "wannacry") {
+          } else if (cmd === "cat wannacry.exe") {
+            div.innerHTML = "MZ\x90\x00\x03... &lt;PE32 executable binary data&gt; ...try: strings wannacry.exe<br>";
+          } else if (cmd === "strings" || cmd === "strings -a") {
+            div.innerHTML = "Usage: strings wannacry.exe<br>";
+          } else if (cmd === "strings wannacry.exe" || cmd === "strings -a wannacry.exe") {
             div.innerHTML = `<pre>
-WannaCry kill-switch lab // SAFE MODE
+!This program cannot be run in DOS mode.
+Rich
+.text
+.rdata
+.data
+KERNEL32.dll
+ADVAPI32.dll
+WS2_32.dll
+CRYPT32.dll
+mssecsvc2.0
+tasksche.exe
+Global\\MsWinZonesCacheCounterMutexA
+\\.\\pipe\\mssecsvc2.0
+WanaCrypt0r
+WNcry@2ol7
+iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com
+http://iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com/
 
-Known kill-switch domain:
-  iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com
-
-Historical note:
-  During the 2017 WannaCry outbreak, a researcher registered this
-  nonsense-looking domain and accidentally activated the malware's
-  kill-switch check, slowing the spread.
+# analyst note: suspicious embedded URL found in sample strings
 </pre>`;
           } else if (cmd === "dig iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com" || cmd === "nslookup iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com") {
             div.innerHTML = `<pre>
