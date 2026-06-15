@@ -1339,7 +1339,7 @@
             "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free",
             "netstat", "ss", "last", "w",
             "sudo", "lights", "exit", "shutdown", "init", "poweroff", "halt",
-            "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr"
+            "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "wannacry", "dig", "curl", "nslookup"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -1424,6 +1424,15 @@
           if (cmd === "sdr") {
             const partial = parts.slice(1).join(" ");
             return ["scan"].filter(f => f.startsWith(partial) && f !== partial).map(f => "sdr " + f);
+          }
+
+          // Complete WannaCry kill-switch lookup commands
+          if (cmd === "dig" || cmd === "curl" || cmd === "nslookup") {
+            const partial = parts.slice(1).join(" ");
+            const killSwitchDomain = "iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com";
+            return [killSwitchDomain]
+              .filter(f => f.startsWith(partial) && f !== partial)
+              .map(f => `${cmd} ${f}`);
           }
 
           if (cmd === "df" || cmd === "free") {
@@ -1986,6 +1995,9 @@ Available commands:
   free -h         Show memory usage
   rtl_test        Probe the fake RTL-SDR dongle
   sdr scan        Scan the air for hidden signals
+  wannacry        Inspect the famous kill-switch domain
+  dig &lt;domain&gt;    Query DNS records
+  curl &lt;url&gt;      Fetch a URL, carefully
   help            Show this help message
   clear           Clear the terminal
   uptime          Show system uptime
@@ -2060,6 +2072,52 @@ rtl_power: sweeping 24 MHz - 1.7 GHz...
 
 Hidden signal found: 433.920 MHz
 Message: CQ CQ CQ DE CHA // NOOGA HACKERS ON THE AIR
+</pre>`;
+          } else if (cmd === "wannacry") {
+            div.innerHTML = `<pre>
+WannaCry kill-switch lab // SAFE MODE
+
+Known kill-switch domain:
+  iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com
+
+Historical note:
+  During the 2017 WannaCry outbreak, a researcher registered this
+  nonsense-looking domain and accidentally activated the malware's
+  kill-switch check, slowing the spread.
+
+Try:
+  dig iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com
+  curl iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com
+</pre>`;
+          } else if (cmd === "dig iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com" || cmd === "nslookup iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com") {
+            div.innerHTML = `<pre>
+; &lt;&lt;&gt;&gt; DiG 9.18-cha &lt;&lt;&gt;&gt; iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com
+;; global options: +cmd
+;; Got answer:
+;; -&gt;&gt;HEADER&lt;&lt;- opcode: QUERY, status: NOERROR, id: 0423
+
+;; QUESTION SECTION:
+;iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com. IN A
+
+;; ANSWER SECTION:
+iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com. 300 IN A 127.0.0.1
+
+;; CHA NOTE:
+;; Kill-switch domain resolved. Sample enters sleep mode.
+;; Curiosity saved networks. Register domains responsibly.
+</pre>`;
+          } else if (cmd === "curl iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com" || cmd === "curl http://iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com") {
+            div.innerHTML = `<pre>
+HTTP/1.1 200 OK
+Server: sinkhole-cha/4.23
+Content-Type: text/plain
+
+[KILL SWITCH ARMED]
+WannaCry-style beacon received.
+Returning benign sinkhole response...
+
+Ransomware simulation halted.
+Patch SMB. Back up your stuff. Hug your incident responder.
 </pre>`;
           } else if (cmd === "sudo lights on") {
             document.body.classList.add('lights-on');
