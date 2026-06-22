@@ -1506,16 +1506,22 @@
             next = lastWednesday(year, month);
           }
           
+          // Compare calendar dates (not raw ms) for TODAY/TOMORROW
+          const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const meetDate = new Date(next.getFullYear(), next.getMonth(), next.getDate());
+          const calendarDays = Math.round((meetDate - todayDate) / 86400000);
+
           const diffMs = next - now;
-          const days = Math.floor(diffMs / 86400000);
-          const hours = Math.floor((diffMs % 86400000) / 3600000);
+          const totalHours = Math.floor(diffMs / 3600000);
+          const daysLeft = Math.floor(totalHours / 24);
+          const hoursLeft = totalHours % 24;
           
           const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
           const dateStr = `${months[next.getMonth()]} ${next.getDate()}`;
           
-          if (days === 0) return `NEXT MEETING: TODAY @ 18:30`;
-          if (days === 1) return `NEXT MEETING: TOMORROW @ 18:30`;
-          return `NEXT MEETING: ${dateStr} (${days}d ${hours}h)`;
+          if (calendarDays === 0) return `NEXT MEETING: TODAY @ 18:30`;
+          if (calendarDays === 1) return `NEXT MEETING: TOMORROW @ 18:30`;
+          return `NEXT MEETING: ${dateStr} (${daysLeft}d ${hoursLeft}h)`;
         }
 
         function buildMotdLines(ip, quote) {
@@ -2483,6 +2489,9 @@ Patch SMB. Back up your stuff. Hug your incident responder.
             const _l = new TextDecoder().decode(_bytes);
             const _p = document.createElement("pre");
             _p.style.color = "#33ff33";
+            _p.style.whiteSpace = "pre";
+            _p.style.overflowX = "auto";
+            _p.style.fontFamily = "'Courier New', Courier, monospace";
             _p.textContent = _l;
             div.appendChild(_p);
           } else if (cmd === "lights" || cmd === "lights on" || cmd === "lights off") {
