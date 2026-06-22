@@ -358,6 +358,71 @@
       background: rgba(51, 255, 51, 0.14);
     }
 
+    /* Nano editor overlay */
+    .nano-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      color: #d0d0d0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9rem;
+      z-index: 20000;
+      display: none;
+      flex-direction: column;
+      padding: 0;
+      line-height: 1.35;
+    }
+
+    .nano-overlay.active {
+      display: flex;
+    }
+
+    .nano-title-bar {
+      background: #fff;
+      color: #000;
+      text-align: center;
+      padding: 2px 0;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .nano-body {
+      flex: 1;
+      padding: 8px 12px;
+      white-space: pre;
+      overflow-y: auto;
+      outline: none;
+    }
+
+    .nano-body .nano-line {
+      min-height: 1.35em;
+    }
+
+    .nano-body .nano-cursor-line {
+      background: rgba(51, 255, 51, 0.08);
+    }
+
+    .nano-status {
+      color: #d0d0d0;
+      padding: 2px 12px;
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+
+    .nano-help {
+      background: #000;
+      color: #d0d0d0;
+      padding: 2px 12px;
+      font-size: 0.78rem;
+      flex-shrink: 0;
+      border-top: 1px solid #444;
+    }
+
+    .nano-help kbd {
+      color: #fff;
+      font-weight: bold;
+    }
+
     .window {
       width: 800px;
       height: 480px;
@@ -879,6 +944,14 @@
     </div>
   </div>
 
+  <!-- Nano Editor Overlay -->
+  <div class="nano-overlay" id="nanoOverlay">
+    <div class="nano-title-bar" id="nanoTitleBar">  GNU nano 7.2            /etc/weather.conf</div>
+    <div class="nano-body" id="nanoBody"></div>
+    <div class="nano-status" id="nanoStatus"></div>
+    <div class="nano-help">  <kbd>^X</kbd> Exit    <kbd>^O</kbd> Write Out    <kbd>^K</kbd> Cut    <kbd>↑↓</kbd> Navigate</div>
+  </div>
+
   <!-- Taskbar Dock (shown when minimized) -->
   <div class="taskbar-dock" id="taskbarDock">[ root@cha:~ ] — click to restore</div>
 
@@ -1004,6 +1077,11 @@
         const weatherAlertBody = document.getElementById('weatherAlertBody');
         const weatherAlertClose = document.getElementById('weatherAlertClose');
         let lastWeatherAlertId = '';
+        let weatherStation = 'KCHA';
+        let alertZone = 'TNC065';
+        let nanoActive = false;
+        let nanoBuffer = '';
+        let nanoCursorLine = 0;
 
         function showWeatherAlertPopup(alertFeature, force = false) {
           if (!alertFeature || !weatherAlertOverlay) return;
@@ -1017,7 +1095,7 @@
             props.certainty ? `Certainty: ${props.certainty}` : '',
             props.effective ? `Effective: ${new Date(props.effective).toLocaleString()}` : '',
             props.expires ? `Expires: ${new Date(props.expires).toLocaleString()}` : ''
-          ].filter(Boolean).join('  //  ') || 'Active weather.gov alert for TNC065';
+          ].filter(Boolean).join('  //  ') || `Active weather.gov alert for ${alertZone}`;
           weatherAlertBody.textContent = [
             props.headline || props.event || 'Active weather alert',
             '',
@@ -1075,7 +1153,7 @@
         async function updatePanelWeather() {
           if (!xfceWeather) return;
           try {
-            const alertResponse = await fetch('https://api.weather.gov/alerts/active?zone=TNC065', {
+            const alertResponse = await fetch(`https://api.weather.gov/alerts/active?zone=${alertZone}`, {
               headers: { 'Accept': 'application/geo+json, application/json' }
             });
 
@@ -1095,7 +1173,7 @@
 
             xfceWeather.classList.remove('alert-active');
             hideWeatherAlertPopup();
-            const response = await fetch('https://api.weather.gov/stations/KCHA/observations/latest', {
+            const response = await fetch(`https://api.weather.gov/stations/${weatherStation}/observations/latest`, {
               headers: { 'Accept': 'application/geo+json, application/json' }
             });
             if (!response.ok) throw new Error(`weather status ${response.status}`);
@@ -1139,7 +1217,7 @@
               hideWeatherAlertPopup();
               return;
             }
-            fetch('https://api.weather.gov/alerts/active?zone=TNC065', {
+            fetch(`https://api.weather.gov/alerts/active?zone=${alertZone}`, {
               headers: { 'Accept': 'application/geo+json, application/json' }
             })
               .then(response => response.ok ? response.json() : null)
@@ -1645,6 +1723,14 @@
           if (cmd === "init") {
             const partial = parts[1] || "";
             return ["0"].filter(f => f.startsWith(partial) && f !== partial).map(f => "init " + f);
+          }
+
+          // Complete "nano /etc/weather.conf" and "vi/vim"
+          if (cmd === "nano" || cmd === "vi" || cmd === "vim") {
+            const partial = parts.slice(1).join(" ");
+            return ["/etc/weather.conf"]
+              .filter(f => f.startsWith(partial) && f !== partial)
+              .map(f => `${cmd} ${f}`);
           }
 
           return [];
@@ -2196,14 +2282,31 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
             updatePrompt();
             scrollToBottom();
             return;
+          } else if (cmd === "cat /etc/weather.conf") {
+            div.innerHTML = `<pre>
+# /etc/weather.conf — CHA weather station config
+# Session-only: changes reset on page refresh
+
+[station]
+observation = ${weatherStation}
+
+[alerts]
+zone = ${alertZone}
+</pre>`;
+          } else if (cmd === "nano /etc/weather.conf" || cmd === "vi /etc/weather.conf" || cmd === "vim /etc/weather.conf") {
+            // Open nano editor overlay
+            openNanoEditor();
+            return;
           } else if (cmd === "help" || cmd === "?") {
             div.innerHTML = `<pre>
 Available commands:
   ls              List files and directories
   ls -l           Detailed file listing
-  cd &lt;dir&gt;        Navigate to a page (blog, code, conduct, contact, meetings)
-  cat &lt;file&gt;      Read a file (manifesto.txt, .sigh.txt, /dev/memory)
-  strings &lt;file&gt;  Print readable strings from a binary
+  cd <dir>        Navigate to a page (blog, code, conduct, contact, meetings)
+  cat <file>      Read a file (manifesto.txt, .sigh.txt, /dev/memory)
+  cat /etc/weather.conf  Show weather station config
+  nano /etc/weather.conf Edit weather station (session only)
+  strings <file>  Print readable strings from a binary
   pwd             Print current working directory
   whoami          Display current user
   ssh root@host   Try an SSH login, if you must
@@ -2223,8 +2326,8 @@ Available commands:
   free -h         Show memory usage
   rtl_test        Probe the fake RTL-SDR dongle
   sdr scan        Scan the air for hidden signals
-  dig &lt;domain&gt;    Query DNS records
-  curl &lt;url&gt;      Fetch a URL, carefully
+  dig <domain>    Query DNS records
+  curl <url>      Fetch a URL, carefully
   help            Show this help message
   clear           Clear the terminal
   uptime          Show system uptime
@@ -2440,6 +2543,152 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           terminal.insertBefore(div, prompt);
           scrollToBottom();
         }
+
+        // === NANO EDITOR ===
+        const nanoOverlay = document.getElementById('nanoOverlay');
+        const nanoBody = document.getElementById('nanoBody');
+        const nanoStatus = document.getElementById('nanoStatus');
+
+        function openNanoEditor() {
+          const lines = [
+            '# /etc/weather.conf — CHA weather station config',
+            '# Session-only: changes reset on page refresh',
+            '',
+            '[station]',
+            `observation = ${weatherStation}`,
+            '',
+            '[alerts]',
+            `zone = ${alertZone}`,
+            ''
+          ];
+          nanoActive = true;
+          nanoCursorLine = 4; // start on observation line
+          renderNano(lines);
+          nanoOverlay.classList.add('active');
+          nanoStatus.textContent = '';
+        }
+
+        function renderNano(lines) {
+          nanoBody.innerHTML = '';
+          lines.forEach((line, i) => {
+            const div = document.createElement('div');
+            div.className = 'nano-line' + (i === nanoCursorLine ? ' nano-cursor-line' : '');
+            div.textContent = line;
+            nanoBody.appendChild(div);
+          });
+        }
+
+        function getNanoLines() {
+          return Array.from(nanoBody.querySelectorAll('.nano-line')).map(el => el.textContent);
+        }
+
+        function nanoKeyHandler(e) {
+          if (!nanoActive) return;
+          e.preventDefault();
+          e.stopPropagation();
+
+          const lines = getNanoLines();
+
+          // ^X = exit
+          if (e.ctrlKey && e.key.toLowerCase() === 'x') {
+            nanoActive = false;
+            nanoOverlay.classList.remove('active');
+            // Parse the config back
+            let newStation = weatherStation;
+            let newZone = alertZone;
+            lines.forEach(l => {
+              const m1 = l.match(/^\s*observation\s*=\s*(\S+)/i);
+              if (m1) newStation = m1[1];
+              const m2 = l.match(/^\s*zone\s*=\s*(\S+)/i);
+              if (m2) newZone = m2[1];
+            });
+            const changed = (newStation !== weatherStation || newZone !== alertZone);
+            weatherStation = newStation;
+            alertZone = newZone;
+            // Print result in terminal
+            const div = document.createElement('div');
+            if (changed) {
+              div.innerHTML = `<span style="color:#33ff33">weather.conf saved (session only).</span><br>station=${weatherStation} zone=${alertZone}<br>Refreshing weather...<br>`;
+              updatePanelWeather();
+            } else {
+              div.innerHTML = `<span style="color:#33ff33">weather.conf unchanged.</span><br>`;
+            }
+            terminal.insertBefore(div, prompt);
+            scrollToBottom();
+            return;
+          }
+
+          // ^O = write out (save without exit)
+          if (e.ctrlKey && e.key.toLowerCase() === 'o') {
+            let newStation = weatherStation;
+            let newZone = alertZone;
+            lines.forEach(l => {
+              const m1 = l.match(/^\s*observation\s*=\s*(\S+)/i);
+              if (m1) newStation = m1[1];
+              const m2 = l.match(/^\s*zone\s*=\s*(\S+)/i);
+              if (m2) newZone = m2[1];
+            });
+            weatherStation = newStation;
+            alertZone = newZone;
+            nanoStatus.textContent = `[ Wrote ${lines.length} lines — station=${weatherStation} zone=${alertZone} ]`;
+            updatePanelWeather();
+            return;
+          }
+
+          // ^K = cut line
+          if (e.ctrlKey && e.key.toLowerCase() === 'k') {
+            if (lines.length > 1) {
+              lines.splice(nanoCursorLine, 1);
+              if (nanoCursorLine >= lines.length) nanoCursorLine = lines.length - 1;
+              renderNano(lines);
+            }
+            return;
+          }
+
+          // Arrow keys
+          if (e.key === 'ArrowUp') {
+            if (nanoCursorLine > 0) nanoCursorLine--;
+            renderNano(lines);
+            return;
+          }
+          if (e.key === 'ArrowDown') {
+            if (nanoCursorLine < lines.length - 1) nanoCursorLine++;
+            renderNano(lines);
+            return;
+          }
+
+          // Enter = new line
+          if (e.key === 'Enter') {
+            lines.splice(nanoCursorLine + 1, 0, '');
+            nanoCursorLine++;
+            renderNano(lines);
+            return;
+          }
+
+          // Backspace
+          if (e.key === 'Backspace') {
+            if (lines[nanoCursorLine].length > 0) {
+              lines[nanoCursorLine] = lines[nanoCursorLine].slice(0, -1);
+            } else if (nanoCursorLine > 0) {
+              lines.splice(nanoCursorLine, 1);
+              nanoCursorLine--;
+            }
+            renderNano(lines);
+            return;
+          }
+
+          // Regular character
+          if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+            lines[nanoCursorLine] += e.key;
+            renderNano(lines);
+          }
+        }
+
+        document.addEventListener('keydown', function(e) {
+          if (nanoActive) {
+            nanoKeyHandler(e);
+          }
+        }, true);
 
         typeBootLines();
 
