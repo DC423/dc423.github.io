@@ -166,6 +166,20 @@
       color: #9dff9d;
     }
 
+    .xfce-weather.alert-active {
+      color: #ffff00;
+      border-color: rgba(255, 255, 0, 0.75);
+      background: rgba(80, 60, 0, 0.45);
+      text-shadow: 0 0 8px rgba(255, 255, 0, 0.75);
+      animation: weather-alert-pulse 1.4s ease-in-out infinite;
+      cursor: pointer;
+    }
+
+    @keyframes weather-alert-pulse {
+      0%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 7px rgba(255, 255, 0, 0.22); }
+      50% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 16px rgba(255, 255, 0, 0.62); }
+    }
+
     .xfce-clock {
       color: #ffffff;
       min-width: 150px;
@@ -276,6 +290,69 @@
     .screen-lock-hint {
       color: #aaffaa;
       font-size: 0.9rem;
+    }
+
+    .weather-alert-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      color: #33ff33;
+      z-index: 10003;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-shadow: 0 0 10px rgba(51, 255, 51, 0.65);
+    }
+
+    .weather-alert-overlay.active {
+      display: flex;
+    }
+
+    .weather-alert-box {
+      width: min(760px, 92vw);
+      max-height: 78vh;
+      overflow-y: auto;
+      border: 1px solid #ffff00;
+      background: rgba(12, 12, 0, 0.96);
+      box-shadow: 0 0 28px rgba(255, 255, 0, 0.35), inset 0 0 18px rgba(51, 255, 51, 0.08);
+      padding: 22px 24px;
+    }
+
+    .weather-alert-title {
+      color: #ffff00;
+      font-size: 1.35rem;
+      margin-bottom: 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .weather-alert-meta {
+      color: #aaffaa;
+      font-size: 0.82rem;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+
+    .weather-alert-body {
+      white-space: pre-wrap;
+      line-height: 1.5;
+      font-size: 0.9rem;
+    }
+
+    .weather-alert-close {
+      margin-top: 18px;
+      border: 1px solid #33ff33;
+      background: rgba(0, 0, 0, 0.45);
+      color: #33ff33;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .weather-alert-close:hover,
+    .weather-alert-close:focus {
+      outline: none;
+      background: rgba(51, 255, 51, 0.14);
     }
 
     .window {
@@ -789,6 +866,16 @@
     </div>
   </div>
 
+  <!-- Weather Alert Overlay -->
+  <div class="weather-alert-overlay" id="weatherAlertOverlay" aria-hidden="true">
+    <div class="weather-alert-box" role="dialog" aria-modal="true" aria-labelledby="weatherAlertTitle">
+      <div class="weather-alert-title" id="weatherAlertTitle">[ WEATHER ALERT // HACKERS IN CLOSET ]</div>
+      <div class="weather-alert-meta" id="weatherAlertMeta">loading alert metadata...</div>
+      <div class="weather-alert-body" id="weatherAlertBody">loading alert...</div>
+      <button class="weather-alert-close" id="weatherAlertClose" type="button">dismiss alert</button>
+    </div>
+  </div>
+
   <!-- Taskbar Dock (shown when minimized) -->
   <div class="taskbar-dock" id="taskbarDock">[ root@cha:~ ] — click to restore</div>
 
@@ -908,6 +995,45 @@
         const xfceMenu = document.getElementById('xfceMenu');
         const xfceTaskButton = document.getElementById('xfceTaskButton');
         const screenLockOverlay = document.getElementById('screenLockOverlay');
+        const weatherAlertOverlay = document.getElementById('weatherAlertOverlay');
+        const weatherAlertTitle = document.getElementById('weatherAlertTitle');
+        const weatherAlertMeta = document.getElementById('weatherAlertMeta');
+        const weatherAlertBody = document.getElementById('weatherAlertBody');
+        const weatherAlertClose = document.getElementById('weatherAlertClose');
+        let lastWeatherAlertId = '';
+
+        function showWeatherAlertPopup(alertFeature, force = false) {
+          if (!alertFeature || !weatherAlertOverlay) return;
+          const props = alertFeature.properties || {};
+          const alertId = alertFeature.id || props.id || `${props.event || 'weather-alert'}-${props.sent || ''}`;
+
+          weatherAlertTitle.textContent = `[ WEATHER ALERT // ${props.event || 'HACKERS IN CLOSET'} ]`;
+          weatherAlertMeta.textContent = [
+            props.severity ? `Severity: ${props.severity}` : '',
+            props.urgency ? `Urgency: ${props.urgency}` : '',
+            props.certainty ? `Certainty: ${props.certainty}` : '',
+            props.effective ? `Effective: ${new Date(props.effective).toLocaleString()}` : '',
+            props.expires ? `Expires: ${new Date(props.expires).toLocaleString()}` : ''
+          ].filter(Boolean).join('  //  ') || 'Active weather.gov alert for TNC065';
+          weatherAlertBody.textContent = [
+            props.headline || props.event || 'Active weather alert',
+            '',
+            props.description || 'No description provided by weather.gov.',
+            props.instruction ? `\nInstructions:\n${props.instruction}` : ''
+          ].join('\n');
+
+          if (force || alertId !== lastWeatherAlertId) {
+            lastWeatherAlertId = alertId;
+            weatherAlertOverlay.classList.add('active');
+            weatherAlertOverlay.setAttribute('aria-hidden', 'false');
+          }
+        }
+
+        function hideWeatherAlertPopup() {
+          if (!weatherAlertOverlay) return;
+          weatherAlertOverlay.classList.remove('active');
+          weatherAlertOverlay.setAttribute('aria-hidden', 'true');
+        }
 
         function updatePanelClock() {
           if (!xfceClock) return;
@@ -946,6 +1072,25 @@
         async function updatePanelWeather() {
           if (!xfceWeather) return;
           try {
+            const alertResponse = await fetch('https://api.weather.gov/alerts/active?zone=TNC065', {
+              headers: { 'Accept': 'application/geo+json, application/json' }
+            });
+
+            if (alertResponse.ok) {
+              const alertData = await alertResponse.json();
+              const activeAlerts = Array.isArray(alertData.features) ? alertData.features : [];
+              if (activeAlerts.length > 0) {
+                const topAlert = activeAlerts[0];
+                const props = topAlert.properties || {};
+                xfceWeather.textContent = '⚠ HACKERS IN CLOSET';
+                xfceWeather.title = `${props.event || 'Weather alert'} — click for details`;
+                xfceWeather.classList.add('alert-active');
+                showWeatherAlertPopup(topAlert);
+                return;
+              }
+            }
+
+            xfceWeather.classList.remove('alert-active');
             const response = await fetch('https://api.weather.gov/stations/KCHA/observations/latest', {
               headers: { 'Accept': 'application/geo+json, application/json' }
             });
@@ -971,6 +1116,31 @@
             xfceWeather.textContent = '🌡️ weather unavailable';
             xfceWeather.title = 'Could not load latest weather.gov observation';
           }
+        }
+
+        if (weatherAlertClose) {
+          weatherAlertClose.addEventListener('click', hideWeatherAlertPopup);
+        }
+
+        if (weatherAlertOverlay) {
+          weatherAlertOverlay.addEventListener('click', function (event) {
+            if (event.target === weatherAlertOverlay) hideWeatherAlertPopup();
+          });
+        }
+
+        if (xfceWeather) {
+          xfceWeather.addEventListener('click', function () {
+            if (!xfceWeather.classList.contains('alert-active')) return;
+            fetch('https://api.weather.gov/alerts/active?zone=TNC065', {
+              headers: { 'Accept': 'application/geo+json, application/json' }
+            })
+              .then(response => response.ok ? response.json() : null)
+              .then(data => {
+                const activeAlerts = data && Array.isArray(data.features) ? data.features : [];
+                if (activeAlerts.length > 0) showWeatherAlertPopup(activeAlerts[0], true);
+              })
+              .catch(() => {});
+          });
         }
 
         updatePanelClock();
