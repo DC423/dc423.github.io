@@ -294,34 +294,37 @@
 
     .weather-alert-overlay {
       position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.78);
+      top: 32px;
+      right: 8px;
       color: #33ff33;
       z-index: 10003;
       display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+      width: min(520px, calc(100vw - 16px));
       text-shadow: 0 0 10px rgba(51, 255, 51, 0.65);
     }
 
     .weather-alert-overlay.active {
-      display: flex;
+      display: block;
     }
 
     .weather-alert-box {
-      width: min(760px, 92vw);
-      max-height: 78vh;
+      max-height: min(460px, calc(100vh - 48px));
       overflow-y: auto;
       border: 1px solid #ffff00;
       background: rgba(12, 12, 0, 0.96);
       box-shadow: 0 0 28px rgba(255, 255, 0, 0.35), inset 0 0 18px rgba(51, 255, 51, 0.08);
-      padding: 22px 24px;
+      padding: 16px 18px;
+      animation: weather-dropdown-in 0.16s ease-out;
+    }
+
+    @keyframes weather-dropdown-in {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .weather-alert-title {
       color: #ffff00;
-      font-size: 1.35rem;
+      font-size: 1rem;
       margin-bottom: 10px;
       letter-spacing: 0.05em;
     }
@@ -1022,8 +1025,8 @@
             props.instruction ? `\nInstructions:\n${props.instruction}` : ''
           ].join('\n');
 
-          if (force || alertId !== lastWeatherAlertId) {
-            lastWeatherAlertId = alertId;
+          lastWeatherAlertId = alertId;
+          if (force) {
             weatherAlertOverlay.classList.add('active');
             weatherAlertOverlay.setAttribute('aria-hidden', 'false');
           }
@@ -1091,6 +1094,7 @@
             }
 
             xfceWeather.classList.remove('alert-active');
+            hideWeatherAlertPopup();
             const response = await fetch('https://api.weather.gov/stations/KCHA/observations/latest', {
               headers: { 'Accept': 'application/geo+json, application/json' }
             });
@@ -1131,6 +1135,10 @@
         if (xfceWeather) {
           xfceWeather.addEventListener('click', function () {
             if (!xfceWeather.classList.contains('alert-active')) return;
+            if (weatherAlertOverlay && weatherAlertOverlay.classList.contains('active')) {
+              hideWeatherAlertPopup();
+              return;
+            }
             fetch('https://api.weather.gov/alerts/active?zone=TNC065', {
               headers: { 'Accept': 'application/geo+json, application/json' }
             })
