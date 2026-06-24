@@ -980,8 +980,8 @@
       </div>
       <div class="xfce-menu-section">
         <div class="xfce-menu-label">Utilities</div>
-        <button class="xfce-menu-item" data-action="lights-on"><span class="xfce-menu-icon">☀</span> Lights On</button>
-        <button class="xfce-menu-item" data-action="lights-off"><span class="xfce-menu-icon">☾</span> Lights Off</button>
+        <button class="xfce-menu-item" data-action="lights-on"><span class="xfce-menu-icon">☀</span> Light Mode</button>
+        <button class="xfce-menu-item" data-action="lights-off"><span class="xfce-menu-icon">☾</span> Dark Mode</button>
         <button class="xfce-menu-item" data-action="weather"><span class="xfce-menu-icon">☁</span> Refresh Weather</button>
       </div>
       <div class="xfce-menu-section">
@@ -1603,7 +1603,7 @@
             "ls", "cd", "cat", "pwd", "whoami", "help", "clear", "uptime", "date",
             "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free", "ssh",
             "netstat", "ss", "last", "w",
-            "sudo", "lights", "exit", "shutdown", "init", "poweroff", "halt",
+            "sudo", "lights", "light", "dark", "exit", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup"
           ];
 
@@ -1617,15 +1617,19 @@
 
           const cmd = parts[0];
 
-          // Complete "sudo lights on/off"
+          // Complete theme toggle commands
           if (cmd === "sudo") {
             if (parts.length === 2) {
               const sub = parts[1];
-              return ["lights"].filter(c => c.startsWith(sub) && c !== sub).map(c => "sudo " + c);
+              return ["lights", "light", "dark"].filter(c => c.startsWith(sub) && c !== sub).map(c => "sudo " + c);
             }
             if (parts.length === 3 && parts[1] === "lights") {
               const sub = parts[2];
               return ["on", "off"].filter(c => c.startsWith(sub) && c !== sub).map(c => "sudo lights " + c);
+            }
+            if (parts.length === 3 && (parts[1] === "light" || parts[1] === "dark")) {
+              const sub = parts[2];
+              return ["mode"].filter(c => c.startsWith(sub) && c !== sub).map(c => `sudo ${parts[1]} ${c}`);
             }
             return [];
           }
@@ -1713,10 +1717,16 @@
             return ["-h"].filter(f => f.startsWith(partial) && f !== partial).map(f => `${cmd} ${f}`);
           }
 
-          // Complete "lights on/off" (without sudo)
+          // Complete legacy "lights on/off" command aliases
           if (cmd === "lights") {
             const partial = parts[1] || "";
             return ["on", "off"].filter(c => c.startsWith(partial) && c !== partial).map(c => "lights " + c);
+          }
+
+          // Complete "light mode" / "dark mode" aliases
+          if (cmd === "light" || cmd === "dark") {
+            const partial = parts[1] || "";
+            return ["mode"].filter(c => c.startsWith(partial) && c !== partial).map(c => `${cmd} ${c}`);
           }
 
           // Complete "shutdown" flags
@@ -2339,8 +2349,8 @@ Available commands:
   uptime          Show system uptime
   date            Show current date/time
   init 0          Shutdown the system
-  sudo lights on  Toggle light mode (surprise!)
-  sudo lights off Return to dark mode
+  light mode      Switch to Light Mode
+  dark mode       Switch to Dark Mode
 </pre>`;
           } else if (cmd === "clear") {
             terminal.innerHTML = '';
@@ -2475,14 +2485,14 @@ Returning benign sinkhole response...
 Ransomware simulation halted.
 Patch SMB. Back up your stuff. Hug your incident responder.
 </pre>`;
-          } else if (cmd === "sudo lights on") {
+          } else if (cmd === "sudo lights on" || cmd === "sudo light mode" || cmd === "light mode") {
             document.body.classList.add('lights-on');
-            div.innerHTML = "Let there be light! (type 'sudo lights off' to return to the dark side)<br>";
-          } else if (cmd === "sudo lights off") {
+            div.innerHTML = "Light Mode enabled. Type 'dark mode' to return to Dark Mode.<br>";
+          } else if (cmd === "sudo lights off" || cmd === "sudo dark mode" || cmd === "dark mode") {
             document.body.classList.remove('lights-on');
-            div.innerHTML = "Welcome back to the dark side. We have cookies. 🍪<br>";
-          } else if (cmd === "sudo lights" || cmd === "sudo") {
-            div.innerHTML = "Usage: sudo lights &lt;on|off&gt;<br>";
+            div.innerHTML = "Dark Mode enabled. Welcome back. 🍪<br>";
+          } else if (cmd === "sudo lights" || cmd === "sudo light" || cmd === "sudo dark" || cmd === "sudo") {
+            div.innerHTML = "Usage: light mode | dark mode<br>";
           } else if (_isEasterEgg) {
             const _b64 = "4pSM4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSQCuKUgiAgI2RjNDIzIElSQyAtIEZyZWVub2RlIC0gQXJjaGl2ZWQgTG9nICAgICAgICAgICDilIIK4pSc4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSkCuKUgiA8U3luQWNrUHduPiBob2xkIG9uIGxldCBtZSBsb2cgaW4gcmVhbCBxdWljayAgICDilIIK4pSCIDxTeW5BY2tQd24+IFRAY2h5MG4xMyAgICAgICAgICAgICAgICAgICAgICAgICAgIOKUggrilIIgPFN5bkFja1B3bj4gLi4uICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg4pSCCuKUgiA8U3luQWNrUHduPiB0aGF0IHdhc250IHRoZSBzc2ggcHJvbXB0IHdhcyBpdCAgICDilIIK4pSCIDx6M3IwYzAwbD4gTE1BT09PT08gICAgICAgICAgICAgICAgICAgICAgICAgICAgIOKUggrilIIgPHozcjBjMDBsPiBuby4gbm8gaXQgd2FzIG5vdC4gICAgICAgICAgICAgICAgICAg4pSCCuKUgiA8bjAwYnN0M3I+IHNjcmVlbnNob3Qgc2F2ZWQgZm9yZXZlciAgICAgICAgICAgICDilIIK4pSCIDxTeW5BY2tQd24+IGNhbiBzb21lb25lIGRlbGV0ZSB0aGF0ICAgICAgICAgICAgIOKUggrilIIgPHozcjBjMDBsPiBpdHMgSVJDIGJyby4gaXRzIGV0ZXJuYWwuICAgICAgICAgICAg4pSCCuKUgiA8U3luQWNrUHduPiBpIGhhdGUgdGhpcyBjaGFubmVsICAgICAgICAgICAgICAgICDilIIK4pSCIDxuMDBic3Qzcj4gd2UgbG92ZSB5b3UgdG9vICAgICAgICAgICAgICAgICAgICAgIOKUggrilIIgPC0tIFN5bkFja1B3biBoYXMgcXVpdCAocmFnZSBxdWl0KSAgICAgICAgICAgICAg4pSCCuKUlOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUmApSSVAgU3luQWNrUHduJ3MgT3BTZWMg4oCUIG5ldmVyIGZvcmdldC4=";
             const _bytes = Uint8Array.from(atob(_b64), c => c.charCodeAt(0));
@@ -2494,8 +2504,8 @@ Patch SMB. Back up your stuff. Hug your incident responder.
             _p.style.fontFamily = "'Courier New', Courier, monospace";
             _p.textContent = _l;
             div.appendChild(_p);
-          } else if (cmd === "lights" || cmd === "lights on" || cmd === "lights off") {
-            div.innerHTML = `bash: lights: permission denied. Are you even root?<br>Try: sudo lights on<br>`;
+          } else if (cmd === "lights" || cmd === "lights on" || cmd === "lights off" || cmd === "light" || cmd === "dark") {
+            div.innerHTML = `Usage: light mode | dark mode<br>`;
           } else if (cmd === "exit" || cmd === "shutdown" || cmd === "shutdown -h now" || cmd === "init 0" || cmd === "poweroff" || cmd === "halt") {
             div.innerHTML = "";
             terminal.insertBefore(div, prompt);
