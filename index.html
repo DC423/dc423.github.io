@@ -1601,7 +1601,7 @@
           // All base commands
           const baseCommands = [
             "ls", "cd", "cat", "pwd", "whoami", "help", "clear", "uptime", "date",
-            "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free", "ssh",
+            "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free", "ping", "ssh",
             "netstat", "ss", "last", "w",
             "sudo", "lights", "light", "dark", "exit", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup"
@@ -1710,6 +1710,14 @@
             return [killSwitchDomain]
               .filter(f => f.startsWith(partial) && f !== partial)
               .map(f => `${cmd} ${f}`);
+          }
+
+          // Complete a few useful/funny ping targets
+          if (cmd === "ping") {
+            const partial = parts.slice(1).join(" ");
+            return ["127.0.0.1", "8.8.8.8", "1.1.1.1", "noogahackers.com"]
+              .filter(f => f.startsWith(partial) && f !== partial)
+              .map(f => `ping ${f}`);
           }
 
           if (cmd === "df" || cmd === "free") {
@@ -1881,6 +1889,69 @@
           } catch (error) {
             return "Error: Failed to fetch dad joke. Maybe try again later? *sigh*";
           }
+        }
+
+        function renderFakePing(cmd) {
+          const usage = "Usage: ping [-c count] &lt;host|ip&gt;<br>";
+          const escapeHtml = value => String(value).replace(/[&<>"']/g, ch => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+          }[ch]));
+          const parts = cmd.trim().split(/\s+/);
+          if (parts[0] !== "ping") return null;
+
+          let count = 4;
+          let target = "";
+          for (let i = 1; i < parts.length; i++) {
+            if ((parts[i] === "-c" || parts[i] === "-n") && parts[i + 1]) {
+              const parsed = parseInt(parts[i + 1], 10);
+              if (!Number.isNaN(parsed)) count = parsed;
+              i++;
+            } else if (parts[i].startsWith("-c") && parts[i].length > 2) {
+              const parsed = parseInt(parts[i].slice(2), 10);
+              if (!Number.isNaN(parsed)) count = parsed;
+            } else if (!parts[i].startsWith("-")) {
+              target = parts[i];
+            }
+          }
+
+          if (!target) return usage;
+
+          count = Math.max(1, Math.min(count, 10));
+          const isLoopback = /^(127(?:\.\d{1,3}){3}|localhost|::1)$/i.test(target);
+          const resolved = target === "localhost" ? "127.0.0.1" : target;
+          const safeTarget = escapeHtml(target);
+          const safeResolved = escapeHtml(resolved);
+          const hostLabel = isLoopback ? `${safeTarget} (${safeResolved})` : safeTarget;
+          const packetSize = 56;
+          const lines = [`PING ${hostLabel}: ${packetSize} data bytes`];
+
+          for (let seq = 0; seq < count; seq++) {
+            const ttl = isLoopback ? 64 : 48 + ((seq * 7) % 17);
+            const time = isLoopback
+              ? (0.031 + seq * 0.006).toFixed(3)
+              : (12.4 + ((seq * 13) % 37) / 3).toFixed(3);
+            lines.push(`${packetSize + 8} bytes from ${safeResolved}: icmp_seq=${seq} ttl=${ttl} time=${time} ms`);
+          }
+
+          if (isLoopback) {
+            lines.push("");
+            lines.push("[CHA NOTICE] The packets are coming from inside the house.");
+            lines.push("[CHA NOTICE] localhost looked back and whispered: 'same.'");
+          }
+
+          lines.push("");
+          lines.push(`--- ${safeTarget} ping statistics ---`);
+          lines.push(`${count} packets transmitted, ${count} received, 0% packet loss`);
+          const min = isLoopback ? "0.031" : "12.400";
+          const avg = isLoopback ? (0.031 + ((count - 1) * 0.006) / 2).toFixed(3) : "18.733";
+          const max = isLoopback ? (0.031 + (count - 1) * 0.006).toFixed(3) : "24.733";
+          lines.push(`round-trip min/avg/max = ${min}/${avg}/${max} ms`);
+
+          return `<pre>${lines.join('\n')}</pre>`;
         }
 
         async function handleCommand(cmd) {
@@ -2344,6 +2415,7 @@ Available commands:
   sdr scan        Scan the air for hidden signals
   dig <domain>    Query DNS records
   curl <url>      Fetch a URL, carefully
+  ping [-c n] <host>  Send up to 10 fake ICMP echoes
   help            Show this help message
   clear           Clear the terminal
   uptime          Show system uptime
@@ -2366,6 +2438,8 @@ Available commands:
             div.innerHTML = ` ${new Date().toLocaleTimeString()} up ${days} days, ${hours}:${String(mins).padStart(2,'0')}, 1 user, load average: 0.42, 0.23, 0.15<br>`;
           } else if (cmd === "date") {
             div.innerHTML = `${new Date().toString()}<br>`;
+          } else if (cmd === "ping" || cmd.startsWith("ping ")) {
+            div.innerHTML = renderFakePing(cmd);
           } else if (cmd.startsWith("ssh ")) {
             const match = cmd.match(/^ssh\s+(?:-p\s+\d+\s+)?root@([^\s]+)$/);
             if (match) {
