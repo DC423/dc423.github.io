@@ -2439,6 +2439,9 @@ Available commands:
             div.innerHTML = ` ${new Date().toLocaleTimeString()} up ${days} days, ${hours}:${String(mins).padStart(2,'0')}, 1 user, load average: 0.42, 0.23, 0.15<br>`;
           } else if (cmd === "date") {
             div.innerHTML = `${new Date().toString()}<br>`;
+          } else if (cmd === "reboot") {
+            window.location.reload();
+            return;
           } else if (cmd === "ping" || cmd.startsWith("ping ")) {
             div.innerHTML = renderFakePing(cmd);
           } else if (cmd.startsWith("ssh ")) {
