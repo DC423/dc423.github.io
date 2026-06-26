@@ -1891,7 +1891,7 @@
           }
         }
 
-        function renderFakePing(cmd) {
+        async function renderFakePing(cmd, outputDiv) {
           const usage = "Usage: ping [-c count] &lt;host|ip&gt;<br>";
           const escapeHtml = value => String(value).replace(/[&<>"']/g, ch => ({
             '&': '&amp;',
@@ -1900,8 +1900,9 @@
             '"': '&quot;',
             "'": '&#39;'
           }[ch]));
+          const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
           const parts = cmd.trim().split(/\s+/);
-          if (parts[0] !== "ping") return null;
+          if (parts[0] !== "ping") return;
 
           let count = 4;
           let target = "";
@@ -1918,7 +1919,10 @@
             }
           }
 
-          if (!target) return usage;
+          if (!target) {
+            outputDiv.innerHTML = usage;
+            return;
+          }
 
           count = Math.max(1, Math.min(count, 10));
           const isLoopback = /^(127(?:\.\d{1,3}){3}|localhost|::1)$/i.test(target);
@@ -1927,31 +1931,41 @@
           const safeResolved = escapeHtml(resolved);
           const hostLabel = isLoopback ? `${safeTarget} (${safeResolved})` : safeTarget;
           const packetSize = 56;
-          const lines = [`PING ${hostLabel}: ${packetSize} data bytes`];
+          const out = document.createElement("pre");
+          out.style.margin = "8px 0";
+          outputDiv.appendChild(out);
+
+          function appendPingLine(line = "") {
+            out.textContent += line + "\n";
+            scrollToBottom();
+          }
+
+          appendPingLine(`PING ${hostLabel}: ${packetSize} data bytes`);
 
           for (let seq = 0; seq < count; seq++) {
+            await wait(900);
             const ttl = isLoopback ? 64 : 48 + ((seq * 7) % 17);
             const time = isLoopback
               ? (0.031 + seq * 0.006).toFixed(3)
               : (12.4 + ((seq * 13) % 37) / 3).toFixed(3);
-            lines.push(`${packetSize + 8} bytes from ${safeResolved}: icmp_seq=${seq} ttl=${ttl} time=${time} ms`);
+            appendPingLine(`${packetSize + 8} bytes from ${safeResolved}: icmp_seq=${seq} ttl=${ttl} time=${time} ms`);
           }
 
           if (isLoopback) {
-            lines.push("");
-            lines.push("[CHA NOTICE] The packets are coming from inside the house.");
-            lines.push("[CHA NOTICE] localhost looked back and whispered: 'same.'");
+            await wait(400);
+            appendPingLine();
+            appendPingLine("[CHA NOTICE] The packets are coming from inside the house.");
+            appendPingLine("[CHA NOTICE] localhost looked back and whispered: 'same.'");
           }
 
-          lines.push("");
-          lines.push(`--- ${safeTarget} ping statistics ---`);
-          lines.push(`${count} packets transmitted, ${count} received, 0% packet loss`);
+          await wait(350);
+          appendPingLine();
+          appendPingLine(`--- ${safeTarget} ping statistics ---`);
+          appendPingLine(`${count} packets transmitted, ${count} received, 0% packet loss`);
           const min = isLoopback ? "0.031" : "12.400";
           const avg = isLoopback ? (0.031 + ((count - 1) * 0.006) / 2).toFixed(3) : "18.733";
           const max = isLoopback ? (0.031 + (count - 1) * 0.006).toFixed(3) : "24.733";
-          lines.push(`round-trip min/avg/max = ${min}/${avg}/${max} ms`);
-
-          return `<pre>${lines.join('\n')}</pre>`;
+          appendPingLine(`round-trip min/avg/max = ${min}/${avg}/${max} ms`);
         }
 
         async function handleCommand(cmd) {
@@ -2443,7 +2457,10 @@ Available commands:
             window.location.reload();
             return;
           } else if (cmd === "ping" || cmd.startsWith("ping ")) {
-            div.innerHTML = renderFakePing(cmd);
+            terminal.insertBefore(div, prompt);
+            await renderFakePing(cmd, div);
+            scrollToBottom();
+            return;
           } else if (cmd.startsWith("ssh ")) {
             const match = cmd.match(/^ssh\s+(?:-p\s+\d+\s+)?root@([^\s]+)$/);
             if (match) {
@@ -3130,5 +3147,6 @@ Patch SMB. Back up your stuff. Hug your incident responder.
   </script>
 </body>
 </html>
+
 
 
