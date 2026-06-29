@@ -486,6 +486,7 @@
       display: flex;
       flex-direction: column;
       position: absolute;
+      z-index: 10;
       cursor: default;
       user-select: none;
     }
@@ -1180,22 +1181,44 @@
           return true;
         }
 
+        function desktopNameSlug(label) {
+          return String(label || '')
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9._-]+/g, '-')
+            .replace(/^-+|-+$/g, '') || 'desktop-item';
+        }
+
+        function findDesktopIcon(name) {
+          const needle = desktopNameSlug(name);
+          return desktopIcons.find(item => item.id === needle || desktopNameSlug(item.label) === needle);
+        }
+
+        function renameDesktopIcon(oldName, newName) {
+          const icon = findDesktopIcon(oldName);
+          if (!icon) return false;
+          icon.label = newName.trim().slice(0, 40) || icon.label;
+          renderDesktopIcons();
+          return icon;
+        }
+
         function resetDesktopIcons() {
           desktopIcons = defaultDesktopIcons.map(icon => ({ ...icon }));
           renderDesktopIcons();
         }
 
         function desktopIconTable() {
-          const rows = desktopIcons.map(icon => `${icon.id.padEnd(10, ' ')}  ${icon.label}`);
-          return `<pre>Desktop icons:
+          const rows = desktopIcons.map(icon => `${desktopNameSlug(icon.label).padEnd(18, ' ')}  ->  ${icon.label}`);
+          return `<pre>Desktop items:
 ${rows.join('\n')}
 
 Hackable bits:
-  rename-icon &lt;id&gt; &lt;new label&gt;
+  cd Desktop
+  mv &lt;item&gt; &lt;new-name&gt;
   reset-icons
 
 Example:
-  rename-icon loot research-stash</pre>`;
+  mv totally-not-loot research-stash</pre>`;
         }
 
         if (desktopIconsEl) {
@@ -1721,7 +1744,7 @@ Example:
 
           // Files and directories available in each context
           const homeFiles = ["blog/", "code/", "conduct/", "contact/", "meetings/", "manifesto.txt", ".sigh.txt", "wannacry.exe", ".shadow/", "/dev/memory"];
-          const homeDirs = ["blog", "code", "conduct", "contact", "meetings", ".shadow"];
+          const homeDirs = ["blog", "code", "conduct", "contact", "meetings", ".shadow", "Desktop"];
           const shadowFiles = [".payload"];
 
           // All base commands
@@ -1731,7 +1754,7 @@ Example:
             "netstat", "ss", "last", "w",
             "sudo", "lights", "light", "dark", "exit", "reboot", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup",
-            "desktop", "rename-icon", "reset-icons"
+            "mv", "desktop", "reset-icons"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -1764,7 +1787,7 @@ Example:
           // Complete "cd <dir>"
           if (cmd === "cd") {
             const partial = parts[1] || "";
-            const dirs = currentDir === ".shadow" ? ["..", ".payload"] : homeDirs;
+            const dirs = currentDir === ".shadow" ? ["..", ".payload"] : currentDir === "Desktop" ? [".."] : homeDirs;
             return dirs
               .filter(d => d.startsWith(partial) && d !== partial)
               .map(d => "cd " + d);
@@ -1870,13 +1893,13 @@ Example:
             return ["-h now"].filter(f => f.startsWith(partial) && f !== partial).map(f => "shutdown " + f);
           }
 
-          if (cmd === "rename-icon") {
+          if (cmd === "mv" && currentDir === "Desktop") {
             if (parts.length === 2) {
               const partial = parts[1] || "";
               return desktopIcons
-                .map(icon => icon.id)
-                .filter(id => id.startsWith(partial) && id !== partial)
-                .map(id => `rename-icon ${id}`);
+                .map(icon => desktopNameSlug(icon.label))
+                .filter(name => name.startsWith(partial) && name !== partial)
+                .map(name => `mv ${name}`);
             }
             return [];
           }
@@ -2233,9 +2256,13 @@ drwxr-xr-x 10 root staff    320 ${now} ..
 
           // === Normal directory commands ===
           if (cmd === "ls") {
-            div.innerHTML = "blog/  code/  conduct/  contact/  meetings/  manifesto.txt  wannacry.exe <br>";
+            if (currentDir === "Desktop") {
+              div.innerHTML = `<pre>${desktopIcons.map(icon => desktopNameSlug(icon.label)).join('\n')}</pre>`;
+            } else {
+              div.innerHTML = "Desktop/  blog/  code/  conduct/  contact/  meetings/  manifesto.txt  wannacry.exe <br>";
+            }
           } else if (cmd === "pwd") {
-            div.innerHTML = currentDir === ".shadow" ? "/root/.shadow<br>" : "/root<br>";
+            div.innerHTML = currentDir === ".shadow" ? "/root/.shadow<br>" : currentDir === "Desktop" ? "/root/Desktop<br>" : "/root<br>";
           } else if (cmd === "ifconfig" || cmd === "ip addr" || cmd === "ip addr show" || cmd === "ip a") {
             div.innerHTML = `<pre>
 eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
@@ -2387,8 +2414,8 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
             }
             div.innerHTML = "";
           } else if (cmd === "cd .." || cmd === "cd ../") {
-            // cd .. → go up (from .shadow to home, from home stay)
-            if (currentDir === ".shadow") {
+            // cd .. → go up (from .shadow or Desktop to home, from home stay)
+            if (currentDir === ".shadow" || currentDir === "Desktop") {
               previousDir = currentDir;
               currentDir = "~";
               updatePrompt();
@@ -2397,6 +2424,11 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
           } else if (cmd === "cd .shadow" || cmd === "cd .shadow/") {
             previousDir = currentDir;
             currentDir = ".shadow";
+            updatePrompt();
+            div.innerHTML = "";
+          } else if (cmd === "cd desktop" || cmd === "cd desktop/") {
+            previousDir = currentDir;
+            currentDir = "Desktop";
             updatePrompt();
             div.innerHTML = "";
           } else if (cmd.startsWith("cd ")) {
@@ -2545,8 +2577,8 @@ Available commands:
   cat <file>      Read a file (manifesto.txt, .sigh.txt, /dev/memory)
   cat /etc/weather.conf  Show weather station config
   nano /etc/weather.conf Edit weather station (session only)
-  desktop         List hackable XFCE desktop icons
-  rename-icon <id> <label> Rename a desktop icon label
+  cd Desktop      Enter the fake XFCE desktop folder
+  mv <old> <new>  Rename a desktop icon while in ~/Desktop
   reset-icons     Restore desktop icon labels
   strings <file>  Print readable strings from a binary
   pwd             Print current working directory
@@ -2602,17 +2634,35 @@ Available commands:
           } else if (cmd === "reset-icons") {
             resetDesktopIcons();
             div.innerHTML = "Desktop icon labels restored from clean backup.<br>Totally legitimate sysadmin behavior.<br>";
+          } else if (cmd === "mv" || cmd.startsWith("mv ")) {
+            if (currentDir !== "Desktop") {
+              div.innerHTML = "mv: desktop icon rename only works from ~/Desktop<br>Try: cd Desktop<br>";
+            } else {
+              const match = cmd.match(/^mv\s+([^\s]+)\s+(.+)$/i);
+              if (!match) {
+                div.innerHTML = "Usage: mv &lt;desktop-item&gt; &lt;new-name&gt;<br>Try: ls<br>";
+              } else {
+                const oldName = match[1];
+                const newName = match[2].replace(/^[\'\"]|[\'\"]$/g, '').trim();
+                const renamed = renameDesktopIcon(oldName, newName);
+                if (renamed) {
+                  div.innerHTML = `renamed '${oldName}' -&gt; '${desktopNameSlug(renamed.label)}'<br>[xfdesktop] icon label updated on screen<br>`;
+                } else {
+                  div.innerHTML = `mv: cannot stat '${oldName}': No such desktop item<br>Try: ls<br>`;
+                }
+              }
+            }
           } else if (cmd.startsWith("rename-icon ")) {
             const match = cmd.match(/^rename-icon\s+([a-z0-9_-]+)\s+(.+)$/i);
             if (!match) {
-              div.innerHTML = "Usage: rename-icon &lt;id&gt; &lt;new label&gt;<br>Try: desktop<br>";
+              div.innerHTML = "deprecated: use cd Desktop, then mv &lt;old&gt; &lt;new&gt;<br>";
             } else {
               const id = match[1].toLowerCase();
               const label = match[2].replace(/^['\"]|['\"]$/g, '').trim();
               if (setDesktopIconLabel(id, label)) {
-                div.innerHTML = `desktop: renamed ${id} to "${label.slice(0, 40)}"<br>[xfconf-query] channel=xfce4-desktop property=/backdrop/screen0/monitor0/${id}/label updated<br>`;
+                div.innerHTML = `deprecated command accepted, but the cooler way is: cd Desktop; mv ${id} ${desktopNameSlug(label)}<br>`;
               } else {
-                div.innerHTML = `desktop: no icon id '${id}'<br>Try: desktop<br>`;
+                div.innerHTML = `desktop: no icon id '${id}'<br>Try: cd Desktop; ls<br>`;
               }
             }
           } else if (cmd === "ping" || cmd.startsWith("ping ")) {
@@ -2755,7 +2805,12 @@ Patch SMB. Back up your stuff. Hug your incident responder.
             _p.style.color = "#33ff33";
             _p.style.whiteSpace = "pre";
             _p.style.overflowX = "auto";
+            _p.style.wordBreak = "keep-all";
+            _p.style.overflowWrap = "normal";
+            _p.style.wordWrap = "normal";
             _p.style.fontFamily = "'Courier New', Courier, monospace";
+            _p.style.fontSize = "0.82rem";
+            _p.style.lineHeight = "1.35";
             _p.textContent = _l;
             div.appendChild(_p);
           } else if (cmd === "lights" || cmd === "lights on" || cmd === "lights off" || cmd === "light" || cmd === "dark") {
@@ -2972,12 +3027,16 @@ Patch SMB. Back up your stuff. Hug your incident responder.
         let dragOffsetX = 0;
         let dragOffsetY = 0;
 
-        // Center the window initially
+        // Center the window initially, offset right to avoid desktop icons
         function centerWindow() {
           const vw = window.innerWidth;
           const vh = window.innerHeight;
-          win.style.left = (vw - win.offsetWidth) / 2 + 'px';
-          win.style.top = (vh - win.offsetHeight) / 2 + 'px';
+          const iconMargin = 210; // width reserved for desktop icon columns
+          const availableW = vw - iconMargin;
+          const left = iconMargin + Math.max(0, (availableW - win.offsetWidth) / 2);
+          const top = 28 + Math.max(0, (vh - 28 - win.offsetHeight) / 2); // 28px for panel
+          win.style.left = left + 'px';
+          win.style.top = top + 'px';
         }
         centerWindow();
 
@@ -3306,6 +3365,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
   </script>
 </body>
 </html>
+
 
 
 
