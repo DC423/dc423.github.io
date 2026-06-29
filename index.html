@@ -1208,7 +1208,7 @@
         }
 
         function desktopIconTable() {
-          const rows = desktopIcons.map(icon => `${desktopNameSlug(icon.label).padEnd(18, ' ')}  ->  ${icon.label}`);
+          const rows = desktopIcons.map(icon => `${desktopNameSlug(icon.label).padEnd(18, ' ')}  ->  ${icon.label} (${desktopIconTarget(icon)})`);
           return `<pre>Desktop items:
 ${rows.join('\n')}
 
@@ -1220,6 +1220,42 @@ Hackable bits:
 Example:
   mv totally-not-loot research-stash</pre>`;
         }
+
+        function desktopIconTarget(icon) {
+          const targets = {
+            home: '/root',
+            meetings: '../meetings.html',
+            dumpster: '../garbage',
+            terminal: '/usr/bin/cha-terminal',
+            radio: '../sdr-notes',
+            loot: '../totally-not-loot'
+          };
+          return targets[icon.id] || `../${desktopNameSlug(icon.label)}`;
+        }
+
+        function desktopIconMode(icon) {
+          return icon.id === 'home' ? 'drwxr-xr-x' : 'lrwxrwxrwx';
+        }
+
+        function desktopIconDetailedListing(showHidden = false) {
+          const now = formatLsDate();
+          const rows = desktopIcons.map((icon, index) => {
+            const name = desktopNameSlug(icon.label);
+            const size = String(96 + (index * 17)).padStart(4, ' ');
+            const linkTarget = icon.id === 'home' ? '' : ` -> ${desktopIconTarget(icon)}`;
+            return `${desktopIconMode(icon)}  1 root staff ${size} ${now} ${name}${linkTarget}`;
+          });
+
+          if (showHidden) {
+            rows.unshift(
+              `drwxr-xr-x  2 root staff  192 ${now} .`,
+              `drwxr-xr-x 10 root staff  320 ${now} ..`
+            );
+          }
+
+          return `<pre>${rows.join('\n')}</pre>`;
+        }
+
 
         if (desktopIconsEl) {
           desktopIconsEl.addEventListener('click', function (event) {
@@ -2373,9 +2409,12 @@ tmpfs           423M  4.2M  419M   1% /run
 Mem:           4.2Gi       1.3Gi       2.3Gi       0.0Gi       0.6Gi       2.6Gi
 Swap:          0.0Gi       0.0Gi       0.0Gi
 </pre>`;
-          }  else if (cmd === "ls -l" || cmd == "ls -la" || cmd == "ls -lah") {
-              const now = formatLsDate();
-              div.innerHTML = `<pre>
+          }  else if (cmd === "ls -l" || cmd === "ls -la" || cmd === "ls -lah" || cmd === "ls -al") {
+              if (currentDir === "Desktop") {
+                div.innerHTML = desktopIconDetailedListing(cmd === "ls -la" || cmd === "ls -lah" || cmd === "ls -al");
+              } else {
+                const now = formatLsDate();
+                div.innerHTML = `<pre>
 drwxr-xr-x  5 root staff   160 ${now} blog/
 drwxr-xr-x  8 root staff   256 ${now} code/
 drwxr-xr-x  6 root staff   192 ${now} conduct/
@@ -2386,6 +2425,7 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
 -rw-r--r--  1 root staff   921 ${now} .sigh.txt
 -rw-r--r--  1 root staff 3514368 May 12  2017 wannacry.exe
 </pre>`;
+              }
           } else if (cmd === "cd" || cmd === "cd ~" || cmd === "cd ~/") {
             // cd with no args or cd ~ → go home
             if (currentDir !== "~") {
