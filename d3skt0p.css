@@ -1,0 +1,265 @@
+/* ============================================
+   d3skt0p.css — Desktop Environment Styles
+   Desktop view, icon grid, XFCE panel, and
+   application menu (the fake Linux DE chrome)
+   ============================================ */
+
+/* ---------- Desktop viewport container ---------- */
+.desktop-view {
+  height: 100vh;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* ---------- Desktop icon grid ---------- */
+/* Fixed-position 2-column grid in the top-left, like XFCE desktop icons */
+.desktop-icons {
+  position: fixed;
+  top: 46px;
+  left: 18px;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(2, 86px);
+  grid-auto-rows: 96px;
+  gap: 14px 12px;
+  user-select: none;
+  pointer-events: auto;
+}
+
+/* Individual desktop icon — transparent by default with green text glow */
+.desktop-icon {
+  width: 86px;
+  min-height: 88px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #e8ffe8;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.72rem;
+  text-align: center;
+  padding: 6px 4px;
+  cursor: default;
+  text-shadow: 0 1px 3px #000, 0 0 8px rgba(51, 255, 51, 0.65);
+}
+
+/* Hover / selected state — green border highlight with inner glow */
+.desktop-icon:hover,
+.desktop-icon.selected {
+  border-color: rgba(51, 255, 51, 0.55);
+  background: rgba(51, 255, 51, 0.14);
+  box-shadow: inset 0 0 12px rgba(51, 255, 51, 0.08), 0 0 12px rgba(51, 255, 51, 0.18);
+  outline: none;
+}
+
+/* Large emoji glyph above icon label */
+.desktop-icon-glyph {
+  display: block;
+  font-size: 2.35rem;
+  line-height: 1;
+  margin-bottom: 7px;
+  filter: drop-shadow(0 0 5px rgba(51, 255, 51, 0.45));
+}
+
+/* Icon label text — constrained width with dark background for legibility */
+.desktop-icon-label {
+  display: block;
+  max-width: 78px;
+  margin: 0 auto;
+  padding: 1px 3px;
+  border-radius: 2px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+/* ========================================
+   XFCE Top Panel — fixed bar across top
+   ======================================== */
+.xfce-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: linear-gradient(to bottom, rgba(42, 42, 42, 0.96), rgba(20, 20, 20, 0.96));
+  border-bottom: 1px solid rgba(51, 255, 51, 0.35);
+  box-shadow: 0 1px 10px rgba(0, 255, 0, 0.18);
+  color: #d8ffd8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  font-size: 0.78rem;
+  z-index: 10000;
+  user-select: none;
+}
+
+/* Panel left/right sections */
+.xfce-panel-left,
+.xfce-panel-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Shared button base for menu, task, and panel items */
+.xfce-menu-button,
+.xfce-task-button,
+.xfce-panel-item {
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(51, 255, 51, 0.28);
+  background: rgba(0, 0, 0, 0.35);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+/* Applications menu button — bold green with glow */
+.xfce-menu-button {
+  color: #33ff33;
+  font-weight: bold;
+  text-shadow: 0 0 6px rgba(51, 255, 51, 0.65);
+  cursor: pointer;
+}
+
+/* Hover states for menu and task buttons */
+.xfce-menu-button:hover,
+.xfce-menu-button.open,
+.xfce-task-button:hover {
+  background: rgba(51, 255, 51, 0.14);
+  border-color: rgba(51, 255, 51, 0.65);
+}
+
+/* Task button — shows running window title in panel */
+.xfce-task-button {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #b8ffb8;
+  cursor: pointer;
+}
+
+/* Minimized task — dashed border, dimmed */
+.xfce-task-button.minimized-task {
+  color: #777;
+  border-style: dashed;
+  opacity: 0.82;
+}
+
+.xfce-panel-right {
+  margin-left: auto;
+}
+
+/* ========================================
+   Weather widget in panel
+   ======================================== */
+.xfce-weather {
+  color: #9dff9d;
+}
+
+/* Active weather alert state — yellow pulsing glow */
+.xfce-weather.alert-active {
+  color: #ffff00;
+  border-color: rgba(255, 255, 0, 0.75);
+  background: rgba(80, 60, 0, 0.45);
+  text-shadow: 0 0 8px rgba(255, 255, 0, 0.75);
+  animation: weather-alert-pulse 1.4s ease-in-out infinite;
+  cursor: pointer;
+}
+
+@keyframes weather-alert-pulse {
+  0%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 7px rgba(255, 255, 0, 0.22); }
+  50% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 16px rgba(255, 255, 0, 0.62); }
+}
+
+/* Clock display — white text, fixed min-width */
+.xfce-clock {
+  color: #ffffff;
+  min-width: 150px;
+  justify-content: center;
+}
+
+/* ========================================
+   Applications dropdown menu
+   ======================================== */
+.xfce-menu {
+  position: fixed;
+  top: 30px;
+  left: 8px;
+  width: 270px;
+  background: rgba(12, 12, 12, 0.97);
+  border: 1px solid rgba(51, 255, 51, 0.55);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65), 0 0 18px rgba(0, 255, 0, 0.22);
+  color: #d8ffd8;
+  z-index: 10001;
+  display: none;
+  user-select: none;
+}
+
+.xfce-menu.open {
+  display: block;
+}
+
+/* Menu header — bold green title */
+.xfce-menu-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(51, 255, 51, 0.22);
+  color: #33ff33;
+  font-weight: bold;
+  text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
+}
+
+/* Menu sections with subtle separators */
+.xfce-menu-section {
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(51, 255, 51, 0.12);
+}
+
+.xfce-menu-section:last-child {
+  border-bottom: 0;
+}
+
+/* Section labels — uppercase, dim green */
+.xfce-menu-label {
+  padding: 5px 12px;
+  color: #77aa77;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Individual menu items — full-width buttons */
+.xfce-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #d8ffd8;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  text-align: left;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.xfce-menu-item:hover,
+.xfce-menu-item:focus {
+  outline: none;
+  background: rgba(51, 255, 51, 0.14);
+  color: #ffffff;
+}
+
+/* Menu icon column — fixed width for alignment */
+.xfce-menu-icon {
+  width: 18px;
+  color: #33ff33;
+  text-align: center;
+}

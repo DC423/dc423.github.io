@@ -49,9 +49,7 @@
   }
   </script>
   
-<!-- Google tag (gtag.js) -->
-  <meta name="geo.placename" content="Chattanooga">
-  <link rel="canonical" href="https://noogahackers.com/">
+  <!-- Google Analytics (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-LP4LKGJ19K"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -61,909 +59,21 @@
     gtag('config', 'G-LP4LKGJ19K');
   </script>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Courier New', Courier, monospace;
-      color: #33ff33;
-      background: #000;
-      overflow-x: hidden;
-    }
+  <!-- =============================================
+       External Stylesheets (extracted for maintainability)
+       File names use l33tspeak for the hacker aesthetic
+       ============================================= -->
+  <link rel="stylesheet" href="c0r3.css">      <!-- Base reset, typography, global rules -->
+  <link rel="stylesheet" href="d3skt0p.css">   <!-- Desktop view, icons, XFCE panel, menus -->
+  <link rel="stylesheet" href="w1nd0w.css">    <!-- Window chrome, title bar, controls, states -->
+  <link rel="stylesheet" href="0v3rlay.css">   <!-- Overlays: lock screen, weather, panic, nano -->
+  <link rel="stylesheet" href="t3rm.css">      <!-- Terminal, prompt, cursor, CRT scanlines -->
+  <link rel="stylesheet" href="th3m3.css">     <!-- Light mode theme overrides -->
+  <link rel="stylesheet" href="m0b1l3.css">    <!-- Mobile view, pocket terminal, breakpoints -->
+
+  <!-- NOTE: All inline CSS has been moved to the external files above.
+       The <style> block that was here (~900 lines) is now split across 7 files. -->
 
-    /* SEO-friendly hidden headings */
-    .seo-heading {
-      position: absolute;
-      left: -9999px;
-      width: 1px;
-      height: 1px;
-      overflow: hidden;
-    }
-
-    /* Desktop styles */
-    .desktop-view {
-      height: 100vh;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
-      background-size: cover;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    .desktop-icons {
-      position: fixed;
-      top: 46px;
-      left: 18px;
-      z-index: 5;
-      display: grid;
-      grid-template-columns: repeat(2, 86px);
-      grid-auto-rows: 96px;
-      gap: 14px 12px;
-      user-select: none;
-      pointer-events: auto;
-    }
-
-    .desktop-icon {
-      width: 86px;
-      min-height: 88px;
-      border: 1px solid transparent;
-      background: transparent;
-      color: #e8ffe8;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.72rem;
-      text-align: center;
-      padding: 6px 4px;
-      cursor: default;
-      text-shadow: 0 1px 3px #000, 0 0 8px rgba(51, 255, 51, 0.65);
-    }
-
-    .desktop-icon:hover,
-    .desktop-icon.selected {
-      border-color: rgba(51, 255, 51, 0.55);
-      background: rgba(51, 255, 51, 0.14);
-      box-shadow: inset 0 0 12px rgba(51, 255, 51, 0.08), 0 0 12px rgba(51, 255, 51, 0.18);
-      outline: none;
-    }
-
-    .desktop-icon-glyph {
-      display: block;
-      font-size: 2.35rem;
-      line-height: 1;
-      margin-bottom: 7px;
-      filter: drop-shadow(0 0 5px rgba(51, 255, 51, 0.45));
-    }
-
-    .desktop-icon-label {
-      display: block;
-      max-width: 78px;
-      margin: 0 auto;
-      padding: 1px 3px;
-      border-radius: 2px;
-      line-height: 1.15;
-      overflow-wrap: anywhere;
-      background: rgba(0, 0, 0, 0.42);
-    }
-
-    .xfce-panel {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 28px;
-      background: linear-gradient(to bottom, rgba(42, 42, 42, 0.96), rgba(20, 20, 20, 0.96));
-      border-bottom: 1px solid rgba(51, 255, 51, 0.35);
-      box-shadow: 0 1px 10px rgba(0, 255, 0, 0.18);
-      color: #d8ffd8;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 8px;
-      font-size: 0.78rem;
-      z-index: 10000;
-      user-select: none;
-    }
-
-    .xfce-panel-left,
-    .xfce-panel-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .xfce-menu-button,
-    .xfce-task-button,
-    .xfce-panel-item {
-      height: 20px;
-      display: inline-flex;
-      align-items: center;
-      border: 1px solid rgba(51, 255, 51, 0.28);
-      background: rgba(0, 0, 0, 0.35);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-      padding: 0 8px;
-      white-space: nowrap;
-    }
-
-    .xfce-menu-button {
-      color: #33ff33;
-      font-weight: bold;
-      text-shadow: 0 0 6px rgba(51, 255, 51, 0.65);
-      cursor: pointer;
-    }
-
-    .xfce-menu-button:hover,
-    .xfce-menu-button.open,
-    .xfce-task-button:hover {
-      background: rgba(51, 255, 51, 0.14);
-      border-color: rgba(51, 255, 51, 0.65);
-    }
-
-    .xfce-task-button {
-      max-width: 260px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: #b8ffb8;
-      cursor: pointer;
-    }
-
-    .xfce-task-button.minimized-task {
-      color: #777;
-      border-style: dashed;
-      opacity: 0.82;
-    }
-
-    .xfce-panel-right {
-      margin-left: auto;
-    }
-
-    .xfce-weather {
-      color: #9dff9d;
-    }
-
-    .xfce-weather.alert-active {
-      color: #ffff00;
-      border-color: rgba(255, 255, 0, 0.75);
-      background: rgba(80, 60, 0, 0.45);
-      text-shadow: 0 0 8px rgba(255, 255, 0, 0.75);
-      animation: weather-alert-pulse 1.4s ease-in-out infinite;
-      cursor: pointer;
-    }
-
-    @keyframes weather-alert-pulse {
-      0%, 100% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 7px rgba(255, 255, 0, 0.22); }
-      50% { box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 16px rgba(255, 255, 0, 0.62); }
-    }
-
-    .xfce-clock {
-      color: #ffffff;
-      min-width: 150px;
-      justify-content: center;
-    }
-
-    .xfce-menu {
-      position: fixed;
-      top: 30px;
-      left: 8px;
-      width: 270px;
-      background: rgba(12, 12, 12, 0.97);
-      border: 1px solid rgba(51, 255, 51, 0.55);
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65), 0 0 18px rgba(0, 255, 0, 0.22);
-      color: #d8ffd8;
-      z-index: 10001;
-      display: none;
-      user-select: none;
-    }
-
-    .xfce-menu.open {
-      display: block;
-    }
-
-    .xfce-menu-header {
-      padding: 10px 12px;
-      border-bottom: 1px solid rgba(51, 255, 51, 0.22);
-      color: #33ff33;
-      font-weight: bold;
-      text-shadow: 0 0 8px rgba(51, 255, 51, 0.6);
-    }
-
-    .xfce-menu-section {
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(51, 255, 51, 0.12);
-    }
-
-    .xfce-menu-section:last-child {
-      border-bottom: 0;
-    }
-
-    .xfce-menu-label {
-      padding: 5px 12px;
-      color: #77aa77;
-      font-size: 0.68rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .xfce-menu-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      border: 0;
-      background: transparent;
-      color: #d8ffd8;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.78rem;
-      text-align: left;
-      padding: 7px 12px;
-      cursor: pointer;
-    }
-
-    .xfce-menu-item:hover,
-    .xfce-menu-item:focus {
-      outline: none;
-      background: rgba(51, 255, 51, 0.14);
-      color: #ffffff;
-    }
-
-    .xfce-menu-icon {
-      width: 18px;
-      color: #33ff33;
-      text-align: center;
-    }
-
-    .screen-lock-overlay {
-      position: fixed;
-      inset: 0;
-      background: radial-gradient(circle at center, rgba(0, 32, 0, 0.98), rgba(0, 0, 0, 0.98));
-      color: #33ff33;
-      z-index: 10002;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      text-shadow: 0 0 12px rgba(51, 255, 51, 0.7);
-    }
-
-    .screen-lock-overlay.active {
-      display: flex;
-    }
-
-    .screen-lock-box {
-      border: 1px solid #33ff33;
-      background: rgba(0, 0, 0, 0.7);
-      box-shadow: 0 0 30px rgba(51, 255, 51, 0.28);
-      padding: 28px 34px;
-      max-width: 520px;
-    }
-
-    .screen-lock-title {
-      font-size: 1.4rem;
-      margin-bottom: 10px;
-    }
-
-    .screen-lock-hint {
-      color: #aaffaa;
-      font-size: 0.9rem;
-    }
-
-    .weather-alert-overlay {
-      position: fixed;
-      top: 32px;
-      right: 8px;
-      color: #33ff33;
-      z-index: 10003;
-      display: none;
-      width: min(520px, calc(100vw - 16px));
-      text-shadow: 0 0 10px rgba(51, 255, 51, 0.65);
-    }
-
-    .weather-alert-overlay.active {
-      display: block;
-    }
-
-    .weather-alert-box {
-      max-height: min(460px, calc(100vh - 48px));
-      overflow-y: auto;
-      border: 1px solid #ffff00;
-      background: rgba(12, 12, 0, 0.96);
-      box-shadow: 0 0 28px rgba(255, 255, 0, 0.35), inset 0 0 18px rgba(51, 255, 51, 0.08);
-      padding: 16px 18px;
-      animation: weather-dropdown-in 0.16s ease-out;
-    }
-
-    @keyframes weather-dropdown-in {
-      from { opacity: 0; transform: translateY(-6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .weather-alert-title {
-      color: #ffff00;
-      font-size: 1rem;
-      margin-bottom: 10px;
-      letter-spacing: 0.05em;
-    }
-
-    .weather-alert-meta {
-      color: #aaffaa;
-      font-size: 0.82rem;
-      margin-bottom: 14px;
-      line-height: 1.45;
-    }
-
-    .weather-alert-body {
-      white-space: pre-wrap;
-      line-height: 1.5;
-      font-size: 0.9rem;
-    }
-
-    .weather-alert-close {
-      margin-top: 18px;
-      border: 1px solid #33ff33;
-      background: rgba(0, 0, 0, 0.45);
-      color: #33ff33;
-      font-family: 'Courier New', Courier, monospace;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-
-    .weather-alert-close:hover,
-    .weather-alert-close:focus {
-      outline: none;
-      background: rgba(51, 255, 51, 0.14);
-    }
-
-    /* Nano editor overlay */
-    .nano-overlay {
-      position: fixed;
-      inset: 0;
-      background: #000;
-      color: #d0d0d0;
-      font-family: 'Courier New', Courier, monospace;
-      font-size: 0.9rem;
-      z-index: 20000;
-      display: none;
-      flex-direction: column;
-      padding: 0;
-      line-height: 1.35;
-    }
-
-    .nano-overlay.active {
-      display: flex;
-    }
-
-    .nano-title-bar {
-      background: #fff;
-      color: #000;
-      text-align: center;
-      padding: 2px 0;
-      font-weight: bold;
-      flex-shrink: 0;
-    }
-
-    .nano-body {
-      flex: 1;
-      padding: 8px 12px;
-      white-space: pre;
-      overflow-y: auto;
-      outline: none;
-    }
-
-    .nano-body .nano-line {
-      min-height: 1.35em;
-    }
-
-    .nano-body .nano-cursor-line {
-      background: rgba(51, 255, 51, 0.08);
-    }
-
-    .nano-status {
-      color: #d0d0d0;
-      padding: 2px 12px;
-      font-size: 0.82rem;
-      flex-shrink: 0;
-    }
-
-    .nano-help {
-      background: #000;
-      color: #d0d0d0;
-      padding: 2px 12px;
-      font-size: 0.78rem;
-      flex-shrink: 0;
-      border-top: 1px solid #444;
-    }
-
-    .nano-help kbd {
-      color: #fff;
-      font-weight: bold;
-    }
-
-    .window {
-      width: 800px;
-      height: 480px;
-      background-color: rgba(0, 0, 0, 0.95);
-      box-shadow: 0 0 30px #00ff00;
-      border: 1px solid #222;
-      display: flex;
-      flex-direction: column;
-      position: absolute;
-      z-index: 10;
-      cursor: default;
-      user-select: none;
-    }
-
-    .title-bar {
-      height: 30px;
-      background-color: #222;
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      color: #ccc;
-      font-size: 0.9rem;
-      justify-content: space-between;
-      cursor: grab;
-    }
-
-    .title-bar:active {
-      cursor: grabbing;
-    }
-
-    .window-controls {
-      display: flex;
-      gap: 6px;
-    }
-
-    .window-controls div {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background-color: #444;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.2s ease;
-    }
-
-    .window-controls div:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
-    }
-
-    .close { 
-      background-color: #ff5f57; 
-    }
-
-    .close:hover {
-      background-color: #ff4444;
-    }
-
-    .close:hover::after {
-      content: "×";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 10px;
-      font-weight: bold;
-      color: #800000;
-      line-height: 1;
-    }
-
-    .minimize { 
-      background-color: #ffbd30; 
-    }
-
-    .minimize:hover {
-      background-color: #ffaa00;
-    }
-
-    .minimize:hover::after {
-      content: "−";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 12px;
-      font-weight: bold;
-      color: #996600;
-      line-height: 1;
-    }
-
-    .maximize { 
-      background-color: #28c940; 
-    }
-
-    .maximize:hover {
-      background-color: #22aa33;
-    }
-
-    .maximize:hover::after {
-      content: "□";
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 8px;
-      font-weight: bold;
-      color: #004400;
-      line-height: 1;
-    }
-
-    .window.minimized {
-      transform: scale(0.05) translateY(100vh);
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .window.maximized {
-      width: 100vw !important;
-      height: calc(100vh - 28px) !important;
-      left: 0 !important;
-      top: 28px !important;
-      border-radius: 0;
-      transition: all 0.3s ease;
-    }
-
-    /* Taskbar dock for minimized window */
-    .taskbar-dock {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(34, 34, 34, 0.95);
-      border: 1px solid #00ff00;
-      padding: 8px 20px;
-      border-radius: 6px;
-      color: #33ff33;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      cursor: pointer;
-      display: none;
-      z-index: 10000;
-      box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
-      animation: taskbar-pulse 2s ease-in-out infinite;
-    }
-
-    .taskbar-dock:hover {
-      background: rgba(0, 255, 0, 0.15);
-      box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
-    }
-
-    @keyframes taskbar-pulse {
-      0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 0, 0.3); }
-      50% { box-shadow: 0 0 25px rgba(0, 255, 0, 0.6); }
-    }
-
-    /* Kernel panic screen */
-    .kernel-panic-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: #000;
-      color: #ff3333;
-      font-family: 'Courier New', monospace;
-      font-size: 0.85rem;
-      padding: 40px;
-      z-index: 99999;
-      overflow: hidden;
-      display: none;
-      white-space: pre-wrap;
-      line-height: 1.4;
-    }
-
-    .kernel-panic-overlay.active {
-      display: block;
-      animation: flicker 0.15s ease-in-out 3;
-    }
-
-    .ai-glitch-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.92);
-      color: #33ff33;
-      font-family: 'Courier New', monospace;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      z-index: 99998;
-      padding: 24px;
-      text-shadow: 0 0 12px rgba(51, 255, 51, 0.8);
-    }
-
-    .ai-glitch-overlay.active {
-      display: flex;
-      animation: flicker 0.12s ease-in-out 5;
-    }
-
-    .ai-glitch-box {
-      max-width: 720px;
-      border: 1px solid #33ff33;
-      background: rgba(0, 20, 0, 0.9);
-      box-shadow: 0 0 25px rgba(0, 255, 0, 0.35);
-      padding: 28px;
-    }
-
-    .ai-glitch-title {
-      font-size: 1.6rem;
-      margin-bottom: 12px;
-      letter-spacing: 0.08em;
-    }
-
-    .ai-glitch-subtitle {
-      color: #99ff99;
-      line-height: 1.6;
-      font-size: 1rem;
-      white-space: pre-line;
-    }
-
-    @keyframes flicker {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-
-    .terminal {
-      flex-grow: 1;
-      padding: 20px;
-      overflow-y: auto;
-      scroll-behavior: smooth;
-      border-top: 1px solid #333;
-      position: relative;
-      user-select: text;
-    }
-
-    .terminal * {
-      user-select: text;
-    }
-
-    /* CRT Scanline overlay */
-    .desktop-view::after {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 9999;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.15) 0px,
-        rgba(0, 0, 0, 0.15) 1px,
-        transparent 1px,
-        transparent 3px
-      );
-    }
-
-    /* Resize handle */
-    .resize-handle {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 16px;
-      height: 16px;
-      cursor: nwse-resize;
-      z-index: 10;
-    }
-
-    .resize-handle::after {
-      content: "";
-      position: absolute;
-      bottom: 3px;
-      right: 3px;
-      width: 8px;
-      height: 8px;
-      border-right: 2px solid #555;
-      border-bottom: 2px solid #555;
-    }
-
-    /* Lights-on mode */
-    body.lights-on {
-      background: #f0f0f0;
-      color: #111;
-    }
-
-    body.lights-on .window {
-      background-color: rgba(255, 255, 255, 0.97);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.3);
-      border: 1px solid #ccc;
-    }
-
-    body.lights-on .terminal {
-      color: #111;
-    }
-
-    body.lights-on .title-bar {
-      background-color: #e0e0e0;
-      color: #333;
-    }
-
-    body.lights-on .prompt,
-    body.lights-on .terminal-content {
-      color: #111;
-    }
-
-    body.lights-on .cursor {
-      background-color: #111;
-    }
-
-    body.lights-on .desktop-view {
-      background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(240,240,240,0.7)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
-      background-size: cover;
-    }
-
-    body.lights-on .desktop-view::after {
-      display: none;
-    }
-
-    .terminal-content {
-      white-space: pre-wrap;
-      word-wrap: break-word;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .prompt {
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      margin-top: 8px;
-      visibility: hidden;
-    }
-
-    .cursor {
-      width: 10px;
-      height: 1em;
-      background-color: #33ff33;
-      margin-left: 5px;
-      animation: blink 1s steps(1) infinite;
-    }
-
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
-
-    /* Mobile styles */
-    .mobile-view {
-      display: none;
-      min-height: 100vh;
-      padding: 20px;
-      background: linear-gradient(135deg, #001100, #003300);
-      text-align: center;
-    }
-
-    .mobile-header {
-      margin-bottom: 40px;
-    }
-
-    .mobile-header h1 {
-      font-size: 1.8rem;
-      margin-bottom: 10px;
-      text-shadow: 0 0 10px #33ff33;
-    }
-
-    .mobile-header h2 {
-      font-size: 1rem;
-      color: #66ff66;
-      margin-bottom: 20px;
-    }
-
-    .keyboard-warning {
-      background: rgba(255, 255, 0, 0.1);
-      border: 1px solid #ffff00;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 5px;
-      font-size: 0.9rem;
-      line-height: 1.4;
-    }
-
-    .keyboard-warning h3 {
-      color: #ffff00;
-      margin-top: 0;
-      font-size: 1.1rem;
-    }
-
-    .mobile-links {
-      margin-top: 40px;
-    }
-
-    .mobile-link {
-      display: block;
-      background: rgba(51, 255, 51, 0.1);
-      border: 1px solid #33ff33;
-      color: #33ff33;
-      text-decoration: none;
-      padding: 15px 20px;
-      margin: 15px 0;
-      border-radius: 5px;
-      font-size: 1.1rem;
-      transition: all 0.3s ease;
-    }
-
-    .mobile-link:hover {
-      background: rgba(51, 255, 51, 0.2);
-      box-shadow: 0 0 15px rgba(51, 255, 51, 0.5);
-    }
-
-    .mobile-footer {
-      margin-top: 40px;
-      font-size: 0.8rem;
-      color: #666;
-    }
-
-    .mobile-content {
-      margin: 30px 0;
-      font-size: 0.9rem;
-      line-height: 1.5;
-      color: #99ff99;
-      text-align: left;
-    }
-
-    .pocket-terminal {
-      margin: 30px 0;
-      border: 1px solid #33ff33;
-      background: rgba(0, 0, 0, 0.72);
-      box-shadow: 0 0 18px rgba(51, 255, 51, 0.28);
-      text-align: left;
-      font-size: 0.85rem;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    .pocket-terminal-title {
-      background: #111;
-      border-bottom: 1px solid #224422;
-      color: #99ff99;
-      padding: 8px 12px;
-      font-size: 0.75rem;
-    }
-
-    .pocket-terminal-body {
-      padding: 12px;
-      line-height: 1.55;
-      color: #33ff33;
-    }
-
-    .pocket-terminal-prompt {
-      color: #66ff66;
-      font-weight: bold;
-    }
-
-    .pocket-command {
-      display: inline-block;
-      color: #ffff00;
-      text-decoration: none;
-      border-bottom: 1px dashed rgba(255, 255, 0, 0.55);
-      margin: 0 4px;
-    }
-
-    .pocket-command:hover {
-      color: #fff866;
-      text-shadow: 0 0 8px rgba(255, 255, 0, 0.7);
-    }
-
-    /* Media queries */
-    @media (max-width: 768px) {
-      .desktop-view {
-        display: none;
-      }
-      .mobile-view {
-        display: block;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .mobile-view {
-        padding: 15px;
-      }
-      .mobile-header h1 {
-        font-size: 1.5rem;
-      }
-      .keyboard-warning {
-        padding: 15px;
-      }
-    }
-  </style>
 </head>
 <body>
   <!-- SEO-friendly content -->
@@ -1115,9 +225,19 @@
   </div>
 
   <script>
-    // Only run desktop terminal code if on desktop
+    // ================================================================
+    //  CHA Terminal — Main Application Script
+    //  Simulates an XFCE-style Linux desktop with a working terminal.
+    //  Desktop-only (>768px); mobile gets a static fallback view.
+    // ================================================================
+
+    // Gate: skip entire script on mobile — the CSS handles the fallback
     if (window.innerWidth > 768) {
       document.addEventListener("DOMContentLoaded", function () {
+
+        // ────────────────────────────────────────────────────────────
+        //  DOM References
+        // ────────────────────────────────────────────────────────────
         const terminal = document.getElementById('terminalContent');
         const prompt = document.getElementById('promptLine');
         const promptText = document.getElementById('promptText');
@@ -1133,12 +253,19 @@
         const weatherAlertMeta = document.getElementById('weatherAlertMeta');
         const weatherAlertBody = document.getElementById('weatherAlertBody');
         const weatherAlertClose = document.getElementById('weatherAlertClose');
+
+        // ────────────────────────────────────────────────────────────
+        //  Configuration — editable via `nano /etc/weather.conf`
+        // ────────────────────────────────────────────────────────────
         let lastWeatherAlertId = '';
-        let weatherStation = 'KCHA';
-        let alertZone = 'TNC065';
-        let nanoActive = false;
+        let weatherStation = 'KCHA';       // NOAA observation station ID
+        let alertZone = 'TNC065';          // NWS alert zone (Hamilton Co, TN)
+        let nanoActive = false;            // true while nano overlay is open
         let nanoBuffer = '';
         let nanoCursorLine = 0;
+        // ────────────────────────────────────────────────────────────
+        //  Desktop Icons — virtual XFCE desktop items
+        // ────────────────────────────────────────────────────────────
         const defaultDesktopIcons = [
           { id: 'home', glyph: '🏠', label: 'Home' },
           { id: 'meetings', glyph: '📅', label: 'Meetings' },
@@ -1268,6 +395,9 @@ Example:
 
         renderDesktopIcons();
 
+        // ────────────────────────────────────────────────────────────
+        //  Weather System — NOAA alerts + panel weather display
+        // ────────────────────────────────────────────────────────────
         function showWeatherAlertPopup(alertFeature, force = false) {
           if (!alertFeature || !weatherAlertOverlay) return;
           const props = alertFeature.properties || {};
@@ -1419,6 +549,9 @@ Example:
         updatePanelWeather();
         setInterval(updatePanelWeather, 10 * 60 * 1000);
 
+        // ────────────────────────────────────────────────────────────
+        //  MOTD Quotes — random quote shown in the boot banner
+        // ────────────────────────────────────────────────────────────
         const motdQuotes = [
           // Cybersecurity & Hacker Culture
           "Hack the planet! — Hackers (1995)",
@@ -1620,6 +753,9 @@ Example:
           ""
         ];
 
+        // ────────────────────────────────────────────────────────────
+        //  Terminal State — input buffer, directory, history, etc.
+        // ────────────────────────────────────────────────────────────
         let commandBuffer = "";
         let currentDir = "~";
         let lineIndex = 0;
@@ -1773,7 +909,9 @@ Example:
           const min = String(date.getMinutes()).padStart(2, '0');
           return `${month} ${day} ${hour}:${min}`;
         }
-        // === Tab Completion Engine ===
+        // ────────────────────────────────────────────────────────────
+        //  Tab Completion Engine — bash-style auto-complete
+        // ────────────────────────────────────────────────────────────
         function getCompletions(buffer) {
           const trimmed = buffer.trimStart();
           const parts = trimmed.split(/\s+/);
@@ -1957,6 +1095,9 @@ Example:
           return [];
         }
 
+        // ────────────────────────────────────────────────────────────
+        //  Keyboard Input Handler — keys, history, tab, enter
+        // ────────────────────────────────────────────────────────────
         function enableTyping() {
           document.addEventListener("keydown", function (e) {
             // Prevent Tab from leaving the terminal
@@ -2165,6 +1306,9 @@ Example:
           appendPingLine(`round-trip min/avg/max = ${min}/${avg}/${max} ms`);
         }
 
+        // ────────────────────────────────────────────────────────────
+        //  Command Router — dispatches typed commands to handlers
+        // ────────────────────────────────────────────────────────────
         async function handleCommand(cmd) {
           const div = document.createElement("div");
           // Obscured easter egg check (rot13 encoded triggers)
@@ -2913,7 +2057,9 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           scrollToBottom();
         }
 
-        // === NANO EDITOR ===
+        // ────────────────────────────────────────────────────────────
+        //  Nano Editor — fullscreen overlay text editor for configs
+        // ────────────────────────────────────────────────────────────
         const nanoOverlay = document.getElementById('nanoOverlay');
         const nanoBody = document.getElementById('nanoBody');
         const nanoStatus = document.getElementById('nanoStatus');
@@ -3061,7 +2207,9 @@ Patch SMB. Back up your stuff. Hug your incident responder.
 
         typeBootLines();
 
-        // Draggable window functionality
+        // ────────────────────────────────────────────────────────────
+        //  Window Management — drag, resize, center, controls
+        // ────────────────────────────────────────────────────────────
         const win = document.querySelector('.window');
         const titleBar = document.querySelector('.title-bar');
         let isDragging = false;
@@ -3138,7 +2286,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           isResizing = false;
         });
 
-        // === WINDOW CONTROL BUTTONS ===
+        // ── Window Control Buttons (close/minimize/maximize) ──
 
         const closeBtn = document.querySelector('.close');
         const minimizeBtn = document.querySelector('.minimize');
@@ -3258,7 +2406,9 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           typePanicLine();
         });
 
-        // === PANEL INTERACTIVITY ===
+        // ────────────────────────────────────────────────────────────
+        //  Panel Interactivity — menu, taskbar, screen lock
+        // ────────────────────────────────────────────────────────────
 
         // Helper: minimize/restore the terminal
         function minimizeTerminal() {

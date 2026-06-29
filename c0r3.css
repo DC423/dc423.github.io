@@ -1,0 +1,23 @@
+/* ============================================
+   c0r3.css — Base / Global Styles
+   Core reset, typography, and foundational rules
+   ============================================ */
+
+/* Global body reset — monospace green-on-black terminal aesthetic */
+body {
+  margin: 0;
+  font-family: 'Courier New', Courier, monospace;
+  color: #33ff33;
+  background: #000;
+  overflow-x: hidden;
+}
+
+/* SEO-friendly hidden headings — accessible to screen readers & crawlers
+   but visually hidden from the rendered page */
+.seo-heading {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

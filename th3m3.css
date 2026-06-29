@@ -1,0 +1,53 @@
+/* ============================================
+   th3m3.css — Theme Overrides (Light Mode)
+   "lights on" mode flips the green-on-black
+   terminal aesthetic to a clean light theme.
+   Activated via the `lights on` terminal command
+   which toggles body.lights-on class.
+   ============================================ */
+
+/* ---------- Base overrides ---------- */
+body.lights-on {
+  background: #f0f0f0;
+  color: #111;
+}
+
+/* Window chrome — white background with subtle shadow */
+body.lights-on .window {
+  background-color: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  border: 1px solid #ccc;
+}
+
+/* Terminal text — dark on light */
+body.lights-on .terminal {
+  color: #111;
+}
+
+/* Title bar — light gray */
+body.lights-on .title-bar {
+  background-color: #e0e0e0;
+  color: #333;
+}
+
+/* Prompt and content text */
+body.lights-on .prompt,
+body.lights-on .terminal-content {
+  color: #111;
+}
+
+/* Cursor — dark block */
+body.lights-on .cursor {
+  background-color: #111;
+}
+
+/* Desktop background — light overlay on wallpaper */
+body.lights-on .desktop-view {
+  background: linear-gradient(to bottom, rgba(255,255,255,0.5), rgba(240,240,240,0.7)), url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Disable CRT scanlines in light mode */
+body.lights-on .desktop-view::after {
+  display: none;
+}

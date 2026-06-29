@@ -1,0 +1,260 @@
+/* ============================================
+   0v3rlay.css — Full-Screen Overlays
+   Screen lock, weather alerts, kernel panic,
+   AI glitch effect, and nano editor simulation
+   ============================================ */
+
+/* ========================================
+   Screen Lock Overlay
+   Radial gradient lockscreen with centered box
+   ======================================== */
+.screen-lock-overlay {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(0, 32, 0, 0.98), rgba(0, 0, 0, 0.98));
+  color: #33ff33;
+  z-index: 10002;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-shadow: 0 0 12px rgba(51, 255, 51, 0.7);
+}
+
+.screen-lock-overlay.active {
+  display: flex;
+}
+
+.screen-lock-box {
+  border: 1px solid #33ff33;
+  background: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 30px rgba(51, 255, 51, 0.28);
+  padding: 28px 34px;
+  max-width: 520px;
+}
+
+.screen-lock-title {
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+.screen-lock-hint {
+  color: #aaffaa;
+  font-size: 0.9rem;
+}
+
+/* ========================================
+   Weather Alert Overlay
+   Dropdown panel from top-right, yellow theme
+   ======================================== */
+.weather-alert-overlay {
+  position: fixed;
+  top: 32px;
+  right: 8px;
+  color: #33ff33;
+  z-index: 10003;
+  display: none;
+  width: min(520px, calc(100vw - 16px));
+  text-shadow: 0 0 10px rgba(51, 255, 51, 0.65);
+}
+
+.weather-alert-overlay.active {
+  display: block;
+}
+
+.weather-alert-box {
+  max-height: min(460px, calc(100vh - 48px));
+  overflow-y: auto;
+  border: 1px solid #ffff00;
+  background: rgba(12, 12, 0, 0.96);
+  box-shadow: 0 0 28px rgba(255, 255, 0, 0.35), inset 0 0 18px rgba(51, 255, 51, 0.08);
+  padding: 16px 18px;
+  animation: weather-dropdown-in 0.16s ease-out;
+}
+
+@keyframes weather-dropdown-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.weather-alert-title {
+  color: #ffff00;
+  font-size: 1rem;
+  margin-bottom: 10px;
+  letter-spacing: 0.05em;
+}
+
+.weather-alert-meta {
+  color: #aaffaa;
+  font-size: 0.82rem;
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+
+.weather-alert-body {
+  white-space: pre-wrap;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.weather-alert-close {
+  margin-top: 18px;
+  border: 1px solid #33ff33;
+  background: rgba(0, 0, 0, 0.45);
+  color: #33ff33;
+  font-family: 'Courier New', Courier, monospace;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.weather-alert-close:hover,
+.weather-alert-close:focus {
+  outline: none;
+  background: rgba(51, 255, 51, 0.14);
+}
+
+/* ========================================
+   Nano Editor Overlay
+   Simulated GNU nano text editor fullscreen
+   ======================================== */
+.nano-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  color: #d0d0d0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  z-index: 20000;
+  display: none;
+  flex-direction: column;
+  padding: 0;
+  line-height: 1.35;
+}
+
+.nano-overlay.active {
+  display: flex;
+}
+
+/* Title bar — inverted colors (white bg, black text) */
+.nano-title-bar {
+  background: #fff;
+  color: #000;
+  text-align: center;
+  padding: 2px 0;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.nano-body {
+  flex: 1;
+  padding: 8px 12px;
+  white-space: pre;
+  overflow-y: auto;
+  outline: none;
+}
+
+.nano-body .nano-line {
+  min-height: 1.35em;
+}
+
+/* Cursor line highlight */
+.nano-body .nano-cursor-line {
+  background: rgba(51, 255, 51, 0.08);
+}
+
+.nano-status {
+  color: #d0d0d0;
+  padding: 2px 12px;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+}
+
+.nano-help {
+  background: #000;
+  color: #d0d0d0;
+  padding: 2px 12px;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  border-top: 1px solid #444;
+}
+
+.nano-help kbd {
+  color: #fff;
+  font-weight: bold;
+}
+
+/* ========================================
+   Kernel Panic Overlay
+   Red text on black — the dreaded crash screen
+   ======================================== */
+.kernel-panic-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: #000;
+  color: #ff3333;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  padding: 40px;
+  z-index: 99999;
+  overflow: hidden;
+  display: none;
+  white-space: pre-wrap;
+  line-height: 1.4;
+}
+
+.kernel-panic-overlay.active {
+  display: block;
+  animation: flicker 0.15s ease-in-out 3;
+}
+
+/* ========================================
+   AI Glitch Overlay
+   Centered message box with screen flicker
+   ======================================== */
+.ai-glitch-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  color: #33ff33;
+  font-family: 'Courier New', monospace;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 99998;
+  padding: 24px;
+  text-shadow: 0 0 12px rgba(51, 255, 51, 0.8);
+}
+
+.ai-glitch-overlay.active {
+  display: flex;
+  animation: flicker 0.12s ease-in-out 5;
+}
+
+.ai-glitch-box {
+  max-width: 720px;
+  border: 1px solid #33ff33;
+  background: rgba(0, 20, 0, 0.9);
+  box-shadow: 0 0 25px rgba(0, 255, 0, 0.35);
+  padding: 28px;
+}
+
+.ai-glitch-title {
+  font-size: 1.6rem;
+  margin-bottom: 12px;
+  letter-spacing: 0.08em;
+}
+
+.ai-glitch-subtitle {
+  color: #99ff99;
+  line-height: 1.6;
+  font-size: 1rem;
+  white-space: pre-line;
+}
+
+/* Shared flicker animation — used by kernel panic & AI glitch */
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
