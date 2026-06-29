@@ -2293,7 +2293,7 @@ drwxr-xr-x 10 root staff    320 ${now} ..
           // === Normal directory commands ===
           if (cmd === "ls") {
             if (currentDir === "Desktop") {
-              div.innerHTML = `<pre>${desktopIcons.map(icon => desktopNameSlug(icon.label)).join('\n')}</pre>`;
+              div.innerHTML = `<pre>${desktopIcons.map(icon => desktopNameSlug(icon.label)).join('  ')}</pre>`;
             } else {
               div.innerHTML = "Desktop/  blog/  code/  conduct/  contact/  meetings/  manifesto.txt  wannacry.exe <br>";
             }
