@@ -90,6 +90,60 @@
       overflow: hidden;
     }
 
+    .desktop-icons {
+      position: fixed;
+      top: 46px;
+      left: 18px;
+      z-index: 5;
+      display: grid;
+      grid-template-columns: repeat(2, 86px);
+      grid-auto-rows: 96px;
+      gap: 14px 12px;
+      user-select: none;
+      pointer-events: auto;
+    }
+
+    .desktop-icon {
+      width: 86px;
+      min-height: 88px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #e8ffe8;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.72rem;
+      text-align: center;
+      padding: 6px 4px;
+      cursor: default;
+      text-shadow: 0 1px 3px #000, 0 0 8px rgba(51, 255, 51, 0.65);
+    }
+
+    .desktop-icon:hover,
+    .desktop-icon.selected {
+      border-color: rgba(51, 255, 51, 0.55);
+      background: rgba(51, 255, 51, 0.14);
+      box-shadow: inset 0 0 12px rgba(51, 255, 51, 0.08), 0 0 12px rgba(51, 255, 51, 0.18);
+      outline: none;
+    }
+
+    .desktop-icon-glyph {
+      display: block;
+      font-size: 2.35rem;
+      line-height: 1;
+      margin-bottom: 7px;
+      filter: drop-shadow(0 0 5px rgba(51, 255, 51, 0.45));
+    }
+
+    .desktop-icon-label {
+      display: block;
+      max-width: 78px;
+      margin: 0 auto;
+      padding: 1px 3px;
+      border-radius: 2px;
+      line-height: 1.15;
+      overflow-wrap: anywhere;
+      background: rgba(0, 0, 0, 0.42);
+    }
+
     .xfce-panel {
       position: fixed;
       top: 0;
@@ -957,6 +1011,7 @@
 
   <!-- Desktop View -->
   <div class="desktop-view">
+    <div class="desktop-icons" id="desktopIcons" aria-label="Desktop icons"></div>
     <div class="xfce-panel" role="toolbar" aria-label="Desktop top panel">
       <div class="xfce-panel-left">
         <div class="xfce-menu-button" id="xfceMenuButton" tabindex="0">⌘ Applications</div>
@@ -1070,6 +1125,7 @@
         const xfceMenuButton = document.getElementById('xfceMenuButton');
         const xfceMenu = document.getElementById('xfceMenu');
         const xfceTaskButton = document.getElementById('xfceTaskButton');
+        const desktopIconsEl = document.getElementById('desktopIcons');
         const screenLockOverlay = document.getElementById('screenLockOverlay');
         const weatherAlertOverlay = document.getElementById('weatherAlertOverlay');
         const weatherAlertTitle = document.getElementById('weatherAlertTitle');
@@ -1082,6 +1138,76 @@
         let nanoActive = false;
         let nanoBuffer = '';
         let nanoCursorLine = 0;
+        const defaultDesktopIcons = [
+          { id: 'home', glyph: '🏠', label: 'Home' },
+          { id: 'meetings', glyph: '📅', label: 'Meetings' },
+          { id: 'dumpster', glyph: '🗑️', label: 'Garbage File' },
+          { id: 'terminal', glyph: '▣', label: 'Terminal' },
+          { id: 'radio', glyph: '📡', label: 'SDR Notes' },
+          { id: 'loot', glyph: '📁', label: 'Totally Not Loot' }
+        ];
+        let desktopIcons = defaultDesktopIcons.map(icon => ({ ...icon }));
+
+        function renderDesktopIcons() {
+          if (!desktopIconsEl) return;
+          desktopIconsEl.innerHTML = '';
+          desktopIcons.forEach(icon => {
+            const button = document.createElement('button');
+            button.className = 'desktop-icon';
+            button.type = 'button';
+            button.dataset.iconId = icon.id;
+            button.title = `Desktop item id: ${icon.id} — try: rename-icon ${icon.id} new-name`;
+
+            const glyph = document.createElement('span');
+            glyph.className = 'desktop-icon-glyph';
+            glyph.textContent = icon.glyph;
+
+            const label = document.createElement('span');
+            label.className = 'desktop-icon-label';
+            label.textContent = icon.label;
+
+            button.appendChild(glyph);
+            button.appendChild(label);
+            desktopIconsEl.appendChild(button);
+          });
+        }
+
+        function setDesktopIconLabel(id, label) {
+          const icon = desktopIcons.find(item => item.id === id);
+          if (!icon) return false;
+          icon.label = label.trim().slice(0, 40) || icon.label;
+          renderDesktopIcons();
+          return true;
+        }
+
+        function resetDesktopIcons() {
+          desktopIcons = defaultDesktopIcons.map(icon => ({ ...icon }));
+          renderDesktopIcons();
+        }
+
+        function desktopIconTable() {
+          const rows = desktopIcons.map(icon => `${icon.id.padEnd(10, ' ')}  ${icon.label}`);
+          return `<pre>Desktop icons:
+${rows.join('\n')}
+
+Hackable bits:
+  rename-icon &lt;id&gt; &lt;new label&gt;
+  reset-icons
+
+Example:
+  rename-icon loot research-stash</pre>`;
+        }
+
+        if (desktopIconsEl) {
+          desktopIconsEl.addEventListener('click', function (event) {
+            const icon = event.target.closest('.desktop-icon');
+            if (!icon) return;
+            desktopIconsEl.querySelectorAll('.desktop-icon').forEach(item => item.classList.remove('selected'));
+            icon.classList.add('selected');
+          });
+        }
+
+        renderDesktopIcons();
 
         function showWeatherAlertPopup(alertFeature, force = false) {
           if (!alertFeature || !weatherAlertOverlay) return;
@@ -1604,7 +1730,8 @@
             "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free", "ping", "ssh",
             "netstat", "ss", "last", "w",
             "sudo", "lights", "light", "dark", "exit", "reboot", "shutdown", "init", "poweroff", "halt",
-            "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup"
+            "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup",
+            "desktop", "rename-icon", "reset-icons"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -1741,6 +1868,17 @@
           if (cmd === "shutdown") {
             const partial = parts.slice(1).join(" ");
             return ["-h now"].filter(f => f.startsWith(partial) && f !== partial).map(f => "shutdown " + f);
+          }
+
+          if (cmd === "rename-icon") {
+            if (parts.length === 2) {
+              const partial = parts[1] || "";
+              return desktopIcons
+                .map(icon => icon.id)
+                .filter(id => id.startsWith(partial) && id !== partial)
+                .map(id => `rename-icon ${id}`);
+            }
+            return [];
           }
 
           // Complete "init 0" shutdown alias
@@ -2407,6 +2545,9 @@ Available commands:
   cat <file>      Read a file (manifesto.txt, .sigh.txt, /dev/memory)
   cat /etc/weather.conf  Show weather station config
   nano /etc/weather.conf Edit weather station (session only)
+  desktop         List hackable XFCE desktop icons
+  rename-icon <id> <label> Rename a desktop icon label
+  reset-icons     Restore desktop icon labels
   strings <file>  Print readable strings from a binary
   pwd             Print current working directory
   whoami          Display current user
@@ -2456,6 +2597,24 @@ Available commands:
           } else if (cmd === "reboot") {
             window.location.reload();
             return;
+          } else if (cmd === "desktop" || cmd === "desktop-icons" || cmd === "ls ~/desktop") {
+            div.innerHTML = desktopIconTable();
+          } else if (cmd === "reset-icons") {
+            resetDesktopIcons();
+            div.innerHTML = "Desktop icon labels restored from clean backup.<br>Totally legitimate sysadmin behavior.<br>";
+          } else if (cmd.startsWith("rename-icon ")) {
+            const match = cmd.match(/^rename-icon\s+([a-z0-9_-]+)\s+(.+)$/i);
+            if (!match) {
+              div.innerHTML = "Usage: rename-icon &lt;id&gt; &lt;new label&gt;<br>Try: desktop<br>";
+            } else {
+              const id = match[1].toLowerCase();
+              const label = match[2].replace(/^['\"]|['\"]$/g, '').trim();
+              if (setDesktopIconLabel(id, label)) {
+                div.innerHTML = `desktop: renamed ${id} to "${label.slice(0, 40)}"<br>[xfconf-query] channel=xfce4-desktop property=/backdrop/screen0/monitor0/${id}/label updated<br>`;
+              } else {
+                div.innerHTML = `desktop: no icon id '${id}'<br>Try: desktop<br>`;
+              }
+            }
           } else if (cmd === "ping" || cmd.startsWith("ping ")) {
             terminal.insertBefore(div, prompt);
             await renderFakePing(cmd, div);
@@ -3147,6 +3306,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
   </script>
 </body>
 </html>
+
 
 
 
