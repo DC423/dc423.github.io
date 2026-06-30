@@ -1,140 +1,269 @@
 /* ============================================
-   m0b1l3.css — Mobile View & Responsive Styles
-   Fallback layout for small screens (< 768px)
-   where the full terminal experience isn't ideal.
-   Includes pocket terminal, nav links, and
-   responsive breakpoints.
+   m0b1l3.css — Android-Style Mobile View
+   Renders the mobile fallback as a hacker-themed
+   Android home screen with app icons linking to
+   Meetings, Contact, Code of Conduct, and Blog.
    ============================================ */
 
 /* ---------- Mobile container ---------- */
-/* Hidden by default — shown via media query on small screens */
 .mobile-view {
   display: none;
   min-height: 100vh;
-  padding: 20px;
-  background: linear-gradient(135deg, #001100, #003300);
+  min-height: 100dvh;
+  flex-direction: column;
+  background: linear-gradient(160deg, #0a0a0a 0%, #0d1a0d 40%, #001a00 100%);
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #e0e0e0;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Subtle matrix-style background pattern */
+.mobile-view::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(51, 255, 51, 0.03) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(51, 255, 51, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ---------- Android Status Bar ---------- */
+.android-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  color: #cccccc;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.status-left {
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-icon {
+  width: 14px;
+  height: 14px;
+  opacity: 0.8;
+}
+
+/* ---------- Home Screen Area ---------- */
+.android-home {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 20px 16px;
+  gap: 28px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Header Widget ---------- */
+.android-widget {
+  text-align: center;
+  padding: 24px 20px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(51, 255, 51, 0.15);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 340px;
+}
+
+.widget-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #33ff33;
+  text-shadow: 0 0 20px rgba(51, 255, 51, 0.4);
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+}
+
+.widget-subtitle {
+  font-size: 0.85rem;
+  color: #88cc88;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.widget-detail {
+  font-size: 0.7rem;
+  color: #557755;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+/* ---------- App Grid ---------- */
+.android-app-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+  max-width: 340px;
+  padding: 8px 0;
+}
+
+.android-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+}
+
+.android-app:active {
+  transform: scale(0.9);
+}
+
+/* App Icons — rounded squares like Material You */
+.app-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.2s ease;
+  position: relative;
+}
+
+.app-icon svg {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
+}
+
+/* Individual icon colors — dark hacker palette */
+.app-icon-meetings {
+  background: linear-gradient(135deg, #1a3a1a, #2d5a2d);
+  border: 1px solid rgba(51, 255, 51, 0.25);
+  color: #33ff33;
+  box-shadow: 0 4px 12px rgba(51, 255, 51, 0.15);
+}
+
+.app-icon-contact {
+  background: linear-gradient(135deg, #1a2a3a, #2d4a5a);
+  border: 1px solid rgba(51, 180, 255, 0.25);
+  color: #33bbff;
+  box-shadow: 0 4px 12px rgba(51, 180, 255, 0.15);
+}
+
+.app-icon-coc {
+  background: linear-gradient(135deg, #3a2a1a, #5a4a2d);
+  border: 1px solid rgba(255, 200, 51, 0.25);
+  color: #ffcc33;
+  box-shadow: 0 4px 12px rgba(255, 200, 51, 0.15);
+}
+
+.app-icon-blog {
+  background: linear-gradient(135deg, #2a1a3a, #4a2d5a);
+  border: 1px solid rgba(200, 100, 255, 0.25);
+  color: #cc66ff;
+  box-shadow: 0 4px 12px rgba(200, 100, 255, 0.15);
+}
+
+.android-app:hover .app-icon {
+  box-shadow:
+    0 4px 16px rgba(51, 255, 51, 0.25),
+    inset 0 0 8px rgba(255, 255, 255, 0.05);
+}
+
+.app-label {
+  font-size: 0.7rem;
+  color: #cccccc;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  letter-spacing: 0.3px;
   text-align: center;
 }
 
-/* ---------- Mobile header ---------- */
-.mobile-header {
-  margin-bottom: 40px;
-}
-
-.mobile-header h1 {
-  font-size: 1.8rem;
-  margin-bottom: 10px;
-  text-shadow: 0 0 10px #33ff33;
-}
-
-.mobile-header h2 {
-  font-size: 1rem;
-  color: #66ff66;
-  margin-bottom: 20px;
-}
-
-/* ---------- Keyboard warning banner ---------- */
-/* Tells mobile users they need a physical keyboard for full experience */
-.keyboard-warning {
-  background: rgba(255, 255, 0, 0.1);
-  border: 1px solid #ffff00;
-  padding: 20px;
-  margin: 20px 0;
-  border-radius: 5px;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.keyboard-warning h3 {
-  color: #ffff00;
-  margin-top: 0;
-  font-size: 1.1rem;
-}
-
-/* ---------- Navigation links ---------- */
-.mobile-links {
-  margin-top: 40px;
-}
-
-/* Block-level green bordered link buttons */
-.mobile-link {
-  display: block;
-  background: rgba(51, 255, 51, 0.1);
-  border: 1px solid #33ff33;
-  color: #33ff33;
-  text-decoration: none;
-  padding: 15px 20px;
-  margin: 15px 0;
-  border-radius: 5px;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-}
-
-.mobile-link:hover {
-  background: rgba(51, 255, 51, 0.2);
-  box-shadow: 0 0 15px rgba(51, 255, 51, 0.5);
-}
-
-/* ---------- Mobile footer ---------- */
-.mobile-footer {
-  margin-top: 40px;
-  font-size: 0.8rem;
-  color: #666;
-}
-
-/* ---------- Mobile content area ---------- */
-.mobile-content {
-  margin: 30px 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: #99ff99;
-  text-align: left;
-}
-
-/* ---------- Pocket Terminal ---------- */
-/* Mini terminal widget for mobile — shows key commands as tappable links */
-.pocket-terminal {
-  margin: 30px 0;
-  border: 1px solid #33ff33;
-  background: rgba(0, 0, 0, 0.72);
-  box-shadow: 0 0 18px rgba(51, 255, 51, 0.28);
-  text-align: left;
-  font-size: 0.85rem;
-  border-radius: 5px;
+/* ---------- Terminal Widget ---------- */
+.android-terminal-widget {
+  width: 100%;
+  max-width: 340px;
+  border-radius: 16px;
   overflow: hidden;
+  border: 1px solid rgba(51, 255, 51, 0.12);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.pocket-terminal-title {
-  background: #111;
-  border-bottom: 1px solid #224422;
-  color: #99ff99;
-  padding: 8px 12px;
-  font-size: 0.75rem;
+.terminal-widget-bar {
+  background: rgba(20, 40, 20, 0.8);
+  padding: 6px 14px;
+  font-size: 0.65rem;
+  color: #66aa66;
+  font-family: 'Courier New', Courier, monospace;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(51, 255, 51, 0.1);
 }
 
-.pocket-terminal-body {
-  padding: 12px;
-  line-height: 1.55;
+.terminal-widget-body {
+  padding: 12px 14px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  line-height: 1.6;
   color: #33ff33;
 }
 
-.pocket-terminal-prompt {
+.tw-prompt {
   color: #66ff66;
   font-weight: bold;
+  margin-right: 6px;
 }
 
-/* Command links inside pocket terminal — yellow dashed underline */
-.pocket-command {
-  display: inline-block;
-  color: #ffff00;
-  text-decoration: none;
-  border-bottom: 1px dashed rgba(255, 255, 0, 0.55);
-  margin: 0 4px;
+.tw-cursor {
+  color: #33ff33;
+  animation: mobileBlink 1s step-end infinite;
 }
 
-.pocket-command:hover {
-  color: #fff866;
-  text-shadow: 0 0 8px rgba(255, 255, 0, 0.7);
+@keyframes mobileBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ---------- Android Navigation Bar ---------- */
+.android-nav-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px 0 12px;
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.nav-pill {
+  width: 120px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
 }
 
 /* ========================================
@@ -147,19 +276,53 @@
     display: none;
   }
   .mobile-view {
-    display: block;
+    display: flex;
   }
 }
 
-/* Small phones — tighter padding */
-@media (max-width: 480px) {
-  .mobile-view {
-    padding: 15px;
+/* Small phones — adjust sizing */
+@media (max-width: 380px) {
+  .android-app-grid {
+    gap: 12px;
   }
-  .mobile-header h1 {
-    font-size: 1.5rem;
+
+  .app-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
   }
-  .keyboard-warning {
-    padding: 15px;
+
+  .app-icon svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  .widget-title {
+    font-size: 1.8rem;
+  }
+
+  .android-widget,
+  .android-terminal-widget {
+    max-width: 100%;
+  }
+}
+
+/* Landscape phones — horizontal layout */
+@media (max-height: 500px) and (orientation: landscape) {
+  .android-home {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 12px;
+    gap: 16px;
+  }
+
+  .android-widget {
+    padding: 12px 16px;
+    max-width: 240px;
+  }
+
+  .widget-title {
+    font-size: 1.4rem;
   }
 }
