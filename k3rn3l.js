@@ -618,6 +618,47 @@ Example:
           return `NEXT MEETING: ${dateStr} (${daysLeft}d ${hoursLeft}h)`;
         }
 
+        function pickLocalMotdQuote() {
+          return motdQuotes[Math.floor(Math.random() * motdQuotes.length)];
+        }
+
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 3500) {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), timeoutMs);
+          try {
+            return await fetch(url, { ...options, signal: controller.signal });
+          } finally {
+            clearTimeout(timeout);
+          }
+        }
+
+        async function fetchAnimeQuote() {
+          const response = await fetchWithTimeout('https://api.animechan.io/v1/quotes/random');
+          if (!response.ok) throw new Error('Anime quote API failed');
+          const payload = await response.json();
+          const data = payload.data || payload;
+          const quote = data.content || data.quote;
+          const character = typeof data.character === 'object' ? data.character?.name : data.character;
+          const anime = typeof data.anime === 'object' ? data.anime?.name : data.anime;
+          if (!quote) throw new Error('Anime quote API returned no quote');
+          const source = [character, anime].filter(Boolean).join(', ');
+          return source ? `${quote} — ${source}` : `${quote} — AnimeChan`;
+        }
+
+        async function getRandomMotdQuote() {
+          const sources = [
+            () => Promise.resolve(pickLocalMotdQuote()),
+            async () => `${await fetchDadJoke()} — Dad Joke`,
+            fetchAnimeQuote
+          ];
+          const source = sources[Math.floor(Math.random() * sources.length)];
+          try {
+            return await source();
+          } catch (error) {
+            return pickLocalMotdQuote();
+          }
+        }
+
         function buildMotdLines(ip, quote) {
           const wrappedQuote = wrapText(quote, 50);
           const countdown = getNextMeetingCountdown();
@@ -650,8 +691,7 @@ Example:
               setTimeout(typeBootLines, 300);
             }
           } else {
-            const quote = motdQuotes[Math.floor(Math.random() * motdQuotes.length)];
-            fetch("https://api.ipify.org?format=json")
+            getRandomMotdQuote().then(quote => fetchWithTimeout("https://api.ipify.org?format=json")
               .then(r => r.json())
               .then(data => {
                 serverIp = data.ip;
@@ -660,7 +700,7 @@ Example:
               .catch(() => {
                 serverIp = "218.108.149.373";
                 return buildMotdLines(serverIp, quote);
-              })
+              }))
               .then(motd => {
                 motd.forEach(l => {
                   const div = document.createElement("div");
@@ -690,7 +730,7 @@ Example:
           const parts = trimmed.split(/\s+/);
 
           // Files and directories available in each context
-          const homeFiles = ["blog/", "code/", "conduct/", "contact/", "meetings/", "manifesto.txt", ".sigh.txt", "wannacry.exe", ".shadow/", "/dev/memory"];
+          const homeFiles = ["blog/", "code/", "conduct/", "contact/", "meetings/", "manifesto.txt", "wannacry.exe", ".shadow/", "/dev/memory"];
           const homeDirs = ["blog", "code", "conduct", "contact", "meetings", ".shadow", "Desktop"];
           const shadowFiles = [".payload"];
 
@@ -745,7 +785,7 @@ Example:
             const partial = parts[1] || "";
             const files = currentDir === ".shadow"
               ? [".payload"]
-              : ["manifesto.txt", ".sigh.txt", "wannacry.exe", "/dev/memory", "garbage"];
+              : ["manifesto.txt", "wannacry.exe", "/dev/memory", "garbage"];
             return files
               .filter(f => f.startsWith(partial) && f !== partial)
               .map(f => "cat " + f);
@@ -989,17 +1029,15 @@ Example:
         }
 
         async function fetchDadJoke() {
-          try {
-            const response = await fetch('https://icanhazdadjoke.com/', {
-              headers: {
-                'Accept': 'application/json'
-              }
-            });
-            const data = await response.json();
-            return data.joke;
-          } catch (error) {
-            return "Error: Failed to fetch dad joke. Maybe try again later? *sigh*";
-          }
+          const response = await fetchWithTimeout('https://icanhazdadjoke.com/', {
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          if (!response.ok) throw new Error('Dad joke API failed');
+          const data = await response.json();
+          if (!data.joke) throw new Error('Dad joke API returned no joke');
+          return data.joke;
         }
 
         async function renderFakePing(cmd, outputDiv) {
@@ -1331,7 +1369,7 @@ Swap:          0.0Gi       0.0Gi       0.0Gi
                 div.innerHTML = desktopIconDetailedListing(cmd === "ls -la" || cmd === "ls -lah" || cmd === "ls -al");
               } else {
                 const now = formatLsDate();
-                div.innerHTML = `<pre>
+            div.innerHTML = `<pre>
 drwxr-xr-x  7 root staff   224 ${now} Desktop/
 drwxr-xr-x  5 root staff   160 ${now} blog/
 drwxr-xr-x  8 root staff   256 ${now} code/
@@ -1340,7 +1378,6 @@ drwxr-xr-x  4 root staff   128 ${now} contact/
 drwxr-xr-x  3 root staff    96 ${now} meetings/
 drwx------  2 root root      64 Jan  1 00:00 .shadow/
 -rw-r--r--  1 root staff  1354 ${now} manifesto.txt
--rw-r--r--  1 root staff   921 ${now} .sigh.txt
 -rw-r--r--  1 root staff 3514368 May 12  2017 wannacry.exe
 </pre>`;
               }
@@ -1439,18 +1476,6 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
 
             scrollLine();
             return;
-          } else if (cmd === "cat .sigh.txt") {
-            div.innerHTML = "What a Dad Joke... <br>";
-            terminal.insertBefore(div, prompt);
-            scrollToBottom();
-            
-            const joke = await fetchDadJoke();
-            const jokeDiv = document.createElement("div");
-            jokeDiv.innerHTML = `<br>${joke}<br><br>*sigh*<br>`;
-            terminal.insertBefore(jokeDiv, prompt);
-            scrollToBottom();
-            return;
-          
           } else if (cmd === "cat /dev/memory") {
             const encoded = `
               PT09IC9kZXYvbWVtb3J5OiBNRUNIQU5JQ0FMVFlQRSA9PT0KTGFzdCB
@@ -1532,7 +1557,7 @@ Available commands:
   ls              List files and directories
   ls -l           Detailed file listing
   cd <dir>        Navigate to a page (blog, code, conduct, contact, meetings)
-  cat <file>      Read a file (manifesto.txt, .sigh.txt, /dev/memory)
+  cat <file>      Read a file (manifesto.txt, /dev/memory)
   cat /etc/weather.conf  Show weather station config
   nano /etc/weather.conf Edit weather station (session only)
   cd Desktop      Enter the fake XFCE desktop folder
