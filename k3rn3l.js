@@ -60,7 +60,7 @@
             button.className = 'desktop-icon';
             button.type = 'button';
             button.dataset.iconId = icon.id;
-            button.title = `Desktop item id: ${icon.id} — try: rename-icon ${icon.id} new-name`;
+            button.title = `Double-click to open ${icon.label}. Desktop item id: ${icon.id} — try: rename-icon ${icon.id} new-name`;
 
             const glyph = document.createElement('span');
             glyph.className = 'desktop-icon-glyph';
@@ -159,6 +159,49 @@ Example:
           return `<pre>${rows.join('\n')}</pre>`;
         }
 
+        function appendTerminalLine(html) {
+          const div = document.createElement("div");
+          div.innerHTML = html;
+          terminal.insertBefore(div, prompt);
+          scrollToBottom();
+          return div;
+        }
+
+        function openDesktopIconById(iconId) {
+          const icon = desktopIcons.find(item => item.id === iconId);
+          if (!icon) return;
+
+          switch (icon.id) {
+            case 'home':
+              window.location.href = 'index.html';
+              break;
+            case 'meetings':
+              window.location.href = 'meetings.html';
+              break;
+            case 'terminal':
+              restoreTerminal();
+              appendTerminalLine("[xfdesktop] terminal already open. focus requested.<br>");
+              break;
+            case 'dumpster':
+              restoreTerminal();
+              appendTerminalLine("[xfdesktop] opening Garbage File...<br>");
+              handleCommand('garbage');
+              break;
+            case 'radio':
+              restoreTerminal();
+              appendTerminalLine("[xfdesktop] opening SDR Notes...<br>");
+              handleCommand('sdr scan');
+              break;
+            case 'loot':
+              restoreTerminal();
+              appendTerminalLine("[xfdesktop] opening Totally Not Loot...<br>");
+              handleCommand('desktop');
+              break;
+            default:
+              appendTerminalLine(`[xfdesktop] no opener registered for ${desktopNameSlug(icon.label)}<br>`);
+          }
+        }
+
 
         if (desktopIconsEl) {
           desktopIconsEl.addEventListener('click', function (event) {
@@ -166,6 +209,20 @@ Example:
             if (!icon) return;
             desktopIconsEl.querySelectorAll('.desktop-icon').forEach(item => item.classList.remove('selected'));
             icon.classList.add('selected');
+          });
+
+          desktopIconsEl.addEventListener('dblclick', function (event) {
+            const icon = event.target.closest('.desktop-icon');
+            if (!icon) return;
+            openDesktopIconById(icon.dataset.iconId);
+          });
+
+          desktopIconsEl.addEventListener('keydown', function (event) {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            const icon = event.target.closest('.desktop-icon');
+            if (!icon) return;
+            event.preventDefault();
+            openDesktopIconById(icon.dataset.iconId);
           });
         }
 
