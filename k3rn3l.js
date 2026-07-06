@@ -646,12 +646,12 @@ Example:
         }
 
         async function getRandomMotdQuote() {
-          const sources = [
-            () => Promise.resolve(pickLocalMotdQuote()),
-            async () => `${await fetchDadJoke()} — Dad Joke`,
-            fetchAnimeQuote
-          ];
-          const source = sources[Math.floor(Math.random() * sources.length)];
+          const roll = Math.random();
+          const source = roll < 0.75
+            ? () => Promise.resolve(pickLocalMotdQuote())  // 75% local MOTD lore
+            : roll < 0.95
+              ? fetchAnimeQuote                            // 20% anime quote
+              : async () => `${await fetchDadJoke()} — Dad Joke`; // 5% dad joke
           try {
             return await source();
           } catch (error) {
