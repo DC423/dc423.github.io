@@ -2328,7 +2328,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           if (screenLockMessage) {
             screenLockMessage.textContent = `lol you typed: ${typedPassword} ... what were you thinking typing a password in here`;
           }
-          setTimeout(unlockScreen, 1800);
+          setTimeout(unlockScreen, 3500);
         }
 
         if (screenLockForm) {
