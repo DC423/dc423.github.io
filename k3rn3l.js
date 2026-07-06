@@ -21,6 +21,9 @@
         const xfceTaskButton = document.getElementById('xfceTaskButton');
         const desktopIconsEl = document.getElementById('desktopIcons');
         const screenLockOverlay = document.getElementById('screenLockOverlay');
+        const screenLockForm = document.getElementById('screenLockForm');
+        const screenLockPassword = document.getElementById('screenLockPassword');
+        const screenLockMessage = document.getElementById('screenLockMessage');
         const weatherAlertOverlay = document.getElementById('weatherAlertOverlay');
         const weatherAlertTitle = document.getElementById('weatherAlertTitle');
         const weatherAlertMeta = document.getElementById('weatherAlertMeta');
@@ -2284,8 +2287,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
               updatePanelWeather();
               break;
             case 'lock':
-              screenLockOverlay.classList.add('active');
-              screenLockOverlay.setAttribute('aria-hidden', 'false');
+              lockScreen();
               break;
             case 'reboot':
               window.location.reload();
@@ -2296,15 +2298,42 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           }
         });
 
-        // Screen lock: dismiss on any key or click
-        function unlockScreen() {
-          if (screenLockOverlay.classList.contains('active')) {
-            screenLockOverlay.classList.remove('active');
-            screenLockOverlay.setAttribute('aria-hidden', 'true');
+        // Screen lock: fake root login; any password works.
+        function lockScreen() {
+          screenLockOverlay.classList.add('active');
+          screenLockOverlay.setAttribute('aria-hidden', 'false');
+          if (screenLockMessage) screenLockMessage.textContent = '';
+          if (screenLockPassword) {
+            screenLockPassword.value = '';
+            setTimeout(() => screenLockPassword.focus(), 50);
           }
         }
-        screenLockOverlay.addEventListener('click', unlockScreen);
-        screenLockOverlay.addEventListener('keydown', unlockScreen);
+
+        function unlockScreen() {
+          screenLockOverlay.classList.remove('active');
+          screenLockOverlay.setAttribute('aria-hidden', 'true');
+          if (screenLockPassword) screenLockPassword.value = '';
+          if (screenLockMessage) screenLockMessage.textContent = '';
+        }
+
+        function handleLockSubmit(event) {
+          event.preventDefault();
+          const typedPassword = screenLockPassword ? screenLockPassword.value : '';
+
+          if (!typedPassword) {
+            unlockScreen();
+            return;
+          }
+
+          if (screenLockMessage) {
+            screenLockMessage.textContent = `lol you typed: ${typedPassword} ... what were you thinking typing a password in here`;
+          }
+          setTimeout(unlockScreen, 1800);
+        }
+
+        if (screenLockForm) {
+          screenLockForm.addEventListener('submit', handleLockSubmit);
+        }
 
         // Task button: click to minimize/restore terminal
         xfceTaskButton.addEventListener('click', function (e) {

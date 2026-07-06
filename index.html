@@ -94,8 +94,17 @@
   <!-- Screen Lock Overlay -->
   <div class="screen-lock-overlay" id="screenLockOverlay" aria-hidden="true">
     <div class="screen-lock-box">
-      <div class="screen-lock-title">cha-terminal locked</div>
-      <div class="screen-lock-hint">Press any key or click to unlock. Remember: focus before passwords.</div>
+      <div class="screen-lock-title">cha-terminal login</div>
+      <form class="screen-lock-form" id="screenLockForm" autocomplete="off">
+        <label class="screen-lock-label" for="screenLockUser">username</label>
+        <input class="screen-lock-input" id="screenLockUser" type="text" value="root" readonly>
+
+        <label class="screen-lock-label" for="screenLockPassword">password</label>
+        <input class="screen-lock-input" id="screenLockPassword" type="password" autocomplete="off" autofocus>
+
+        <button class="screen-lock-submit" type="submit">unlock</button>
+      </form>
+      <div class="screen-lock-message" id="screenLockMessage" aria-live="polite"></div>
     </div>
   </div>
 
