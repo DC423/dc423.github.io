@@ -75,6 +75,109 @@
   background: rgba(0, 0, 0, 0.42);
 }
 
+/* Simple blank folder windows opened by desktop icons */
+.folder-window {
+  position: fixed;
+  width: 320px;
+  min-height: 210px;
+  border: 1px solid rgba(51, 255, 51, 0.72);
+  background: rgba(4, 10, 4, 0.94);
+  box-shadow: 0 0 24px rgba(51, 255, 51, 0.18), inset 0 0 16px rgba(51, 255, 51, 0.06);
+  color: #d8ffd8;
+  font-family: 'Courier New', Courier, monospace;
+  text-shadow: 0 0 8px rgba(51, 255, 51, 0.45);
+}
+
+.folder-window-titlebar {
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 8px 0 10px;
+  background: linear-gradient(to bottom, rgba(42, 42, 42, 0.96), rgba(18, 18, 18, 0.96));
+  border-bottom: 1px solid rgba(51, 255, 51, 0.38);
+  user-select: none;
+}
+
+.folder-window-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
+.folder-window-close {
+  width: 18px;
+  height: 18px;
+  border: 1px solid rgba(255, 80, 80, 0.75);
+  border-radius: 50%;
+  background: rgba(120, 0, 0, 0.78);
+  color: #ffd0d0;
+  cursor: pointer;
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 14px;
+  padding: 0;
+}
+
+.folder-window-close:hover,
+.folder-window-close:focus {
+  outline: none;
+  background: rgba(255, 40, 40, 0.86);
+}
+
+.folder-window-body {
+  min-height: 180px;
+  display: grid;
+  place-content: center;
+  gap: 8px;
+  text-align: center;
+  color: #99ff99;
+}
+
+.folder-empty-icon {
+  font-size: 2.4rem;
+  opacity: 0.72;
+}
+
+.folder-empty-text {
+  font-size: 0.9rem;
+  opacity: 0.82;
+}
+
+.folder-entry-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(58px, 1fr));
+  gap: 14px 10px;
+  width: 100%;
+  padding: 18px;
+  box-sizing: border-box;
+}
+
+.folder-entry {
+  min-width: 0;
+  text-align: center;
+  user-select: none;
+  cursor: default;
+  opacity: 0.94;
+}
+
+.folder-entry-glyph {
+  display: block;
+  font-size: 1.7rem;
+  line-height: 1;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 4px rgba(51, 255, 51, 0.32));
+}
+
+.folder-entry-name {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+  line-height: 1.15;
+  color: #caffca;
+}
+
 /* ========================================
    XFCE Top Panel — fixed bar across top
    ======================================== */

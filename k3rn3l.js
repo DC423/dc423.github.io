@@ -45,7 +45,7 @@
         const defaultDesktopIcons = [
           { id: 'home', glyph: '🏠', label: 'Home' },
           { id: 'meetings', glyph: '📅', label: 'Meetings' },
-          { id: 'dumpster', glyph: '🗑️', label: 'Garbage File' },
+          { id: 'dumpster', glyph: '🗑️', label: 'Garbage' },
           { id: 'terminal', glyph: '▣', label: 'Terminal' },
           { id: 'radio', glyph: '📡', label: 'SDR Notes' },
           { id: 'loot', glyph: '📁', label: 'Totally Not Loot' }
@@ -128,10 +128,10 @@ Example:
           const targets = {
             home: '/root',
             meetings: '../meetings.html',
-            dumpster: '../garbage',
+            dumpster: '/dev/null',
             terminal: '/usr/bin/cha-terminal',
-            radio: '../sdr-notes',
-            loot: '../totally-not-loot'
+            radio: 'https://github.com/DC423/Meeting-Presentations/blob/master/2016-03_SDR_Basics.pdf',
+            loot: '/root/.shadow'
           };
           return targets[icon.id] || `../${desktopNameSlug(icon.label)}`;
         }
@@ -167,39 +167,104 @@ Example:
           return div;
         }
 
+        let folderWindowZ = 10100;
+
+        function getFolderWindowBody(icon) {
+          if (icon.id === 'home') {
+            const homeItems = [
+              { glyph: '🖥️', name: 'Desktop/' },
+              { glyph: '📁', name: 'blog/' },
+              { glyph: '📁', name: 'code/' },
+              { glyph: '📁', name: 'conduct/' },
+              { glyph: '📁', name: 'contact/' },
+              { glyph: '📅', name: 'meetings/' },
+              { glyph: '📄', name: 'manifesto.txt' },
+              { glyph: '🧬', name: 'wannacry.exe' }
+            ];
+
+            return `<div class="folder-entry-grid" aria-label="Home folder contents">
+              ${homeItems.map(item => `<div class="folder-entry" aria-disabled="true"><span class="folder-entry-glyph">${item.glyph}</span><span class="folder-entry-name">${item.name}</span></div>`).join('')}
+            </div>`;
+          }
+
+          if (icon.id === 'shadow') {
+            const shadowItems = [
+              { glyph: '⚠️', name: '.payload' }
+            ];
+
+            return `<div class="folder-entry-grid" aria-label=".shadow folder contents">
+              ${shadowItems.map(item => `<div class="folder-entry" aria-disabled="true"><span class="folder-entry-glyph">${item.glyph}</span><span class="folder-entry-name">${item.name}</span></div>`).join('')}
+            </div>`;
+          }
+
+          return `<div class="folder-empty-icon">📂</div><div class="folder-empty-text">This folder is empty.</div>`;
+        }
+
+        function openBlankFolderWindow(icon) {
+          const existing = document.querySelector(`.folder-window[data-folder-id="${icon.id}"]`);
+          if (existing) {
+            existing.style.zIndex = ++folderWindowZ;
+            return;
+          }
+
+          const folderWindow = document.createElement('div');
+          folderWindow.className = 'folder-window';
+          folderWindow.dataset.folderId = icon.id;
+          folderWindow.style.zIndex = ++folderWindowZ;
+          folderWindow.style.left = `${250 + (desktopIcons.findIndex(item => item.id === icon.id) % 3) * 28}px`;
+          folderWindow.style.top = `${82 + (desktopIcons.findIndex(item => item.id === icon.id) % 4) * 34}px`;
+
+          const titleBar = document.createElement('div');
+          titleBar.className = 'folder-window-titlebar';
+
+          const title = document.createElement('div');
+          title.className = 'folder-window-title';
+          title.textContent = `${icon.glyph} ${icon.label}`;
+
+          const close = document.createElement('button');
+          close.className = 'folder-window-close';
+          close.type = 'button';
+          close.setAttribute('aria-label', `Close ${icon.label}`);
+          close.textContent = '×';
+          close.addEventListener('click', () => folderWindow.remove());
+
+          const body = document.createElement('div');
+          body.className = 'folder-window-body';
+          body.innerHTML = getFolderWindowBody(icon);
+
+          titleBar.appendChild(title);
+          titleBar.appendChild(close);
+          folderWindow.appendChild(titleBar);
+          folderWindow.appendChild(body);
+          document.querySelector('.desktop-view').appendChild(folderWindow);
+
+          folderWindow.addEventListener('mousedown', () => {
+            folderWindow.style.zIndex = ++folderWindowZ;
+          });
+        }
+
         function openDesktopIconById(iconId) {
           const icon = desktopIcons.find(item => item.id === iconId);
           if (!icon) return;
 
-          switch (icon.id) {
-            case 'home':
-              window.location.href = 'index.html';
-              break;
-            case 'meetings':
-              window.location.href = 'meetings.html';
-              break;
-            case 'terminal':
-              restoreTerminal();
-              appendTerminalLine("[xfdesktop] terminal already open. focus requested.<br>");
-              break;
-            case 'dumpster':
-              restoreTerminal();
-              appendTerminalLine("[xfdesktop] opening Garbage File...<br>");
-              handleCommand('garbage');
-              break;
-            case 'radio':
-              restoreTerminal();
-              appendTerminalLine("[xfdesktop] opening SDR Notes...<br>");
-              handleCommand('sdr scan');
-              break;
-            case 'loot':
-              restoreTerminal();
-              appendTerminalLine("[xfdesktop] opening Totally Not Loot...<br>");
-              handleCommand('desktop');
-              break;
-            default:
-              appendTerminalLine(`[xfdesktop] no opener registered for ${desktopNameSlug(icon.label)}<br>`);
+          if (icon.id === 'meetings') {
+            window.location.href = 'meetings.html';
+            return;
           }
+
+          if (icon.id === 'radio') {
+            window.open('https://github.com/DC423/Meeting-Presentations/blob/master/2016-03_SDR_Basics.pdf', '_blank');
+            return;
+          }
+
+          if (icon.id === 'loot') {
+            // Open the .shadow folder contents
+            const shadowIcon = { id: 'shadow', glyph: '📁', label: '.shadow' };
+            openBlankFolderWindow(shadowIcon);
+            return;
+          }
+
+          openBlankFolderWindow(icon);
         }
 
 
