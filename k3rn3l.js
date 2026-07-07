@@ -252,6 +252,11 @@ Example:
             return;
           }
 
+          if (icon.id === 'terminal') {
+            restoreTerminal();
+            return;
+          }
+
           if (icon.id === 'radio') {
             window.open('https://github.com/DC423/Meeting-Presentations/blob/master/2016-03_SDR_Basics.pdf', '_blank');
             return;
