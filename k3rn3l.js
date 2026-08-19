@@ -476,6 +476,13 @@ Example:
           "Privacy is not something that I'm merely entitled to, it's an absolute prerequisite. — Marlon Brando",
           "Cybersecurity is much more than a matter of IT. — Stephane Nappo",
 
+          // The Cuckoo's Egg — Clifford Stoll
+          "Collect raw data and throw away the expected. What remains challenges your theories. — Clifford Stoll, The Cuckoo's Egg",
+          "The astronomer's rule of thumb: if you don't write it down, it didn't happen. — Clifford Stoll, The Cuckoo's Egg",
+          "Our wiretaps had to be completely undetectable, even to an omnipotent super-user. — Clifford Stoll, The Cuckoo's Egg",
+          "Gnu was the hole in our system's security. A subtle bug in an obscure section of some popular software. — Clifford Stoll, The Cuckoo's Egg",
+          "How could we again trust our programs and data? We couldn't. — Clifford Stoll, The Cuckoo's Egg",
+
           // Programmer / Tech Quotes
           "Talk is cheap. Show me the code. — Linus Torvalds",
           "Code is poetry. — WordPress",
