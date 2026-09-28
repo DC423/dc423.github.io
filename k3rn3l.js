@@ -682,6 +682,18 @@ Example:
         const deadbeefMac = `de:ad:be:ef:${Array.from({ length: 2 }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join(':')}`;
         const randomLinkLocalIpv6 = `fe80::${Array.from({ length: 4 }, () => Math.floor(Math.random() * 0x10000).toString(16).padStart(4, '0')).join(':')}`;
         let previousDir = "~";
+        let snakeActive = false;
+        let snakeTimer = null;
+        let snakeOutput = null;
+        let snake = [];
+        let snakeFood = { x: 0, y: 0 };
+        let snakeDirection = { x: 1, y: 0 };
+        let snakeNextDirection = { x: 1, y: 0 };
+        let snakeScore = 0;
+        let snakeHighScore = 0;
+        let snakeSpeed = 180;
+        let snakePaused = false;
+        let snakeGameOver = false;
 
         function scrollToBottom() {
           document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
@@ -878,7 +890,7 @@ Example:
             "netstat", "ss", "last", "w",
             "sudo", "lights", "light", "dark", "exit", "reboot", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup",
-            "mv", "desktop", "reset-icons"
+            "mv", "desktop", "reset-icons", "snake"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -1156,7 +1168,7 @@ Example:
               handleCommand(cmd).then(() => {
                 commandBuffer = "";
                 updatePrompt();
-                prompt.style.visibility = "visible";
+                prompt.style.visibility = snakeActive ? "hidden" : "visible";
               });
             } else if (e.key.length === 1) {
               commandBuffer += e.key;
@@ -1252,6 +1264,208 @@ Example:
           const avg = isLoopback ? (0.031 + ((count - 1) * 0.006) / 2).toFixed(3) : "18.733";
           const max = isLoopback ? (0.031 + (count - 1) * 0.006).toFixed(3) : "24.733";
           appendPingLine(`round-trip min/avg/max = ${min}/${avg}/${max} ms`);
+        }
+
+        // ────────────────────────────────────────────────────────────
+        //  CHA Snake — playable ASCII game inside the terminal
+        // ────────────────────────────────────────────────────────────
+        const snakeBoardWidth = 28;
+        const snakeBoardHeight = 14;
+
+        function snakeCellKey(cell) {
+          return `${cell.x},${cell.y}`;
+        }
+
+        function placeSnakeFood() {
+          const occupied = new Set(snake.map(snakeCellKey));
+          const openCells = [];
+
+          for (let y = 0; y < snakeBoardHeight; y++) {
+            for (let x = 0; x < snakeBoardWidth; x++) {
+              if (!occupied.has(`${x},${y}`)) openCells.push({ x, y });
+            }
+          }
+
+          if (openCells.length === 0) {
+            snakeGameOver = true;
+            return;
+          }
+
+          snakeFood = openCells[Math.floor(Math.random() * openCells.length)];
+        }
+
+        function renderSnake() {
+          if (!snakeOutput) return;
+
+          const snakeCells = new Map(snake.map((cell, index) => [snakeCellKey(cell), index]));
+          const rows = [];
+          rows.push(`+${'-'.repeat(snakeBoardWidth)}+`);
+
+          for (let y = 0; y < snakeBoardHeight; y++) {
+            let row = '|';
+            for (let x = 0; x < snakeBoardWidth; x++) {
+              const key = `${x},${y}`;
+              if (snakeCells.has(key)) {
+                row += snakeCells.get(key) === 0 ? '@' : 'o';
+              } else if (snakeFood.x === x && snakeFood.y === y) {
+                row += '*';
+              } else {
+                row += ' ';
+              }
+            }
+            rows.push(`${row}|`);
+          }
+
+          rows.push(`+${'-'.repeat(snakeBoardWidth)}+`);
+          rows.push(` SCORE: ${String(snakeScore).padStart(4, '0')}   HIGH: ${String(snakeHighScore).padStart(4, '0')}   SPEED: ${Math.round(180 / snakeSpeed)}x`);
+
+          if (snakeGameOver) {
+            rows.push(' CONNECTION LOST // snake.exe dumped core');
+            rows.push(' [R] restart   [Q/Esc/Ctrl+C] exit');
+          } else if (snakePaused) {
+            rows.push(' PAUSED // press P to resume');
+            rows.push(' Arrows/WASD move   R restart   Q exit');
+          } else {
+            rows.push(' Arrows/WASD move   P pause   R restart   Q exit');
+            rows.push(' Collect packets (*) without hitting the firewall.');
+          }
+
+          snakeOutput.textContent = rows.join('\n');
+          scrollToBottom();
+        }
+
+        function scheduleSnakeTick() {
+          clearTimeout(snakeTimer);
+          if (!snakeActive || snakePaused || snakeGameOver) return;
+
+          snakeTimer = setTimeout(() => {
+            tickSnake();
+            scheduleSnakeTick();
+          }, snakeSpeed);
+        }
+
+        function tickSnake() {
+          if (!snakeActive || snakePaused || snakeGameOver) return;
+
+          snakeDirection = { ...snakeNextDirection };
+          const nextHead = {
+            x: snake[0].x + snakeDirection.x,
+            y: snake[0].y + snakeDirection.y
+          };
+          const ateFood = nextHead.x === snakeFood.x && nextHead.y === snakeFood.y;
+          const bodyToCheck = ateFood ? snake : snake.slice(0, -1);
+          const hitWall = nextHead.x < 0 || nextHead.x >= snakeBoardWidth || nextHead.y < 0 || nextHead.y >= snakeBoardHeight;
+          const hitSelf = bodyToCheck.some(cell => cell.x === nextHead.x && cell.y === nextHead.y);
+
+          if (hitWall || hitSelf) {
+            snakeGameOver = true;
+            snakeHighScore = Math.max(snakeHighScore, snakeScore);
+            clearTimeout(snakeTimer);
+            renderSnake();
+            return;
+          }
+
+          snake.unshift(nextHead);
+          if (ateFood) {
+            snakeScore += 10;
+            snakeHighScore = Math.max(snakeHighScore, snakeScore);
+            snakeSpeed = Math.max(70, snakeSpeed - 7);
+            placeSnakeFood();
+          } else {
+            snake.pop();
+          }
+
+          renderSnake();
+        }
+
+        function resetSnake() {
+          clearTimeout(snakeTimer);
+          snake = [
+            { x: 7, y: 7 },
+            { x: 6, y: 7 },
+            { x: 5, y: 7 },
+            { x: 4, y: 7 }
+          ];
+          snakeDirection = { x: 1, y: 0 };
+          snakeNextDirection = { x: 1, y: 0 };
+          snakeScore = 0;
+          snakeSpeed = 180;
+          snakePaused = false;
+          snakeGameOver = false;
+          placeSnakeFood();
+          renderSnake();
+          scheduleSnakeTick();
+        }
+
+        function startSnake(outputDiv) {
+          clearTimeout(snakeTimer);
+          snakeActive = true;
+          snakeOutput = document.createElement('pre');
+          snakeOutput.setAttribute('aria-label', 'CHA Snake game board');
+          snakeOutput.style.margin = '8px 0';
+          snakeOutput.style.whiteSpace = 'pre';
+          snakeOutput.style.overflowX = 'auto';
+          snakeOutput.style.wordBreak = 'keep-all';
+          snakeOutput.style.overflowWrap = 'normal';
+          snakeOutput.style.color = '#33ff33';
+          outputDiv.appendChild(snakeOutput);
+          prompt.style.visibility = 'hidden';
+          resetSnake();
+        }
+
+        function exitSnake() {
+          clearTimeout(snakeTimer);
+          snakeActive = false;
+          snakePaused = false;
+          snakeGameOver = false;
+          if (snakeOutput) snakeOutput.textContent += '\n\n[snake.exe terminated by operator]';
+          snakeOutput = null;
+          commandBuffer = '';
+          updatePrompt();
+          prompt.style.visibility = 'visible';
+          scrollToBottom();
+        }
+
+        function snakeKeyHandler(e) {
+          if (!snakeActive) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+
+          const key = e.key.toLowerCase();
+          if (key === 'q' || key === 'escape' || (e.ctrlKey && key === 'c')) {
+            exitSnake();
+            return;
+          }
+
+          if (key === 'r') {
+            resetSnake();
+            return;
+          }
+
+          if (key === 'p' && !snakeGameOver) {
+            snakePaused = !snakePaused;
+            renderSnake();
+            if (!snakePaused) scheduleSnakeTick();
+            return;
+          }
+
+          if (snakePaused || snakeGameOver) return;
+
+          const directions = {
+            arrowup: { x: 0, y: -1 },
+            w: { x: 0, y: -1 },
+            arrowdown: { x: 0, y: 1 },
+            s: { x: 0, y: 1 },
+            arrowleft: { x: -1, y: 0 },
+            a: { x: -1, y: 0 },
+            arrowright: { x: 1, y: 0 },
+            d: { x: 1, y: 0 }
+          };
+          const nextDirection = directions[key];
+          if (!nextDirection) return;
+
+          const reversesDirection = nextDirection.x === -snakeDirection.x && nextDirection.y === -snakeDirection.y;
+          if (!reversesDirection) snakeNextDirection = nextDirection;
         }
 
         // ────────────────────────────────────────────────────────────
@@ -1723,6 +1937,7 @@ Available commands:
   dig <domain>    Query DNS records
   curl <url>      Fetch a URL, carefully
   ping [-c n] <host>  Send up to 10 fake ICMP echoes
+  snake           Play CHA Snake in the terminal
   help            Show this help message
   clear           Clear the terminal
   uptime          Show system uptime
@@ -1732,6 +1947,8 @@ Available commands:
   light mode      Switch to Light Mode
   dark mode       Switch to Dark Mode
 </pre>`;
+          } else if (cmd === "snake") {
+            startSnake(div);
           } else if (cmd === "clear") {
             terminal.innerHTML = '';
             terminal.appendChild(prompt);
@@ -2135,7 +2352,9 @@ Patch SMB. Back up your stuff. Hug your incident responder.
         }
 
         document.addEventListener('keydown', function(e) {
-          if (nanoActive) {
+          if (snakeActive) {
+            snakeKeyHandler(e);
+          } else if (nanoActive) {
             nanoKeyHandler(e);
           }
         }, true);
