@@ -458,6 +458,9 @@ Example:
         //  MOTD Quotes — random quote shown in the boot banner
         // ────────────────────────────────────────────────────────────
         const motdQuotes = [
+          // DC423 lore
+          "We troll, because we care. — DC423",
+
           // Cybersecurity & Hacker Culture
           "Hack the planet! — Hackers (1995)",
           "There is no system that cannot be hacked. — Kevin Mitnick",
