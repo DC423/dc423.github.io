@@ -674,13 +674,16 @@ Example:
         let charIndex = 0;
         let awaitingGarbagePassword = false;
         let awaitingSshPassword = false;
+        let awaitingRelayPhrase = false;
         let pendingSshTarget = "";
         let commandHistory = [];
         let historyIndex = -1;
         let tabMatches = [];
         let tabMatchIndex = -1;
         let lastTabBuffer = "";
-        let serverIp = "218.108.149.373";
+        const fallbackServerIp = "203.0.113.42";
+        const mrRobotIp = "218.108.149.373";
+        let serverIp = fallbackServerIp;
         const deadbeefMac = `de:ad:be:ef:${Array.from({ length: 2 }, () => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join(':')}`;
         const randomLinkLocalIpv6 = `fe80::${Array.from({ length: 4 }, () => Math.floor(Math.random() * 0x10000).toString(16).padStart(4, '0')).join(':')}`;
         let previousDir = "~";
@@ -696,6 +699,17 @@ Example:
         let snakeSpeed = 180;
         let snakePaused = false;
         let snakeGameOver = false;
+        let tcpdumpActive = false;
+        let tcpdumpTimer = null;
+        let tcpdumpOutput = null;
+        let tcpdumpPacketCount = 0;
+        let tcpdumpCaptureLines = [];
+        let relayUnlocked = false;
+        let relayEggUnlocked = false;
+        let beaconPathDiscovered = false;
+        const beaconLogPath = '/var/log/cha/beacon.log';
+        const beaconPathPayload = 'L3Zhci9sb2cvY2hhL2JlYWNvbi5sb2c=';
+        const relayPhrase = 'the_packet_knows_the_way';
         const blackboxSolvedSource = [
           'import base64',
           '',
@@ -718,6 +732,7 @@ Example:
         function getPromptPrefix() {
           if (awaitingSshPassword) return `${pendingSshTarget}'s password: `;
           if (awaitingGarbagePassword) return "Password: ";
+          if (awaitingRelayPhrase) return "Authentication phrase: ";
           if (currentDir === ".shadow") return "root@cha:~/.shadow# ";
           return "root@cha:~# ";
         }
@@ -863,7 +878,7 @@ Example:
                 return buildMotdLines(serverIp, quote);
               })
               .catch(() => {
-                serverIp = "218.108.149.373";
+                serverIp = fallbackServerIp;
                 return buildMotdLines(serverIp, quote);
               }))
               .then(motd => {
@@ -903,7 +918,7 @@ Example:
           const baseCommands = [
             "ls", "cd", "cat", "pwd", "whoami", "help", "clear", "uptime", "date",
             "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free", "ping", "ssh",
-            "netstat", "ss", "last", "w",
+            "netstat", "ss", "last", "w", "tcpdump", "base64", "echo", "knock", "nc", "netcat",
             "sudo", "lights", "light", "dark", "exit", "reboot", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup",
             "mv", "desktop", "reset-icons", "snake", "python", "python3"
@@ -950,7 +965,7 @@ Example:
             const partial = parts[1] || "";
             const files = currentDir === ".shadow"
               ? [".payload", ".blackbox.py"]
-              : ["manifesto.txt", "wannacry.exe", "/dev/memory", "garbage"];
+              : ["manifesto.txt", "wannacry.exe", "/dev/memory", "garbage", ...(beaconPathDiscovered ? [beaconLogPath] : [])];
             return files
               .filter(f => f.startsWith(partial) && f !== partial)
               .map(f => "cat " + f);
@@ -997,6 +1012,27 @@ Example:
           if (cmd === "ss") {
             const partial = parts.slice(1).join(" ");
             return ["-tulnp"].filter(f => f.startsWith(partial) && f !== partial).map(f => "ss " + f);
+          }
+
+          if (cmd === "tcpdump") {
+            const partial = parts.slice(1).join(" ");
+            return ["-D", "-n -i eth0", "-A -n port 31337", "-nn -X port 31337"]
+              .filter(f => f.toLowerCase().startsWith(partial.toLowerCase()) && f.toLowerCase() !== partial.toLowerCase())
+              .map(f => `tcpdump ${f}`);
+          }
+
+          if (cmd === "knock") {
+            const partial = parts.slice(1).join(" ");
+            return ["localhost 4 2 3"]
+              .filter(f => f.startsWith(partial) && f !== partial)
+              .map(f => `knock ${f}`);
+          }
+
+          if (cmd === "nc" || cmd === "netcat") {
+            const partial = parts.slice(1).join(" ");
+            return ["localhost 2600"]
+              .filter(f => f.startsWith(partial) && f !== partial)
+              .map(f => `${cmd} ${f}`);
           }
 
           // Complete basic SDR commands
@@ -1094,7 +1130,7 @@ Example:
               e.preventDefault();
 
               // Don't tab-complete during password prompts
-              if (awaitingGarbagePassword || awaitingSshPassword) return;
+              if (awaitingGarbagePassword || awaitingSshPassword || awaitingRelayPhrase) return;
 
               const currentInput = commandBuffer;
 
@@ -1187,7 +1223,7 @@ Example:
               terminal.insertBefore(cmdLine, prompt);
               const cmd = commandBuffer.trim().toLowerCase();
               // Save to history (skip empty and duplicates of the last entry)
-              if (cmd && !awaitingGarbagePassword && !awaitingSshPassword && (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== cmd)) {
+              if (cmd && !awaitingGarbagePassword && !awaitingSshPassword && !awaitingRelayPhrase && (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== cmd)) {
                 commandHistory.push(cmd);
               }
               historyIndex = -1;
@@ -1195,7 +1231,7 @@ Example:
               handleCommand(cmd).then(() => {
                 commandBuffer = "";
                 updatePrompt();
-                prompt.style.visibility = snakeActive ? "hidden" : "visible";
+                prompt.style.visibility = snakeActive || tcpdumpActive ? "hidden" : "visible";
               });
             } else if (e.key.length === 1) {
               commandBuffer += e.key;
@@ -1496,6 +1532,105 @@ Example:
         }
 
         // ────────────────────────────────────────────────────────────
+        //  Packet Trail — tcpdump-driven network forensics puzzle
+        // ────────────────────────────────────────────────────────────
+        function packetTimestamp(offset = 0) {
+          const now = new Date(Date.now() + offset);
+          return [now.getHours(), now.getMinutes(), now.getSeconds()]
+            .map(value => String(value).padStart(2, '0'))
+            .join('.') + `.${String(now.getMilliseconds()).padStart(3, '0')}`;
+        }
+
+        function buildTcpdumpLines(cmd) {
+          const payloadView = cmd.includes('port 31337') && (cmd.includes('-a') || cmd.includes('-x'));
+          if (payloadView) {
+            return [
+              `${packetTimestamp(0)} IP ${mrRobotIp}.4444 > ${serverIp}.31337: Flags [P.], seq 1:38, ack 1, win 64240, length 37`,
+              `E..P....@........*....\nX-CHA-FRAGMENT: L3Zhci9sb2cv`,
+              `${packetTimestamp(850)} IP ${mrRobotIp}.4444 > ${serverIp}.31337: Flags [P.], seq 38:75, ack 1, win 64240, length 37`,
+              `E..P....@........*....\nX-CHA-FRAGMENT: Y2hhL2JlYWNv`,
+              `${packetTimestamp(1700)} IP ${mrRobotIp}.4444 > ${serverIp}.31337: Flags [P.], seq 75:104, ack 1, win 64240, length 29`,
+              `E..H....@........*....\nX-CHA-FRAGMENT: bi5sb2c=`,
+              `${packetTimestamp(2550)} IP ${serverIp}.31337 > ${mrRobotIp}.4444: Flags [.], ack 104, win 501, length 0`
+            ];
+          }
+
+          return [
+            `${packetTimestamp(0)} IP ${serverIp}.49812 > 1.1.1.1.53: 423+ A? noogahackers.com. (35)`,
+            `${packetTimestamp(500)} IP 1.1.1.1.53 > ${serverIp}.49812: 423 1/0/0 A 127.0.0.1 (51)`,
+            `${packetTimestamp(1000)} IP ${mrRobotIp}.4444 > ${serverIp}.31337: Flags [P.], seq 1:38, ack 1, win 64240, length 37`,
+            `${packetTimestamp(1500)} IP ${serverIp}.44820 > 10.4.23.1.22: Flags [.], ack 2600, win 501, length 0`,
+            `${packetTimestamp(2000)} IP ${mrRobotIp}.4444 > ${serverIp}.31337: Flags [P.], seq 38:75, ack 1, win 64240, length 37`,
+            `${packetTimestamp(2500)} IP ${serverIp}.5353 > 224.0.0.251.5353: UDP, length 86`,
+            `${packetTimestamp(3000)} IP ${mrRobotIp}.4444 > ${serverIp}.31337: Flags [P.], seq 75:104, ack 1, win 64240, length 29`,
+            `${packetTimestamp(3500)} IP ${serverIp}.123 > 10.4.23.1.123: NTPv4, Client, length 48`
+          ];
+        }
+
+        function appendTcpdumpLine(line) {
+          if (!tcpdumpOutput) return;
+          tcpdumpOutput.textContent += `${tcpdumpOutput.textContent ? '\n' : ''}${line}`;
+          tcpdumpPacketCount++;
+          scrollToBottom();
+        }
+
+        function scheduleTcpdumpLine(index = 0) {
+          clearTimeout(tcpdumpTimer);
+          if (!tcpdumpActive || tcpdumpCaptureLines.length === 0) return;
+
+          tcpdumpTimer = setTimeout(() => {
+            appendTcpdumpLine(tcpdumpCaptureLines[index % tcpdumpCaptureLines.length]);
+            scheduleTcpdumpLine(index + 1);
+          }, index === 0 ? 250 : 620);
+        }
+
+        function startTcpdump(cmd, outputDiv) {
+          tcpdumpActive = true;
+          tcpdumpPacketCount = 0;
+          tcpdumpCaptureLines = buildTcpdumpLines(cmd);
+          tcpdumpOutput = document.createElement('pre');
+          tcpdumpOutput.setAttribute('aria-label', 'tcpdump packet capture');
+          tcpdumpOutput.style.margin = '8px 0';
+          tcpdumpOutput.style.whiteSpace = 'pre-wrap';
+          tcpdumpOutput.style.color = '#33ff33';
+          tcpdumpOutput.textContent = `tcpdump: verbose output suppressed, use -v[v]... for full protocol decode\nlistening on eth0, link-type EN10MB (Ethernet), snapshot length 262144 bytes`;
+          outputDiv.appendChild(tcpdumpOutput);
+          prompt.style.visibility = 'hidden';
+          scheduleTcpdumpLine();
+        }
+
+        function stopTcpdump() {
+          if (!tcpdumpActive) return;
+          clearTimeout(tcpdumpTimer);
+          const captured = tcpdumpPacketCount;
+          tcpdumpActive = false;
+          if (tcpdumpOutput) {
+            tcpdumpOutput.textContent += `\n^C\n${captured} packets captured\n${captured + 2} packets received by filter\n0 packets dropped by kernel`;
+          }
+          tcpdumpOutput = null;
+          tcpdumpCaptureLines = [];
+          commandBuffer = '';
+          updatePrompt();
+          prompt.style.visibility = 'visible';
+          scrollToBottom();
+        }
+
+        function tcpdumpKeyHandler(e) {
+          if (!tcpdumpActive) return;
+          e.preventDefault();
+          e.stopImmediatePropagation();
+          if (e.ctrlKey && e.key.toLowerCase() === 'c') stopTcpdump();
+        }
+
+        function decodeBase64Input(value) {
+          try {
+            return atob(value);
+          } catch (error) {
+            return null;
+          }
+        }
+
+        // ────────────────────────────────────────────────────────────
         //  Command Router — dispatches typed commands to handlers
         // ────────────────────────────────────────────────────────────
         async function handleCommand(cmd) {
@@ -1503,7 +1638,28 @@ Example:
           // Obscured easter egg check (rot13 encoded triggers)
           const _rot13 = s => s.replace(/[a-zA-Z]/g, c => String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26));
           const _isEasterEgg = [_rot13("g@pul0a13"), _rot13("gnpulba13"), _rot13("flanpxcja")].includes(cmd);
-          if (awaitingSshPassword) {
+          if (awaitingRelayPhrase) {
+            awaitingRelayPhrase = false;
+
+            if (cmd.replace(/\s+/g, '_') === relayPhrase) {
+              relayEggUnlocked = true;
+              div.innerHTML = `<pre>[+] relay authentication accepted
+[+] packet trail reconstructed
+[+] egg 3/??? unlocked
+
+Packets don't lie.
+They just wait for someone curious enough to listen.
+
+Connection closed by foreign host.</pre>`;
+            } else {
+              div.innerHTML = `<pre>[-] relay authentication rejected
+Connection closed by foreign host.</pre>`;
+            }
+
+            terminal.insertBefore(div, prompt);
+            scrollToBottom();
+            return;
+          } else if (awaitingSshPassword) {
             const target = pendingSshTarget || "root@unknown";
             awaitingSshPassword = false;
             pendingSshTarget = "";
@@ -1611,7 +1767,7 @@ Hint: compare the final function call with its definition.</pre>`;
 
               const virusLines = [
                 { text: "[*] Initializing payload...", delay: 500, color: "#33ff33" },
-                { text: "[*] Connecting to C2 server... 218.108.149.373:4444", delay: 800, color: "#33ff33" },
+                { text: `[*] Connecting to C2 server... ${mrRobotIp}:4444`, delay: 800, color: "#33ff33" },
                 { text: "[+] Connection established.", delay: 600, color: "#ffff00" },
                 { text: "[*] Escalating privileges...", delay: 700, color: "#33ff33" },
                 { text: "[+] ROOT ACCESS GRANTED", delay: 400, color: "#ff3333" },
@@ -1706,13 +1862,15 @@ LOG        all  --  anywhere             internet             LOG prefix "probab
           } else if (cmd === "iptables -f") {
             div.innerHTML = "iptables: refusing to flush rules on a production-looking fake firewall. buy the firewall a coffee first.<br>";
           } else if (cmd === "netstat" || cmd === "netstat -tulnp" || cmd === "ss" || cmd === "ss -tulnp") {
+            const relayListener = relayUnlocked
+              ? 'tcp        0      0 127.0.0.1:2600          0.0.0.0:*               LISTEN      2600/secret-service\n'
+              : '';
             div.innerHTML = `<pre>
 Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name
 tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      423/sshd
 tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      80/nginx
 tcp        0      0 127.0.0.1:31337         0.0.0.0:*               LISTEN      1337/elite-daemon
-tcp        0      0 127.0.0.1:2600          0.0.0.0:*               LISTEN      2600/phreak-switch
-udp        0      0 0.0.0.0:53              0.0.0.0:*                           53/probably-dns
+${relayListener}udp        0      0 0.0.0.0:53              0.0.0.0:*                           53/probably-dns
 udp        0      0 ${serverIp}:123          0.0.0.0:*                           123/time-is-fake
 </pre>`;
           } else if (cmd === "last") {
@@ -1764,6 +1922,7 @@ root         1  0.0  0.1 /sbin/init --terminal-mode
 root       423  4.2  2.3 /usr/bin/noogahackers-motd
 root      1337  0.1  0.4 /bin/bash
 root      2600  0.0  0.2 ./curiosity-daemon
+root      4444  0.2  0.4 /usr/bin/beacon --quiet
 </pre>`;
           } else if (cmd === "df" || cmd === "df -h") {
             div.innerHTML = `<pre>
@@ -1991,6 +2150,8 @@ Available commands:
   ps              Show running processes
   netstat -tulnp  Show listening services
   ss -tulnp       Show socket summary
+  tcpdump         Capture packets; Ctrl+C stops capture
+  base64 -d       Decode Base64 input from a pipe
   last            Show recent logins
   w               Show who is logged in
   df -h           Show filesystem usage
@@ -2012,6 +2173,68 @@ Available commands:
 </pre>`;
           } else if (cmd === "snake") {
             startSnake(div);
+          } else if (cmd === "tcpdump -d") {
+            div.innerHTML = `<pre>1.eth0 [Up, Running, Connected]
+2.lo [Up, Running, Loopback]
+3.wlan0 [Down, Wireless]
+4.any (Pseudo-device that captures on all interfaces)</pre>`;
+          } else if (cmd === "tcpdump" || cmd === "tcpdump -n -i eth0" || cmd === "tcpdump -i eth0" || ((cmd.includes("tcpdump")) && cmd.includes("port 31337") && (cmd.includes("-a") || cmd.includes("-x")))) {
+            terminal.insertBefore(div, prompt);
+            startTcpdump(cmd, div);
+            scrollToBottom();
+            return;
+          } else if (cmd.startsWith("tcpdump")) {
+            div.innerHTML = `tcpdump: unsupported fake capture expression<br>Try: tcpdump -n -i eth0<br>`;
+          } else if (/^echo\s+\S+\s*\|\s*base64\s+(?:-d|--decode)$/.test(cmd)) {
+            const match = cmd.match(/^echo\s+(\S+)\s*\|\s*base64\s+(?:-d|--decode)$/);
+            const supplied = match ? match[1] : '';
+            if (supplied.toLowerCase() === beaconPathPayload.toLowerCase()) {
+              beaconPathDiscovered = true;
+              div.innerHTML = `${beaconLogPath}<br>`;
+            } else {
+              const decoded = decodeBase64Input(supplied);
+              div.innerHTML = decoded && /^[\x09\x0a\x0d\x20-\x7e]+$/.test(decoded)
+                ? `${decoded.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}<br>`
+                : `base64: invalid input<br>`;
+            }
+          } else if (cmd === "base64" || cmd === "base64 -d" || cmd === "base64 --decode" || cmd === "echo") {
+            div.innerHTML = `Usage: echo &lt;base64&gt; | base64 -d<br>`;
+          } else if (cmd === `cat ${beaconLogPath}`) {
+            div.innerHTML = `<pre>[04:23:01] outbound channel established
+[04:23:03] operator authentication failed
+[04:23:07] fallback channel: tcp/2600
+[04:23:09] phrase: THE_PACKET_KNOWS_THE_WAY
+[04:23:11] awaiting knock sequence: 4 2 3
+[04:23:12] note: localhost only; remote operators are not trusted</pre>`;
+          } else if (cmd === "knock localhost 4 2 3" || cmd === "knock 127.0.0.1 4 2 3") {
+            relayUnlocked = true;
+            div.innerHTML = `<pre>knock: port 4 accepted
+knock: port 2 accepted
+knock: port 3 accepted
+[firewall] temporary rule added for tcp/2600</pre>`;
+          } else if (cmd.startsWith("knock ")) {
+            div.innerHTML = `knock: sequence sent<br>`;
+          } else if (cmd === "knock") {
+            div.innerHTML = `Usage: knock &lt;host&gt; &lt;port&gt; [port ...]<br>`;
+          } else if (cmd === "nc localhost 2600" || cmd === "nc 127.0.0.1 2600" || cmd === "netcat localhost 2600" || cmd === "netcat 127.0.0.1 2600") {
+            if (!relayUnlocked) {
+              div.innerHTML = `nc: connect to localhost port 2600 (tcp) failed: Connection refused<br>`;
+            } else if (relayEggUnlocked) {
+              div.innerHTML = `<pre>CHA INTERNAL RELAY
+[relay] this channel has already been authenticated
+[egg 3/??? remains unlocked]
+Connection closed by foreign host.</pre>`;
+            } else {
+              div.innerHTML = `<pre>Connection to localhost 2600 port [tcp/*] succeeded!
+CHA INTERNAL RELAY</pre>`;
+              terminal.insertBefore(div, prompt);
+              awaitingRelayPhrase = true;
+              updatePrompt();
+              scrollToBottom();
+              return;
+            }
+          } else if (cmd === "nc" || cmd === "netcat") {
+            div.innerHTML = `Usage: nc &lt;host&gt; &lt;port&gt;<br>`;
           } else if (cmd === "clear") {
             terminal.innerHTML = '';
             terminal.appendChild(prompt);
@@ -2430,7 +2653,9 @@ Patch SMB. Back up your stuff. Hug your incident responder.
         }
 
         document.addEventListener('keydown', function(e) {
-          if (snakeActive) {
+          if (tcpdumpActive) {
+            tcpdumpKeyHandler(e);
+          } else if (snakeActive) {
             snakeKeyHandler(e);
           } else if (nanoActive) {
             nanoKeyHandler(e);
