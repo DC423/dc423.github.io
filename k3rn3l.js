@@ -39,6 +39,7 @@
         let nanoActive = false;            // true while nano overlay is open
         let nanoBuffer = '';
         let nanoCursorLine = 0;
+        let nanoFilePath = '';
         // ────────────────────────────────────────────────────────────
         //  Desktop Icons — virtual XFCE desktop items
         // ────────────────────────────────────────────────────────────
@@ -189,7 +190,8 @@ Example:
 
           if (icon.id === 'shadow') {
             const shadowItems = [
-              { glyph: '⚠️', name: '.payload' }
+              { glyph: '⚠️', name: '.payload' },
+              { glyph: '🐍', name: '.blackbox.py' }
             ];
 
             return `<div class="folder-entry-grid" aria-label=".shadow folder contents">
@@ -694,6 +696,20 @@ Example:
         let snakeSpeed = 180;
         let snakePaused = false;
         let snakeGameOver = false;
+        const blackboxSolvedSource = [
+          'import base64',
+          '',
+          'PAYLOAD = "VE9PIE1BTlkgU0VDUkVUUwoKTXkgdm9pY2UgaXMgbXkgcGFzc3BvcnQuIFZlcmlmeSBtZS4KLS0gU25lYWtlcnMgKDE5OTIp"',
+          '',
+          'def reveal():',
+          '    return base64.b64decode(PAYLOAD).decode("utf-8")',
+          '',
+          'print(reveal())'
+        ];
+        let blackboxSource = [
+          ...blackboxSolvedSource.slice(0, -1),
+          `${blackboxSolvedSource[blackboxSolvedSource.length - 1]}x`
+        ];
 
         function scrollToBottom() {
           document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
@@ -881,7 +897,7 @@ Example:
           // Files and directories available in each context
           const homeFiles = ["blog/", "code/", "conduct/", "contact/", "meetings/", "manifesto.txt", "wannacry.exe", ".shadow/", "/dev/memory"];
           const homeDirs = ["blog", "code", "conduct", "contact", "meetings", ".shadow", "Desktop"];
-          const shadowFiles = [".payload"];
+          const shadowFiles = [".payload", ".blackbox.py"];
 
           // All base commands
           const baseCommands = [
@@ -890,7 +906,7 @@ Example:
             "netstat", "ss", "last", "w",
             "sudo", "lights", "light", "dark", "exit", "reboot", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup",
-            "mv", "desktop", "reset-icons", "snake"
+            "mv", "desktop", "reset-icons", "snake", "python", "python3"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -933,7 +949,7 @@ Example:
           if (cmd === "cat") {
             const partial = parts[1] || "";
             const files = currentDir === ".shadow"
-              ? [".payload"]
+              ? [".payload", ".blackbox.py"]
               : ["manifesto.txt", "wannacry.exe", "/dev/memory", "garbage"];
             return files
               .filter(f => f.startsWith(partial) && f !== partial)
@@ -1046,10 +1062,21 @@ Example:
             return ["0"].filter(f => f.startsWith(partial) && f !== partial).map(f => "init " + f);
           }
 
-          // Complete "nano /etc/weather.conf" and "vi/vim"
+          // Complete editable files for nano/vi/vim
           if (cmd === "nano" || cmd === "vi" || cmd === "vim") {
             const partial = parts.slice(1).join(" ");
-            return ["/etc/weather.conf"]
+            const editableFiles = currentDir === ".shadow"
+              ? [".blackbox.py"]
+              : ["/etc/weather.conf"];
+            return editableFiles
+              .filter(f => f.startsWith(partial) && f !== partial)
+              .map(f => `${cmd} ${f}`);
+          }
+
+          if (cmd === "python" || cmd === "python3") {
+            const partial = parts.slice(1).join(" ");
+            const scripts = currentDir === ".shadow" ? [".blackbox.py"] : [];
+            return scripts
               .filter(f => f.startsWith(partial) && f !== partial)
               .map(f => `${cmd} ${f}`);
           }
@@ -1525,6 +1552,7 @@ Example:
 drwx------  2 root root      64 Jan  1 00:00 .
 drwxr-xr-x 10 root staff    320 ${now} ..
 -rwx------  1 root root   66600 Jun  6 06:06 .payload
+-rw-------  1 root root     284 ${now} .blackbox.py
 </pre>`;
               terminal.insertBefore(div, prompt);
               scrollToBottom();
@@ -1536,6 +1564,41 @@ drwxr-xr-x 10 root staff    320 ${now} ..
               return;
             } else if (cmd === "cat .payload") {
               div.innerHTML = "ELF\x7f\x01\x01\x01... &lt;binary data&gt; ...permission denied: try executing<br>";
+              terminal.insertBefore(div, prompt);
+              scrollToBottom();
+              return;
+            } else if (cmd === "cat .blackbox.py") {
+              const source = document.createElement('pre');
+              source.textContent = blackboxSource.join('\n');
+              div.appendChild(source);
+              terminal.insertBefore(div, prompt);
+              scrollToBottom();
+              return;
+            } else if (cmd === "nano .blackbox.py" || cmd === "vi .blackbox.py" || cmd === "vim .blackbox.py") {
+              openNanoEditor('.blackbox.py');
+              return;
+            } else if (cmd === "python3 .blackbox.py" || cmd === "python .blackbox.py") {
+              if (blackboxSource.join('\n') === blackboxSolvedSource.join('\n')) {
+                const decoded = atob(blackboxSource[2].match(/"([A-Za-z0-9+/=]+)"/)[1]);
+                div.innerHTML = `<pre>[blackbox] checksum accepted
+[blackbox] voiceprint verified
+
+${decoded}
+
+[egg 2/??? unlocked]</pre>`;
+              } else if (blackboxSource[blackboxSource.length - 1].trim() === 'print(reveal())x') {
+                div.innerHTML = `<pre>  File "/root/.shadow/.blackbox.py", line ${blackboxSource.length}
+    print(reveal())x
+                   ^
+SyntaxError: invalid syntax</pre>`;
+              } else {
+                div.innerHTML = `<pre>Traceback (most recent call last):
+  File "/root/.shadow/.blackbox.py", line ${blackboxSource.length}, in &lt;module&gt;
+    blackbox integrity check failed
+RuntimeError: script modified, but the lock is still closed
+
+Hint: compare the final function call with its definition.</pre>`;
+              }
               terminal.insertBefore(div, prompt);
               scrollToBottom();
               return;
@@ -1900,7 +1963,7 @@ zone = ${alertZone}
 </pre>`;
           } else if (cmd === "nano /etc/weather.conf" || cmd === "vi /etc/weather.conf" || cmd === "vim /etc/weather.conf") {
             // Open nano editor overlay
-            openNanoEditor();
+            openNanoEditor('/etc/weather.conf');
             return;
           } else if (cmd === "help" || cmd === "?") {
             div.innerHTML = `<pre>
@@ -2213,26 +2276,33 @@ Patch SMB. Back up your stuff. Hug your incident responder.
         //  Nano Editor — fullscreen overlay text editor for configs
         // ────────────────────────────────────────────────────────────
         const nanoOverlay = document.getElementById('nanoOverlay');
+        const nanoTitleBar = document.getElementById('nanoTitleBar');
         const nanoBody = document.getElementById('nanoBody');
         const nanoStatus = document.getElementById('nanoStatus');
 
-        function openNanoEditor() {
-          const lines = [
-            '# /etc/weather.conf — CHA weather station config',
-            '# Session-only: changes reset on page refresh',
-            '',
-            '[station]',
-            `observation = ${weatherStation}`,
-            '',
-            '[alerts]',
-            `zone = ${alertZone}`,
-            ''
-          ];
+        function openNanoEditor(filePath = '/etc/weather.conf') {
+          nanoFilePath = filePath;
+          const lines = filePath === '.blackbox.py'
+            ? [...blackboxSource]
+            : [
+                '# /etc/weather.conf — CHA weather station config',
+                '# Session-only: changes reset on page refresh',
+                '',
+                '[station]',
+                `observation = ${weatherStation}`,
+                '',
+                '[alerts]',
+                `zone = ${alertZone}`,
+                ''
+              ];
           nanoActive = true;
-          nanoCursorLine = 4; // start on observation line
+          nanoCursorLine = filePath === '.blackbox.py' ? lines.length - 1 : 4;
           renderNano(lines);
+          nanoTitleBar.textContent = `  GNU nano 7.2            ${filePath}`;
           nanoOverlay.classList.add('active');
-          nanoStatus.textContent = '';
+          nanoStatus.textContent = filePath === '.blackbox.py'
+            ? '[ suspicious typo detected near EOF ]'
+            : '';
         }
 
         function renderNano(lines) {
@@ -2249,56 +2319,64 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           return Array.from(nanoBody.querySelectorAll('.nano-line')).map(el => el.textContent);
         }
 
+        function saveNanoFile(lines, exitAfterSave = false) {
+          if (nanoFilePath === '.blackbox.py') {
+            blackboxSource = [...lines];
+            nanoStatus.textContent = `[ Wrote ${lines.length} lines to .blackbox.py ]`;
+
+            if (exitAfterSave) {
+              const div = document.createElement('div');
+              div.innerHTML = `<span style="color:#33ff33">.blackbox.py saved (session only).</span><br>`;
+              terminal.insertBefore(div, prompt);
+              scrollToBottom();
+            }
+            return;
+          }
+
+          let newStation = weatherStation;
+          let newZone = alertZone;
+          lines.forEach(l => {
+            const m1 = l.match(/^\s*observation\s*=\s*(\S+)/i);
+            if (m1) newStation = m1[1];
+            const m2 = l.match(/^\s*zone\s*=\s*(\S+)/i);
+            if (m2) newZone = m2[1];
+          });
+
+          const changed = newStation !== weatherStation || newZone !== alertZone;
+          weatherStation = newStation;
+          alertZone = newZone;
+          nanoStatus.textContent = `[ Wrote ${lines.length} lines — station=${weatherStation} zone=${alertZone} ]`;
+          updatePanelWeather();
+
+          if (exitAfterSave) {
+            const div = document.createElement('div');
+            div.innerHTML = changed
+              ? `<span style="color:#33ff33">weather.conf saved (session only).</span><br>station=${weatherStation} zone=${alertZone}<br>Refreshing weather...<br>`
+              : `<span style="color:#33ff33">weather.conf unchanged.</span><br>`;
+            terminal.insertBefore(div, prompt);
+            scrollToBottom();
+          }
+        }
+
         function nanoKeyHandler(e) {
           if (!nanoActive) return;
           e.preventDefault();
-          e.stopPropagation();
+          e.stopImmediatePropagation();
 
           const lines = getNanoLines();
 
           // ^X = exit
           if (e.ctrlKey && e.key.toLowerCase() === 'x') {
+            saveNanoFile(lines, true);
             nanoActive = false;
             nanoOverlay.classList.remove('active');
-            // Parse the config back
-            let newStation = weatherStation;
-            let newZone = alertZone;
-            lines.forEach(l => {
-              const m1 = l.match(/^\s*observation\s*=\s*(\S+)/i);
-              if (m1) newStation = m1[1];
-              const m2 = l.match(/^\s*zone\s*=\s*(\S+)/i);
-              if (m2) newZone = m2[1];
-            });
-            const changed = (newStation !== weatherStation || newZone !== alertZone);
-            weatherStation = newStation;
-            alertZone = newZone;
-            // Print result in terminal
-            const div = document.createElement('div');
-            if (changed) {
-              div.innerHTML = `<span style="color:#33ff33">weather.conf saved (session only).</span><br>station=${weatherStation} zone=${alertZone}<br>Refreshing weather...<br>`;
-              updatePanelWeather();
-            } else {
-              div.innerHTML = `<span style="color:#33ff33">weather.conf unchanged.</span><br>`;
-            }
-            terminal.insertBefore(div, prompt);
-            scrollToBottom();
+            nanoFilePath = '';
             return;
           }
 
           // ^O = write out (save without exit)
           if (e.ctrlKey && e.key.toLowerCase() === 'o') {
-            let newStation = weatherStation;
-            let newZone = alertZone;
-            lines.forEach(l => {
-              const m1 = l.match(/^\s*observation\s*=\s*(\S+)/i);
-              if (m1) newStation = m1[1];
-              const m2 = l.match(/^\s*zone\s*=\s*(\S+)/i);
-              if (m2) newZone = m2[1];
-            });
-            weatherStation = newStation;
-            alertZone = newZone;
-            nanoStatus.textContent = `[ Wrote ${lines.length} lines — station=${weatherStation} zone=${alertZone} ]`;
-            updatePanelWeather();
+            saveNanoFile(lines);
             return;
           }
 
