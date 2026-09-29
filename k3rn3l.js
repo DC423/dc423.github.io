@@ -738,8 +738,31 @@ Example:
         }
 
         function updatePrompt() {
-          promptText.innerHTML = `${getPromptPrefix()}${commandBuffer}`;
+          promptText.textContent = `${getPromptPrefix()}${commandBuffer}`;
           scrollToBottom();
+        }
+
+        function hasTerminalSelection() {
+          const selection = window.getSelection();
+          return Boolean(
+            selection
+            && !selection.isCollapsed
+            && selection.anchorNode
+            && selection.focusNode
+            && terminal.contains(selection.anchorNode)
+            && terminal.contains(selection.focusNode)
+          );
+        }
+
+        function isEditableTarget(target) {
+          return target instanceof Element
+            && Boolean(target.closest('input, textarea, [contenteditable="true"]'));
+        }
+
+        function sanitizePastedText(value) {
+          return String(value || '')
+            .replace(/[\r\n\t]+/g, ' ')
+            .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '');
         }
 
         function wrapText(text, maxWidth) {
@@ -1125,6 +1148,9 @@ Example:
         // ────────────────────────────────────────────────────────────
         function enableTyping() {
           document.addEventListener("keydown", function (e) {
+            // Preserve native browser shortcuts such as copy and paste.
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+
             // Prevent Tab from leaving the terminal
             if (e.key === "Tab") {
               e.preventDefault();
@@ -1237,6 +1263,21 @@ Example:
               commandBuffer += e.key;
               updatePrompt();
             }
+          });
+
+          document.addEventListener('paste', function (e) {
+            if (snakeActive || tcpdumpActive || nanoActive || isEditableTarget(e.target)) return;
+            if (getComputedStyle(prompt).visibility !== 'visible') return;
+
+            const pastedText = sanitizePastedText(e.clipboardData?.getData('text/plain'));
+            if (!pastedText) return;
+
+            e.preventDefault();
+            commandBuffer += pastedText;
+            tabMatches = [];
+            tabMatchIndex = -1;
+            lastTabBuffer = '';
+            updatePrompt();
           });
         }
 
@@ -1617,6 +1658,7 @@ Example:
 
         function tcpdumpKeyHandler(e) {
           if (!tcpdumpActive) return;
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasTerminalSelection()) return;
           e.preventDefault();
           e.stopImmediatePropagation();
           if (e.ctrlKey && e.key.toLowerCase() === 'c') stopTcpdump();
@@ -1645,10 +1687,14 @@ Example:
               relayEggUnlocked = true;
               div.innerHTML = `<pre>[+] relay authentication accepted
 [+] packet trail reconstructed
-[+] egg 3/??? unlocked
+[+] OPERATION RUBBER DUCK is a go
 
-Packets don't lie.
-They just wait for someone curious enough to listen.
+Your mission, should you choose to accept it:
+Acquire one dozen donuts.
+Leave no crumbs.
+Trust no pigeons.
+
+This message will self-destruct in... eventually.
 
 Connection closed by foreign host.</pre>`;
             } else {
@@ -2222,7 +2268,7 @@ knock: port 3 accepted
             } else if (relayEggUnlocked) {
               div.innerHTML = `<pre>CHA INTERNAL RELAY
 [relay] this channel has already been authenticated
-[egg 3/??? remains unlocked]
+[operation rubber duck remains extremely classified]
 Connection closed by foreign host.</pre>`;
             } else {
               div.innerHTML = `<pre>Connection to localhost 2600 port [tcp/*] succeeded!
@@ -2653,6 +2699,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
         }
 
         document.addEventListener('keydown', function(e) {
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasTerminalSelection()) return;
           if (tcpdumpActive) {
             tcpdumpKeyHandler(e);
           } else if (snakeActive) {
