@@ -1191,14 +1191,16 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
         // ────────────────────────────────────────────────────────────
         function enableTyping() {
           terminal.addEventListener("keydown", function (e) {
-            // Tab always follows normal browser focus navigation.
-            if (e.key === 'Tab') return;
+            // Tab provides normal shell completion while the terminal is focused.
+            // Shift+Tab remains available for backward browser focus navigation.
+            if (e.key === 'Tab' && e.shiftKey) return;
 
-            const completionRequested = e.key === 'F2';
+            const completionRequested = e.key === 'F2'
+              || (e.key === 'Tab' && !e.ctrlKey && !e.metaKey && !e.altKey);
             // Preserve native browser shortcuts such as copy and paste.
             if (!completionRequested && (e.ctrlKey || e.metaKey || e.altKey)) return;
 
-            // F2 provides shell-style completion without trapping Tab.
+            // F2 remains available as an alternate completion key.
             if (completionRequested) {
               e.preventDefault();
 
@@ -2250,7 +2252,7 @@ zone = ${alertZone}
   ctf             Start the local-only Scenic City CTF
   ctf status      Show CTF flag progress
   ctf hint        Show the next safe sandbox clue
-  F2              Complete commands without trapping browser Tab navigation
+  Tab / F2        Complete commands while the terminal is focused
   help            Show this help message
   clear           Clear the terminal
   uptime          Show system uptime
