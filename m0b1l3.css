@@ -30,6 +30,12 @@
   z-index: 0;
 }
 
+.android-app:focus-visible {
+  outline: 3px solid #ffff00;
+  outline-offset: 5px;
+  border-radius: 14px;
+}
+
 /* ---------- Android Status Bar ---------- */
 .android-status-bar {
   display: flex;

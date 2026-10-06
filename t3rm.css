@@ -29,6 +29,10 @@
   flex-direction: column;
 }
 
+.terminal-content:focus {
+  outline: none;
+}
+
 /* ---------- Command prompt ---------- */
 /* "root@cha:~#" prompt line — hidden until boot sequence completes */
 .prompt {

@@ -1,16 +1,17 @@
-import os
 import json
 import sys
+from datetime import date
+from pathlib import Path
 
 def convert_txt_to_json(filepath):
-    filename = os.path.basename(filepath)
-    name, ext = os.path.splitext(filename)
+    source_path = Path(filepath)
+    ext = source_path.suffix
 
     if ext.lower() != '.txt':
         print("File must be a .txt file.")
         return
 
-    with open(filepath, "r", encoding="utf-8") as f:
+    with source_path.open("r", encoding="utf-8-sig") as f:
         lines = f.read().strip().splitlines()
 
     if len(lines) < 2:
@@ -22,21 +23,23 @@ def convert_txt_to_json(filepath):
 
     print(f"\nTitle detected: {title}")
     author = input("Author name: ").strip()
-    date = input("Publication date (YYYY-MM-DD): ").strip()
+    publication_date = input("Publication date (YYYY-MM-DD): ").strip()
 
-    if not date.count("-") == 2:
+    try:
+        date.fromisoformat(publication_date)
+    except ValueError:
         print("Date format should be YYYY-MM-DD.")
         return
 
     json_data = {
         "title": title,
-        "date": date,
+        "date": publication_date,
         "author": author,
         "content": content_lines
     }
 
-    output_path = filepath.replace(".txt", ".json")
-    with open(output_path, "w", encoding="utf-8") as out:
+    output_path = source_path.with_suffix(".json")
+    with output_path.open("w", encoding="utf-8") as out:
         json.dump(json_data, out, indent=2, ensure_ascii=False)
 
     print(f"\n✔ Created JSON: {output_path}")

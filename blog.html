@@ -1,190 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="News, meeting updates, and hacker-community notes from Chattanooga Hackers Anonymous.">
   <title>CHA Blog Terminal</title>
-  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico" />
-  <style>
-    :root {
-      --cha-green: #33ff33;
-      --cha-bright: #00ff00;
-      --cha-dim: #8cff8c;
-      --cha-panel: rgba(0, 0, 0, 0.92);
-      --cha-title: #1e1e1e;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: 
-        linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)), 
-        url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
-      background-size: cover;
-      font-family: 'Courier New', Courier, monospace;
-      color: #33ff33;
-      padding: 20px;
-    }
-
-    /* CRT Scanline overlay */
-    body::after {
-      content: "";
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 9999;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0, 0, 0, 0.15) 0px,
-        rgba(0, 0, 0, 0.15) 1px,
-        transparent 1px,
-        transparent 3px
-      );
-    }
-
-    .terminal-container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: var(--cha-panel);
-      border: 1px solid #222;
-      box-shadow: 0 0 30px rgba(0, 255, 0, 0.75);
-      backdrop-filter: blur(2px);
-    }
-
-    .title-bar {
-      min-height: 32px;
-      background: var(--cha-title);
-      color: #cfcfcf;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 12px;
-      border-bottom: 1px solid #333;
-      font-size: 0.9rem;
-    }
-
-    .window-controls {
-      display: flex;
-      gap: 6px;
-    }
-
-    .window-controls span {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .window-controls span:nth-child(1) { background: #ff5f57; }
-    .window-controls span:nth-child(2) { background: #ffbd30; }
-    .window-controls span:nth-child(3) { background: #28c940; }
-
-    .window-title {
-      margin-left: auto;
-      margin-right: auto;
-      color: #d8ffd8;
-    }
-
-    .content {
-      padding: 24px;
-    }
-
-    .page-title {
-      color: var(--cha-bright);
-      margin-top: 0;
-      text-shadow: 0 0 12px rgba(0, 255, 0, 0.75);
-    }
-
-    .page-title::before {
-      content: "root@cha:~# ";
-      color: var(--cha-dim);
-      font-size: 0.75em;
-    }
-
-    .post {
-      margin-bottom: 60px;
-      border-bottom: 1px solid #0f0;
-      padding-bottom: 20px;
-    }
-
-    .post-title {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #00ff00;
-    }
-
-    .post-meta {
-      font-size: 0.9rem;
-      color: #888;
-      margin-bottom: 1em;
-    }
-
-    .post-content p {
-      white-space: pre-wrap;
-      margin: 0 0 1em 0;
-    }
-
-    a {
-      color: #33ff33;
-      text-decoration: none;
-      border-bottom: 1px dashed rgba(51, 255, 51, 0.55);
-    }
-
-    a:hover {
-      color: #ffffff;
-      text-shadow: 0 0 8px rgba(51, 255, 51, 0.8);
-    }
-
-    img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin: 1em 0;
-    }
-
-    details summary {
-      cursor: pointer;
-      color: #33ff33;
-      font-weight: bold;
-      margin-top: 2em;
-    }
-
-    hr {
-      border: none;
-      border-top: 1px dashed #0f0;
-      margin: 2em 0;
-    }
-  </style>
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="stylesheet" href="st4t1c.css">
 </head>
-<body>
-  <div class="terminal-container" id="blogTerminal">
+<body class="blog-page">
+  <main class="terminal-container" id="blogTerminal">
     <div class="title-bar" aria-hidden="true">
       <div class="window-controls"><span></span><span></span><span></span></div>
       <div class="window-title">blog — static viewer</div>
     </div>
     <div class="content">
-      <h2 class="page-title">blog</h2>
+      <h1>blog</h1>
       <p><a href="index.html">&lt; back to terminal</a></p>
-      <div id="latestPost"></div>
+      <div id="latestPost" aria-live="polite"></div>
       <details id="olderPosts">
         <summary>▸ Show Older Posts</summary>
         <div id="olderPostContainer"></div>
       </details>
     </div>
-  </div>
+  </main>
 
   <script>
-    function escapeHtml(text) {
-      return text
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+    function appendTextElement(parent, tagName, text, className) {
+      const element = document.createElement(tagName);
+      if (className) element.className = className;
+      element.textContent = String(text ?? '');
+      parent.appendChild(element);
+      return element;
+    }
+
+    function isSafeImageUrl(value) {
+      try {
+        const url = new URL(value, window.location.href);
+        return url.protocol === 'https:' || (url.protocol === 'http:' && url.hostname === 'localhost');
+      } catch (error) {
+        return false;
+      }
+    }
+
+    function renderContentItem(container, item) {
+      if (typeof item === 'string') {
+        appendTextElement(container, 'p', item);
+        return;
+      }
+
+      if (!item || item.type !== 'image' || !isSafeImageUrl(item.src)) {
+        appendTextElement(container, 'p', '[unsupported blog content omitted]');
+        return;
+      }
+
+      const figure = document.createElement('figure');
+      figure.className = 'post-image';
+      const image = document.createElement('img');
+      image.src = item.src;
+      image.alt = String(item.alt || '');
+      image.loading = 'lazy';
+      image.decoding = 'async';
+      if (Number.isInteger(item.width) && item.width > 0) image.width = item.width;
+      if (Number.isInteger(item.height) && item.height > 0) image.height = item.height;
+      figure.appendChild(image);
+      if (item.caption) appendTextElement(figure, 'figcaption', item.caption);
+      container.appendChild(figure);
+    }
+
+    function createPostElement(post) {
+      const article = document.createElement('article');
+      article.className = 'post';
+      appendTextElement(article, 'h2', post.title, 'post-title');
+      appendTextElement(article, 'div', `${post.date} by ${post.author}`, 'post-meta');
+      const content = document.createElement('div');
+      content.className = 'post-content';
+      (Array.isArray(post.content) ? post.content : []).forEach(item => renderContentItem(content, item));
+      article.appendChild(content);
+      return article;
     }
 
     async function loadBlog() {
@@ -192,45 +85,27 @@
       const olderContainer = document.getElementById('olderPostContainer');
 
       try {
-        const res = await fetch("YmxvZwo=/index.json");
-        const files = await res.json();
+        const response = await fetch('YmxvZwo=/index.json');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const files = await response.json();
 
-        if (files.length === 0) {
-          latestContainer.innerHTML = "<p>No blog posts found.</p>";
+        if (!Array.isArray(files) || files.length === 0) {
+          appendTextElement(latestContainer, 'p', 'No blog posts found.');
           return;
         }
 
-        for (let i = 0; i < files.length; i++) {
+        for (let index = 0; index < files.length; index++) {
           try {
-            const postRes = await fetch(`YmxvZwo=/${files[i]}`);
-            const post = await postRes.json();
-
-            const postEl = document.createElement("div");
-            postEl.className = "post";
-
-            const title = escapeHtml(post.title);
-            const date = escapeHtml(post.date);
-            const author = escapeHtml(post.author);
-
-            const content = post.content.map(line => `<p>${line}</p>`).join("");
-
-            postEl.innerHTML = `
-              <div class="post-title">${title}</div>
-              <div class="post-meta">${date} by ${author}</div>
-              <div class="post-content">${content}</div>
-            `;
-
-            if (i === 0) {
-              latestContainer.appendChild(postEl);
-            } else {
-              olderContainer.appendChild(postEl);
-            }
-          } catch (err) {
-            console.warn(`Failed to load post ${files[i]}`);
+            const postResponse = await fetch(`YmxvZwo=/${encodeURIComponent(files[index])}`);
+            if (!postResponse.ok) throw new Error(`HTTP ${postResponse.status}`);
+            const post = await postResponse.json();
+            (index === 0 ? latestContainer : olderContainer).appendChild(createPostElement(post));
+          } catch (error) {
+            console.warn(`Failed to load post ${files[index]}`, error);
           }
         }
-      } catch (err) {
-        latestContainer.innerHTML = `<p>Error loading blog index: ${escapeHtml(err.message)}</p>`;
+      } catch (error) {
+        appendTextElement(latestContainer, 'p', `Error loading blog index: ${error.message}`);
       }
     }
 

@@ -1,55 +1,60 @@
 # CHA Terminal Blog
 
-A retro terminal-style website for Chattanooga Hackers Anonymous (CHA).
-You write blog entries in plain .txt files, convert them to .json, and view them in a browser-based terminal UI.
+The CHA blog is a dependency-free JSON feed rendered by `../blog.html`.
 
+## Create a text post
 
+1. Create a `.txt` file in this directory, for example:
 
-## How to Write a Blog Post
-	1.	Create a file in YmxvZwo=/
-### Name it like: 2025-06-04_MY_POST.txt
-	2.	Structure:
-      Line 1: Title
-      Line 2: Author name (optional — you’ll be prompted if blank)
-      Line 3+: Each line becomes one entry in the JSON content array
+   ```text
+   2026-10-05_MY_POST.txt
+   ```
 
-## Example:
+2. Put the title on the first line. Each later non-empty line becomes a paragraph:
 
-WHAT HAPPENED TO US
+   ```text
+   WHAT HAPPENED TO US
+   I remember when hacking meant opening something not meant to be opened.
+   Now it's all branding and bug bounties.
+   ```
 
-I remember when hacking meant opening something not meant to be opened.
-Now it's all branding and bug bounties.
-We used to trace UARTs with paperclips.
-Now it's USB badges and Discord servers.
+3. Run the converter from this directory:
 
+   ```console
+   python convert_blog_txt_prompt.py 2026-10-05_MY_POST.txt
+   ```
 
+4. Enter the author and an ISO publication date (`YYYY-MM-DD`) when prompted.
 
+The converter writes `2026-10-05_MY_POST.json` beside the source file. It uses
+`Path.with_suffix()`, so uppercase `.TXT` inputs are handled safely and never
+overwrite the source text file.
 
-###Convert to JSON
+## Structured content
 
-Run the script:
+Normal `content` entries are rendered as plain text. Raw HTML is intentionally
+not supported. A post may include an HTTPS image using this explicit structure:
 
-```python3 convert_blog_txt_prompt.py blogdata_raw/2025-06-04_MY_POST.txt```
-
-It will prompt you for:
-	•	Author (if not already in the file)
-	•	Publication date (YYYY-MM-DD)
-
-It creates a .json file in blogdata/.
-
-
-## Update index.json
-
-Make sure blogdata/index.json contains a list of your blog files:
+```json
+{
+  "type": "image",
+  "src": "https://example.org/image.jpg",
+  "alt": "Meaningful image description",
+  "width": 600,
+  "height": 400,
+  "caption": "Optional caption"
+}
 ```
+
+## Update the index
+
+Add the JSON filename to `index.json`. Keep newest posts first:
+
+```json
 [
-  "2025-06-03_Blog.json",
-  "2025-06-04_Blog.json"
+  "2026-10-05_MY_POST.json",
+  "2026-05-13_Canvas_Hack_And_Classroom_Resilience.json"
 ]
 ```
 
-## Done
-
-You’re now blogging like it’s 1999.
-No CMS. No WYSIWYG. Just raw files, a Python script, and the command line.
-
+No CMS. No WYSIWYG. Just raw files, a small Python script, and the command line.

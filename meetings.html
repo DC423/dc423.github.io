@@ -3,144 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Meeting schedule and newcomer information for Chattanooga Hackers Anonymous.">
   <title>CHA // Meetings</title>
-  <style>
-    :root {
-      --cha-green: #33ff33;
-      --cha-bright: #00ff00;
-      --cha-dim: #8cff8c;
-      --cha-panel: rgba(0, 0, 0, 0.92);
-      --cha-title: #1e1e1e;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: 
-        linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)), 
-        url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
-      background-size: cover;
-      color: #33ff33;
-      font-family: 'Courier New', Courier, monospace;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 32px;
-    }
-
-    .static-window {
-      width: min(760px, 100%);
-      background: var(--cha-panel);
-      border: 1px solid #222;
-      box-shadow: 0 0 30px rgba(0, 255, 0, 0.75);
-      backdrop-filter: blur(2px);
-    }
-
-    .title-bar {
-      min-height: 32px;
-      background: var(--cha-title);
-      color: #cfcfcf;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 12px;
-      border-bottom: 1px solid #333;
-      font-size: 0.9rem;
-    }
-
-    .window-controls {
-      display: flex;
-      gap: 6px;
-    }
-
-    .window-controls span {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .window-controls span:nth-child(1) { background: #ff5f57; }
-    .window-controls span:nth-child(2) { background: #ffbd30; }
-    .window-controls span:nth-child(3) { background: #28c940; }
-
-    .window-title {
-      margin-left: auto;
-      margin-right: auto;
-      color: #d8ffd8;
-    }
-
-    .content {
-      padding: 26px;
-      line-height: 1.65;
-    }
-
-    h1 {
-      color: var(--cha-bright);
-      margin: 0 0 18px;
-      font-size: clamp(1.5rem, 4vw, 2.2rem);
-      text-shadow: 0 0 12px rgba(0, 255, 0, 0.8);
-    }
-
-    h1::before {
-      content: "root@cha:~# ";
-      color: var(--cha-dim);
-      font-size: 0.75em;
-    }
-
-    p {
-      margin: 0 0 12px;
-    }
-
-    strong {
-      color: #ffffff;
-    }
-
-    ul {
-      margin-top: 0;
-      padding-left: 22px;
-      list-style: square;
-    }
-
-    a {
-      color: var(--cha-green);
-      text-decoration: none;
-      border-bottom: 1px dashed rgba(51, 255, 51, 0.55);
-    }
-
-    a:hover {
-      color: #ffffff;
-      text-shadow: 0 0 8px rgba(51, 255, 51, 0.8);
-    }
-
-    .nav-line {
-      margin-top: 22px;
-      padding-top: 14px;
-      border-top: 1px dashed rgba(51, 255, 51, 0.4);
-    }
-
-    .hidden-egg {
-      display: none;
-    }
-
-    /* CRT Scanline overlay */
-    body::after {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 9999;
-      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
-    }
-  </style>
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="stylesheet" href="st4t1c.css">
 </head>
-<body>
-  <div class="static-window">
+<body class="static-page">
+  <main class="static-window">
     <div class="title-bar" aria-hidden="true">
       <div class="window-controls"><span></span><span></span><span></span></div>
       <div class="window-title">meetings — static viewer</div>
@@ -148,47 +17,32 @@
     <div class="content">
       <h1>meetings</h1>
       <p><strong>Next Meetup:</strong> <span id="nextMeeting">Calculating...</span></p>
+      <p class="meeting-local-time" id="localMeetingTime"></p>
       <p><strong>Location:</strong> [REDACTED]</p>
       <p><strong>What to Expect:</strong></p>
       <ul>
         <li>Lightning talks by members</li>
         <li>Hands-on demos and hacks</li>
-        <li>Social + Q&A</li>
+        <li>Social + Q&amp;A</li>
       </ul>
       <p>New? Interested? <a href="mailto:[FINDUS]@noogahackers.com">Reach out to us!</a></p>
       <p class="nav-line"><a href="index.html">← Return to terminal</a></p>
     </div>
-  </div>
+  </main>
 
   <!-- Want the location? Hack away-->
   <div class="hidden-egg">
     <!-- MTEwIEZienJlaXZ5eXIgTmlyIEZodmdyIDI2NiwgUHVuZ2duYWJidG4sIEdBIDM3NDA1IChGYnB2cmdsIGJzIEpiZXggLSBBYmVndWZ1YmVyKQ== -->
   </div>
 
+  <script src="m33t1ng.js"></script>
   <script>
-    function getLastWednesdayOfMonth(year, month) {
-      const date = new Date(year, month + 1, 0); // last day of month
-      while (date.getDay() !== 3) { // 3 = Wednesday
-        date.setDate(date.getDate() - 1);
-      }
-      return date;
+    const nextMeeting = ChaMeeting.getNextMeetingDate();
+    document.getElementById('nextMeeting').textContent = ChaMeeting.formatChattanooga(nextMeeting);
+
+    if (Intl.DateTimeFormat().resolvedOptions().timeZone !== ChaMeeting.TIME_ZONE) {
+      document.getElementById('localMeetingTime').textContent = `Your local time: ${ChaMeeting.formatLocal(nextMeeting)}`;
     }
-
-    function getNextMeetingDate() {
-      const now = new Date();
-      const thisMonth = getLastWednesdayOfMonth(now.getFullYear(), now.getMonth());
-      const nextMonth = getLastWednesdayOfMonth(now.getFullYear(), now.getMonth() + 1);
-
-      const meetingTime = new Date(thisMonth);
-      meetingTime.setHours(18, 30, 0, 0); // 6:30 PM
-
-      // if today is after this month's last Wed at 6:30pm, use next month
-      return now < meetingTime ? meetingTime : new Date(nextMonth.setHours(18, 30, 0, 0));
-    }
-
-    const nextMeeting = getNextMeetingDate();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' };
-    document.getElementById('nextMeeting').textContent = nextMeeting.toLocaleString(undefined, options);
   </script>
 </body>
 </html>

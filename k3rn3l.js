@@ -4,9 +4,15 @@
     //  Desktop-only (>768px); mobile gets a static fallback view.
     // ================================================================
 
-    // Gate: skip entire script on mobile — the CSS handles the fallback
-    if (window.innerWidth > 768) {
-      document.addEventListener("DOMContentLoaded", function () {
+    // Initialize once when the viewport first enters desktop mode.
+    let desktopInitialized = false;
+    const desktopMedia = window.matchMedia('(min-width: 769px)');
+
+    function initializeDesktop() {
+      if (desktopInitialized || !desktopMedia.matches) return;
+      desktopInitialized = true;
+
+      const bootDesktop = function () {
 
         // ────────────────────────────────────────────────────────────
         //  DOM References
@@ -113,16 +119,16 @@
 
         function desktopIconTable() {
           const rows = desktopIcons.map(icon => `${desktopNameSlug(icon.label).padEnd(18, ' ')}  ->  ${icon.label} (${desktopIconTarget(icon)})`);
-          return `<pre>Desktop items:
+          return `Desktop items:
 ${rows.join('\n')}
 
 Hackable bits:
   cd Desktop
-  mv &lt;item&gt; &lt;new-name&gt;
+  mv <item> <new-name>
   reset-icons
 
 Example:
-  mv totally-not-loot research-stash</pre>`;
+  mv totally-not-loot research-stash`;
         }
 
         function desktopIconTarget(icon) {
@@ -157,15 +163,32 @@ Example:
             );
           }
 
-          return `<pre>${rows.join('\n')}</pre>`;
+          return rows.join('\n');
         }
 
-        function appendTerminalLine(html) {
+        function setTextOutput(element, text = '') {
+          element.textContent = String(text);
+          return element;
+        }
+
+        function setPreOutput(element, text = '') {
+          const pre = document.createElement('pre');
+          pre.textContent = String(text);
+          element.replaceChildren(pre);
+          return pre;
+        }
+
+        function appendTerminalLine(text) {
           const div = document.createElement("div");
-          div.innerHTML = html;
+          div.textContent = String(text);
           terminal.insertBefore(div, prompt);
           scrollToBottom();
           return div;
+        }
+
+        function openExternalUrl(url) {
+          const openedWindow = window.open(url, '_blank', 'noopener,noreferrer');
+          if (openedWindow) openedWindow.opener = null;
         }
 
         let folderWindowZ = 10100;
@@ -260,7 +283,7 @@ Example:
           }
 
           if (icon.id === 'radio') {
-            window.open('https://github.com/DC423/Meeting-Presentations/blob/master/2016-03_SDR_Basics.pdf', '_blank');
+            openExternalUrl('https://github.com/DC423/Meeting-Presentations/blob/master/2016-03_SDR_Basics.pdf');
             return;
           }
 
@@ -710,6 +733,8 @@ Example:
         let relayUnlocked = false;
         let relayEggUnlocked = false;
         let beaconPathDiscovered = false;
+        let blackboxUnlocked = false;
+        let sinkholeUnlocked = false;
         const beaconLogPath = '/var/log/cha/beacon.log';
         const beaconPathPayload = 'L3Zhci9sb2cvY2hhL2JlYWNvbi5sb2c=';
         const relayPhrase = 'the_packet_knows_the_way';
@@ -728,6 +753,44 @@ Example:
           `${blackboxSolvedSource[blackboxSolvedSource.length - 1]}x`
         ];
 
+        function getCtfProgress() {
+          return [blackboxUnlocked, sinkholeUnlocked, relayEggUnlocked].filter(Boolean).length;
+        }
+
+        function getCtfStatusText() {
+          const solved = getCtfProgress();
+          return `SCENIC CITY CTF // LOCAL SANDBOX
+
+Progress: ${solved}/3 flags recovered
+
+[${blackboxUnlocked ? 'x' : ' '}] Lookout Mountain Blackbox
+[${sinkholeUnlocked ? 'x' : ' '}] Tennessee River Sinkhole
+[${relayEggUnlocked ? 'x' : ' '}] Signal Mountain Relay
+
+No network targets are involved. Everything is simulated in this page.
+Use "ctf hint" for the next clue.`;
+        }
+
+        function getCtfHintText() {
+          if (!blackboxUnlocked) {
+            return `LOOKOUT MOUNTAIN BLACKBOX
+Hidden files sometimes contain broken scripts.
+Try exploring with ls -la, then inspect and repair what you find.`;
+          }
+          if (!sinkholeUnlocked) {
+            return `TENNESSEE RIVER SINKHOLE
+One suspicious binary contains a domain that changed malware history.
+Strings, DNS, and a careful curl may reveal the flag.`;
+          }
+          if (!relayEggUnlocked) {
+            return `SIGNAL MOUNTAIN RELAY
+The packet capture on port 31337 leaks an encoded path.
+Decode it, read the log, knock in sequence, then connect locally.`;
+          }
+          return `ALL FLAGS RECOVERED
+Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
+        }
+
         function scrollToBottom() {
           document.querySelector('.terminal').scrollTop = document.querySelector('.terminal').scrollHeight;
         }
@@ -741,7 +804,9 @@ Example:
         }
 
         function updatePrompt() {
-          promptText.textContent = `${getPromptPrefix()}${commandBuffer}`;
+          const shouldMask = awaitingGarbagePassword || awaitingSshPassword || awaitingRelayPhrase;
+          const visibleBuffer = shouldMask ? '•'.repeat(commandBuffer.length) : commandBuffer;
+          promptText.textContent = `${getPromptPrefix()}${visibleBuffer}`;
           scrollToBottom();
         }
 
@@ -785,43 +850,10 @@ Example:
         }
 
         function getNextMeetingCountdown() {
-          const now = new Date();
-          // Meetings are last Wednesday of each month at 18:30 ET
-          let year = now.getFullYear();
-          let month = now.getMonth();
-          
-          function lastWednesday(y, m) {
-            const last = new Date(y, m + 1, 0); // last day of month
-            const dayOfWeek = last.getDay();
-            const diff = (dayOfWeek + 4) % 7; // days back to Wednesday
-            const wed = new Date(y, m + 1, -diff);
-            wed.setHours(18, 30, 0, 0);
-            return wed;
-          }
-          
-          let next = lastWednesday(year, month);
-          if (now > next) {
-            month++;
-            if (month > 11) { month = 0; year++; }
-            next = lastWednesday(year, month);
-          }
-          
-          // Compare calendar dates (not raw ms) for TODAY/TOMORROW
-          const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          const meetDate = new Date(next.getFullYear(), next.getMonth(), next.getDate());
-          const calendarDays = Math.round((meetDate - todayDate) / 86400000);
-
-          const diffMs = next - now;
-          const totalHours = Math.floor(diffMs / 3600000);
-          const daysLeft = Math.floor(totalHours / 24);
-          const hoursLeft = totalHours % 24;
-          
-          const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-          const dateStr = `${months[next.getMonth()]} ${next.getDate()}`;
-          
-          if (calendarDays === 0) return `NEXT MEETING: TODAY @ 18:30`;
-          if (calendarDays === 1) return `NEXT MEETING: TOMORROW @ 18:30`;
-          return `NEXT MEETING: ${dateStr} (${daysLeft}d ${hoursLeft}h)`;
+          if (!window.ChaMeeting) return 'NEXT MEETING: see meetings.html';
+          const countdown = window.ChaMeeting.getCountdown();
+          const meetingLabel = window.ChaMeeting.formatChattanooga(countdown.meeting);
+          return `NEXT MEETING: ${meetingLabel} (${countdown.days}d ${countdown.hours}h ${countdown.minutes}m)`;
         }
 
         function pickLocalMotdQuote() {
@@ -916,6 +948,7 @@ Example:
                 terminal.insertBefore(document.createElement("br"), prompt);
                 prompt.style.visibility = "visible";
                 enableTyping();
+                terminal.focus({ preventScroll: true });
               });
           }
         }
@@ -947,7 +980,7 @@ Example:
             "netstat", "ss", "last", "w", "tcpdump", "base64", "echo", "knock", "nc", "netcat",
             "sudo", "lights", "light", "dark", "exit", "reboot", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup",
-            "mv", "desktop", "reset-icons", "snake", "python", "python3"
+            "mv", "desktop", "reset-icons", "snake", "python", "python3", "ctf"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -1012,6 +1045,13 @@ Example:
             return flags
               .filter(f => f.startsWith(partial) && f !== partial)
               .map(f => "ls " + f);
+          }
+
+          if (cmd === "ctf") {
+            const partial = parts[1] || "";
+            return ["status", "hint", "reset"]
+              .filter(value => value.startsWith(partial) && value !== partial)
+              .map(value => `ctf ${value}`);
           }
 
           // Complete common flags/subcommands
@@ -1150,12 +1190,16 @@ Example:
         //  Keyboard Input Handler — keys, history, tab, enter
         // ────────────────────────────────────────────────────────────
         function enableTyping() {
-          document.addEventListener("keydown", function (e) {
-            // Preserve native browser shortcuts such as copy and paste.
-            if (e.ctrlKey || e.metaKey || e.altKey) return;
+          terminal.addEventListener("keydown", function (e) {
+            // Tab always follows normal browser focus navigation.
+            if (e.key === 'Tab') return;
 
-            // Prevent Tab from leaving the terminal
-            if (e.key === "Tab") {
+            const completionRequested = e.key === 'F2';
+            // Preserve native browser shortcuts such as copy and paste.
+            if (!completionRequested && (e.ctrlKey || e.metaKey || e.altKey)) return;
+
+            // F2 provides shell-style completion without trapping Tab.
+            if (completionRequested) {
               e.preventDefault();
 
               // Don't tab-complete during password prompts
@@ -1211,7 +1255,7 @@ Example:
             }
 
             // Reset tab state on any non-tab key
-            if (e.key !== "Tab") {
+            if (!completionRequested) {
               tabMatches = [];
               tabMatchIndex = -1;
               lastTabBuffer = "";
@@ -1248,11 +1292,14 @@ Example:
               updatePrompt();
             } else if (e.key === "Enter") {
               const cmdLine = document.createElement("div");
-              cmdLine.innerText = `${getPromptPrefix()}${commandBuffer}`;
+              const isSecretEntry = awaitingGarbagePassword || awaitingSshPassword || awaitingRelayPhrase;
+              const submittedBuffer = commandBuffer;
+              const displayedBuffer = isSecretEntry ? '•'.repeat(submittedBuffer.length) : submittedBuffer;
+              cmdLine.textContent = `${getPromptPrefix()}${displayedBuffer}`;
               terminal.insertBefore(cmdLine, prompt);
-              const cmd = commandBuffer.trim().toLowerCase();
+              const cmd = isSecretEntry ? submittedBuffer : submittedBuffer.trim().toLowerCase();
               // Save to history (skip empty and duplicates of the last entry)
-              if (cmd && !awaitingGarbagePassword && !awaitingSshPassword && !awaitingRelayPhrase && (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== cmd)) {
+              if (cmd && !isSecretEntry && (commandHistory.length === 0 || commandHistory[commandHistory.length - 1] !== cmd)) {
                 commandHistory.push(cmd);
               }
               historyIndex = -1;
@@ -1261,6 +1308,7 @@ Example:
                 commandBuffer = "";
                 updatePrompt();
                 prompt.style.visibility = snakeActive || tcpdumpActive ? "hidden" : "visible";
+                if (!snakeActive && !tcpdumpActive && !nanoActive) terminal.focus({ preventScroll: true });
               });
             } else if (e.key.length === 1) {
               commandBuffer += e.key;
@@ -1268,7 +1316,7 @@ Example:
             }
           });
 
-          document.addEventListener('paste', function (e) {
+          terminal.addEventListener('paste', function (e) {
             if (snakeActive || tcpdumpActive || nanoActive || isEditableTarget(e.target)) return;
             if (getComputedStyle(prompt).visibility !== 'visible') return;
 
@@ -1297,14 +1345,7 @@ Example:
         }
 
         async function renderFakePing(cmd, outputDiv) {
-          const usage = "Usage: ping [-c count] &lt;host|ip&gt;<br>";
-          const escapeHtml = value => String(value).replace(/[&<>"']/g, ch => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;'
-          }[ch]));
+          const usage = "Usage: ping [-c count] <host|ip>";
           const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
           const parts = cmd.trim().split(/\s+/);
           if (parts[0] !== "ping") return;
@@ -1325,16 +1366,14 @@ Example:
           }
 
           if (!target) {
-            outputDiv.innerHTML = usage;
+            setTextOutput(outputDiv, usage);
             return;
           }
 
           count = Math.max(1, Math.min(count, 10));
           const isLoopback = /^(127(?:\.\d{1,3}){3}|localhost|::1)$/i.test(target);
           const resolved = target === "localhost" ? "127.0.0.1" : target;
-          const safeTarget = escapeHtml(target);
-          const safeResolved = escapeHtml(resolved);
-          const hostLabel = isLoopback ? `${safeTarget} (${safeResolved})` : safeTarget;
+          const hostLabel = isLoopback ? `${target} (${resolved})` : target;
           const packetSize = 56;
           const out = document.createElement("pre");
           out.style.margin = "8px 0";
@@ -1353,7 +1392,7 @@ Example:
             const time = isLoopback
               ? (0.031 + seq * 0.006).toFixed(3)
               : (12.4 + ((seq * 13) % 37) / 3).toFixed(3);
-            appendPingLine(`${packetSize + 8} bytes from ${safeResolved}: icmp_seq=${seq} ttl=${ttl} time=${time} ms`);
+            appendPingLine(`${packetSize + 8} bytes from ${resolved}: icmp_seq=${seq} ttl=${ttl} time=${time} ms`);
           }
 
           if (isLoopback) {
@@ -1365,7 +1404,7 @@ Example:
 
           await wait(350);
           appendPingLine();
-          appendPingLine(`--- ${safeTarget} ping statistics ---`);
+          appendPingLine(`--- ${target} ping statistics ---`);
           appendPingLine(`${count} packets transmitted, ${count} received, 0% packet loss`);
           const min = isLoopback ? "0.031" : "12.400";
           const avg = isLoopback ? (0.031 + ((count - 1) * 0.006) / 2).toFixed(3) : "18.733";
@@ -1686,7 +1725,7 @@ Example:
           if (awaitingRelayPhrase) {
             awaitingRelayPhrase = false;
 
-            if (cmd.replace(/\s+/g, '_') === relayPhrase) {
+            if (cmd.trim().toLowerCase().replace(/\s+/g, '_') === relayPhrase) {
               relayEggUnlocked = true;
               div.innerHTML = `<pre>[+] relay authentication accepted
 [+] packet trail reconstructed
@@ -1710,18 +1749,18 @@ Connection closed by foreign host.</pre>`;
             return;
           } else if (awaitingSshPassword) {
             const target = pendingSshTarget || "root@unknown";
+            const host = target.split('@')[1] || 'host';
             awaitingSshPassword = false;
             pendingSshTarget = "";
 
             if (cmd !== "root") {
-              div.innerHTML = `Permission denied, please try again.<br>Connection to ${target.split('@')[1] || 'host'} closed.<br>`;
+              setTextOutput(div, `Permission denied, please try again.\nConnection to ${host} closed.`);
               terminal.insertBefore(div, prompt);
               scrollToBottom();
               return;
             }
 
             terminal.insertBefore(div, prompt);
-            const host = target.split('@')[1] || 'host';
             const sshLines = [
               { text: `Authenticated to ${host} ([127.0.0.1]:22) using "password".`, delay: 650, color: "#33ff33" },
               { text: "Last login: definitely not from your box", delay: 850, color: "#33ff33" },
@@ -1784,6 +1823,7 @@ drwxr-xr-x 10 root staff    320 ${now} ..
               return;
             } else if (cmd === "python3 .blackbox.py" || cmd === "python .blackbox.py") {
               if (blackboxSource.join('\n') === blackboxSolvedSource.join('\n')) {
+                blackboxUnlocked = true;
                 const decoded = atob(blackboxSource[2].match(/"([A-Za-z0-9+/=]+)"/)[1]);
                 div.innerHTML = `<pre>[blackbox] checksum accepted
 [blackbox] voiceprint verified
@@ -1867,25 +1907,24 @@ Hint: compare the final function call with its definition.</pre>`;
           // === Normal directory commands ===
           if (cmd === "ls") {
             if (currentDir === "Desktop") {
-              div.innerHTML = `<pre>${desktopIcons.map(icon => desktopNameSlug(icon.label)).join('  ')}</pre>`;
+              setPreOutput(div, desktopIcons.map(icon => desktopNameSlug(icon.label)).join('  '));
             } else {
               div.innerHTML = "Desktop/  blog/  code/  conduct/  contact/  meetings/  manifesto.txt  wannacry.exe <br>";
             }
           } else if (cmd === "pwd") {
-            div.innerHTML = currentDir === ".shadow" ? "/root/.shadow<br>" : currentDir === "Desktop" ? "/root/Desktop<br>" : "/root<br>";
+            setTextOutput(div, currentDir === ".shadow" ? "/root/.shadow" : currentDir === "Desktop" ? "/root/Desktop" : "/root");
           } else if (cmd === "ifconfig" || cmd === "ip addr" || cmd === "ip addr show" || cmd === "ip a") {
-            div.innerHTML = `<pre>
-eth0: flags=4163&lt;UP,BROADCAST,RUNNING,MULTICAST&gt;  mtu 1500
+            setPreOutput(div, `eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet ${serverIp}  netmask 255.255.255.255  broadcast ${serverIp}
-        inet6 ${randomLinkLocalIpv6}  prefixlen 64  scopeid 0x20&lt;link&gt;
+        inet6 ${randomLinkLocalIpv6}  prefixlen 64  scopeid 0x20<link>
         ether ${deadbeefMac}  txqueuelen 1000  (Ethernet)
         RX packets 423042  bytes 8675309
         TX packets 2600    bytes 13371337
 
-lo: flags=73&lt;UP,LOOPBACK,RUNNING&gt;  mtu 65536
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 65536
         inet 127.0.0.1  netmask 255.0.0.0
         loop  txqueuelen 1000  (Local Loopback)
-</pre>`;
+`);
           } else if (cmd === "iptables" || cmd === "iptables -l" || cmd === "iptables -s") {
             div.innerHTML = `<pre>
 Chain INPUT (policy DROP)
@@ -1933,14 +1972,13 @@ synackpwn    irc          freenode         never logged out, never lived it down
 wtmp begins Fri Jan 01 00:00:00 2012
 </pre>`;
           } else if (cmd === "w") {
-            div.innerHTML = `<pre>
- ${new Date().toLocaleTimeString()} up 5234 days,  4 users,  load average: 0.42, 0.23, 0.15
+            setPreOutput(div, ` ${new Date().toLocaleTimeString()} up 5234 days,  4 users,  load average: 0.42, 0.23, 0.15
 USER         TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
 root         pts/0    ${serverIp}       09:00    0.00s  0.42s  0.23s typing very carefully
 operator     tty1     console          09:00    4:23   1.37s  0.01s watching the logs blink
 crashoverride pts/3   gibson           23:59    25y    0.00s  0.00s hacking the planet
 acidburn     pts/2    ellingson        23:58    25y    0.00s  0.00s making it pretty
-</pre>`;
+`);
           } else if (cmd === "hostname") {
             div.innerHTML = "cha-terminal<br>";
           } else if (cmd === "id") {
@@ -1961,9 +1999,9 @@ HACK_THE_PLANET=true
 </pre>`;
           } else if (cmd === "history") {
             const recent = commandHistory.slice(-12);
-            div.innerHTML = recent.length
-              ? `<pre>${recent.map((entry, index) => `${String(index + 1).padStart(4, ' ')}  ${entry}`).join('\n')}</pre>`
-              : "<br>";
+            if (recent.length) {
+              setPreOutput(div, recent.map((entry, index) => `${String(index + 1).padStart(4, ' ')}  ${entry}`).join('\n'));
+            }
           } else if (cmd === "ps" || cmd === "ps aux") {
             div.innerHTML = `<pre>
 USER       PID %CPU %MEM COMMAND
@@ -1988,7 +2026,7 @@ Swap:          0.0Gi       0.0Gi       0.0Gi
 </pre>`;
           }  else if (cmd === "ls -l" || cmd === "ls -la" || cmd === "ls -lah" || cmd === "ls -al") {
               if (currentDir === "Desktop") {
-                div.innerHTML = desktopIconDetailedListing(cmd === "ls -la" || cmd === "ls -lah" || cmd === "ls -al");
+                setPreOutput(div, desktopIconDetailedListing(cmd === "ls -la" || cmd === "ls -lah" || cmd === "ls -al"));
               } else {
                 const now = formatLsDate();
             div.innerHTML = `<pre>
@@ -2017,7 +2055,7 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
             currentDir = previousDir;
             previousDir = tmp;
             const displayPath = currentDir === "~" ? "/root" : "/root/" + currentDir;
-            div.innerHTML = displayPath + "<br>";
+            setTextOutput(div, displayPath);
             updatePrompt();
           } else if (cmd === "cd .") {
             // cd . → stay in current directory
@@ -2061,13 +2099,13 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
               if (dir === "code") {
                 div.innerHTML = "Opening source tree at github.com/dc423...<br>";
                 terminal.insertBefore(div, prompt);
-                setTimeout(() => window.open(urls[dir], "_blank"), 800);
+                setTimeout(() => openExternalUrl(urls[dir]), 800);
               } else {
                 window.location.href = urls[dir];
               }
               return;
             } else {
-              div.innerHTML = `bash: cd: ${dir}: No such file or directory<br>`;
+              setTextOutput(div, `bash: cd: ${dir}: No such file or directory`);
             }
           } else if (cmd === "whoami") {
             div.innerHTML = Math.random() < 0.1
@@ -2159,8 +2197,7 @@ drwx------  2 root root      64 Jan  1 00:00 .shadow/
             scrollToBottom();
             return;
           } else if (cmd === "cat /etc/weather.conf") {
-            div.innerHTML = `<pre>
-# /etc/weather.conf — CHA weather station config
+            setPreOutput(div, `# /etc/weather.conf — CHA weather station config
 # Session-only: changes reset on page refresh
 
 [station]
@@ -2168,14 +2205,13 @@ observation = ${weatherStation}
 
 [alerts]
 zone = ${alertZone}
-</pre>`;
+`);
           } else if (cmd === "nano /etc/weather.conf" || cmd === "vi /etc/weather.conf" || cmd === "vim /etc/weather.conf") {
             // Open nano editor overlay
             openNanoEditor('/etc/weather.conf');
             return;
           } else if (cmd === "help" || cmd === "?") {
-            div.innerHTML = `<pre>
-Available commands:
+            setPreOutput(div, `Available commands:
   ls              List files and directories
   ls -l           Detailed file listing
   cd <dir>        Navigate to a page (blog, code, conduct, contact, meetings)
@@ -2211,6 +2247,10 @@ Available commands:
   curl <url>      Fetch a URL, carefully
   ping [-c n] <host>  Send up to 10 fake ICMP echoes
   snake           Play CHA Snake in the terminal
+  ctf             Start the local-only Scenic City CTF
+  ctf status      Show CTF flag progress
+  ctf hint        Show the next safe sandbox clue
+  F2              Complete commands without trapping browser Tab navigation
   help            Show this help message
   clear           Clear the terminal
   uptime          Show system uptime
@@ -2219,7 +2259,22 @@ Available commands:
   init 0          Shutdown the system
   light mode      Switch to Light Mode
   dark mode       Switch to Dark Mode
-</pre>`;
+`);
+          } else if (cmd === "ctf" || cmd === "ctf status") {
+            setPreOutput(div, getCtfStatusText());
+          } else if (cmd === "ctf hint") {
+            setPreOutput(div, getCtfHintText());
+          } else if (cmd === "ctf reset") {
+            blackboxUnlocked = false;
+            sinkholeUnlocked = false;
+            relayUnlocked = false;
+            relayEggUnlocked = false;
+            beaconPathDiscovered = false;
+            blackboxSource = [
+              ...blackboxSolvedSource.slice(0, -1),
+              `${blackboxSolvedSource[blackboxSolvedSource.length - 1]}x`
+            ];
+            setTextOutput(div, 'Scenic City CTF progress reset for this browser session.');
           } else if (cmd === "snake") {
             startSnake(div);
           } else if (cmd === "tcpdump -d") {
@@ -2239,12 +2294,12 @@ Available commands:
             const supplied = match ? match[1] : '';
             if (supplied.toLowerCase() === beaconPathPayload.toLowerCase()) {
               beaconPathDiscovered = true;
-              div.innerHTML = `${beaconLogPath}<br>`;
+              setTextOutput(div, beaconLogPath);
             } else {
               const decoded = decodeBase64Input(supplied);
-              div.innerHTML = decoded && /^[\x09\x0a\x0d\x20-\x7e]+$/.test(decoded)
-                ? `${decoded.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}<br>`
-                : `base64: invalid input<br>`;
+              setTextOutput(div, decoded && /^[\x09\x0a\x0d\x20-\x7e]+$/.test(decoded)
+                ? decoded
+                : 'base64: invalid input');
             }
           } else if (cmd === "base64" || cmd === "base64 -d" || cmd === "base64 --decode" || cmd === "echo") {
             div.innerHTML = `Usage: echo &lt;base64&gt; | base64 -d<br>`;
@@ -2295,14 +2350,14 @@ CHA INTERNAL RELAY</pre>`;
             const days = Math.floor(diff / 86400);
             const hours = Math.floor((diff % 86400) / 3600);
             const mins = Math.floor((diff % 3600) / 60);
-            div.innerHTML = ` ${new Date().toLocaleTimeString()} up ${days} days, ${hours}:${String(mins).padStart(2,'0')}, 1 user, load average: 0.42, 0.23, 0.15<br>`;
+            setTextOutput(div, ` ${new Date().toLocaleTimeString()} up ${days} days, ${hours}:${String(mins).padStart(2,'0')}, 1 user, load average: 0.42, 0.23, 0.15`);
           } else if (cmd === "date") {
-            div.innerHTML = `${new Date().toString()}<br>`;
+            setTextOutput(div, new Date().toString());
           } else if (cmd === "reboot") {
             window.location.reload();
             return;
           } else if (cmd === "desktop" || cmd === "desktop-icons" || cmd === "ls ~/desktop") {
-            div.innerHTML = desktopIconTable();
+            setPreOutput(div, desktopIconTable());
           } else if (cmd === "reset-icons") {
             resetDesktopIcons();
             div.innerHTML = "Desktop icon labels restored from clean backup.<br>Totally legitimate sysadmin behavior.<br>";
@@ -2318,9 +2373,9 @@ CHA INTERNAL RELAY</pre>`;
                 const newName = match[2].replace(/^[\'\"]|[\'\"]$/g, '').trim();
                 const renamed = renameDesktopIcon(oldName, newName);
                 if (renamed) {
-                  div.innerHTML = `renamed '${oldName}' -&gt; '${desktopNameSlug(renamed.label)}'<br>[xfdesktop] icon label updated on screen<br>`;
+                  setTextOutput(div, `renamed '${oldName}' -> '${desktopNameSlug(renamed.label)}'\n[xfdesktop] icon label updated on screen`);
                 } else {
-                  div.innerHTML = `mv: cannot stat '${oldName}': No such desktop item<br>Try: ls<br>`;
+                  setTextOutput(div, `mv: cannot stat '${oldName}': No such desktop item\nTry: ls`);
                 }
               }
             }
@@ -2332,9 +2387,9 @@ CHA INTERNAL RELAY</pre>`;
               const id = match[1].toLowerCase();
               const label = match[2].replace(/^['\"]|['\"]$/g, '').trim();
               if (setDesktopIconLabel(id, label)) {
-                div.innerHTML = `deprecated command accepted, but the cooler way is: cd Desktop; mv ${id} ${desktopNameSlug(label)}<br>`;
+                setTextOutput(div, `deprecated command accepted, but the cooler way is: cd Desktop; mv ${id} ${desktopNameSlug(label)}`);
               } else {
-                div.innerHTML = `desktop: no icon id '${id}'<br>Try: cd Desktop; ls<br>`;
+                setTextOutput(div, `desktop: no icon id '${id}'\nTry: cd Desktop; ls`);
               }
             }
           } else if (cmd === "ping" || cmd.startsWith("ping ")) {
@@ -2449,6 +2504,7 @@ iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com. 300 IN A 127.0.0.1
 ;; Curiosity saved networks. Register domains responsibly.
 </pre>`;
           } else if (cmd === "curl iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com" || cmd === "curl http://iuqerfsodp9ifjaposdfjhgosurijfaewrwergwea.com") {
+            sinkholeUnlocked = true;
             div.innerHTML = `<pre>
 HTTP/1.1 200 OK
 Server: sinkhole-cha/4.23
@@ -2538,7 +2594,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           } else if (cmd === "dir") {
             div.innerHTML = `bash: dir: command not found<br>This isn't DOS, champ. Try 'ls'.<br>`;
           } else {
-            div.innerHTML = `bash: command not found: ${cmd}<br>`;
+            setTextOutput(div, `bash: command not found: ${cmd}`);
           }
           terminal.insertBefore(div, prompt);
           scrollToBottom();
@@ -2598,7 +2654,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
 
             if (exitAfterSave) {
               const div = document.createElement('div');
-              div.innerHTML = `<span style="color:#33ff33">.blackbox.py saved (session only).</span><br>`;
+              setTextOutput(div, '.blackbox.py saved (session only).');
               terminal.insertBefore(div, prompt);
               scrollToBottom();
             }
@@ -2622,9 +2678,9 @@ Patch SMB. Back up your stuff. Hug your incident responder.
 
           if (exitAfterSave) {
             const div = document.createElement('div');
-            div.innerHTML = changed
-              ? `<span style="color:#33ff33">weather.conf saved (session only).</span><br>station=${weatherStation} zone=${alertZone}<br>Refreshing weather...<br>`
-              : `<span style="color:#33ff33">weather.conf unchanged.</span><br>`;
+            setTextOutput(div, changed
+              ? `weather.conf saved (session only).\nstation=${weatherStation} zone=${alertZone}\nRefreshing weather...`
+              : 'weather.conf unchanged.');
             terminal.insertBefore(div, prompt);
             scrollToBottom();
           }
@@ -2923,6 +2979,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           xfceTaskButton.classList.add('minimized-task');
           xfceTaskButton.textContent = '▣ root@cha:~ — Terminal (minimized)';
           taskbarDock.style.display = 'block';
+          taskbarDock.focus({ preventScroll: true });
         }
 
         function restoreTerminal() {
@@ -2931,17 +2988,20 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           xfceTaskButton.textContent = '▣ root@cha:~ — Terminal';
           taskbarDock.style.display = 'none';
           setTimeout(() => { win.style.transition = ''; }, 500);
+          terminal.focus({ preventScroll: true });
         }
 
         // Applications menu toggle
         function toggleMenu() {
           const isOpen = xfceMenu.classList.toggle('open');
           xfceMenuButton.classList.toggle('open', isOpen);
+          xfceMenuButton.setAttribute('aria-expanded', String(isOpen));
         }
 
         function closeMenu() {
           xfceMenu.classList.remove('open');
           xfceMenuButton.classList.remove('open');
+          xfceMenuButton.setAttribute('aria-expanded', 'false');
         }
 
         xfceMenuButton.addEventListener('click', function (e) {
@@ -2980,7 +3040,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
               window.location.href = 'coc.html';
               break;
             case 'code':
-              window.open('https://github.com/dc423', '_blank');
+              openExternalUrl('https://github.com/dc423');
               break;
             case 'lights-on':
               document.body.classList.add('lights-on');
@@ -3020,21 +3080,23 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           screenLockOverlay.setAttribute('aria-hidden', 'true');
           if (screenLockPassword) screenLockPassword.value = '';
           if (screenLockMessage) screenLockMessage.textContent = '';
+          terminal.focus({ preventScroll: true });
         }
 
         function handleLockSubmit(event) {
           event.preventDefault();
-          const typedPassword = screenLockPassword ? screenLockPassword.value : '';
+          const passwordWasEntered = Boolean(screenLockPassword && screenLockPassword.value);
+          if (screenLockPassword) screenLockPassword.value = '';
 
-          if (!typedPassword) {
+          if (!passwordWasEntered) {
             unlockScreen();
             return;
           }
 
           if (screenLockMessage) {
-            screenLockMessage.textContent = `lol you typed: ${typedPassword} ... what were you thinking typing a password in here`;
+            screenLockMessage.textContent = 'Demo unlocked. Your entry was cleared and was not displayed or stored.';
           }
-          setTimeout(unlockScreen, 3500);
+          setTimeout(unlockScreen, 1800);
         }
 
         if (screenLockForm) {
@@ -3084,5 +3146,16 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           }
         });
 
-      });
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootDesktop, { once: true });
+      } else {
+        bootDesktop();
+      }
     }
+
+    initializeDesktop();
+    desktopMedia.addEventListener('change', function (event) {
+      if (event.matches) initializeDesktop();
+    });

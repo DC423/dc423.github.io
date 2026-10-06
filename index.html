@@ -93,8 +93,8 @@
 
   <!-- Screen Lock Overlay -->
   <div class="screen-lock-overlay" id="screenLockOverlay" aria-hidden="true">
-    <div class="screen-lock-box">
-      <div class="screen-lock-title">cha-terminal login</div>
+    <div class="screen-lock-box" role="dialog" aria-modal="true" aria-labelledby="screenLockTitle">
+      <div class="screen-lock-title" id="screenLockTitle">cha-terminal login</div>
       <form class="screen-lock-form" id="screenLockForm" autocomplete="off">
         <label class="screen-lock-label" for="screenLockUser">username</label>
         <input class="screen-lock-input" id="screenLockUser" type="text" value="root" readonly>
@@ -127,18 +127,18 @@
   </div>
 
   <!-- Taskbar Dock (shown when minimized) -->
-  <div class="taskbar-dock" id="taskbarDock">[ root@cha:~ ] — click to restore</div>
+  <button class="taskbar-dock" id="taskbarDock" type="button">[ root@cha:~ ] — click to restore</button>
 
   <!-- Desktop View -->
   <div class="desktop-view">
     <div class="desktop-icons" id="desktopIcons" aria-label="Desktop icons"></div>
     <div class="xfce-panel" role="toolbar" aria-label="Desktop top panel">
       <div class="xfce-panel-left">
-        <div class="xfce-menu-button" id="xfceMenuButton" tabindex="0">⌘ Applications</div>
-        <div class="xfce-task-button" id="xfceTaskButton" tabindex="0">▣ root@cha:~ — Terminal</div>
+        <button class="xfce-menu-button" id="xfceMenuButton" type="button" aria-haspopup="true" aria-expanded="false">⌘ Applications</button>
+        <button class="xfce-task-button" id="xfceTaskButton" type="button">▣ root@cha:~ — Terminal</button>
       </div>
       <div class="xfce-panel-right">
-        <div class="xfce-panel-item xfce-weather" id="xfceWeather">loading wx...</div>
+        <button class="xfce-panel-item xfce-weather" id="xfceWeather" type="button" aria-label="Weather status and alerts">loading wx...</button>
         <div class="xfce-panel-item xfce-clock" id="xfceClock">-- --- ---- --:--:--</div>
       </div>
     </div>
@@ -169,14 +169,14 @@
     <div class="window">
       <div class="title-bar">
         <div class="window-controls">
-          <div class="close"></div>
-          <div class="minimize"></div>
-          <div class="maximize"></div>
+          <button class="close" type="button" aria-label="Close terminal"></button>
+          <button class="minimize" type="button" aria-label="Minimize terminal"></button>
+          <button class="maximize" type="button" aria-label="Maximize terminal"></button>
         </div>
         <div>root@cha:~</div>
       </div>
       <div class="terminal">
-        <div class="terminal-content" id="terminalContent">
+        <div class="terminal-content" id="terminalContent" role="textbox" aria-label="Interactive CHA terminal. Type help for commands." aria-multiline="false" tabindex="0">
           <div class="prompt" id="promptLine">
             <span id="promptText">root@cha:~# </span><span class="cursor"></span>
           </div>
@@ -270,6 +270,7 @@
   </script>
 
   <!-- m41n JS - Only look if you are l33t -->
+  <script src="m33t1ng.js" defer></script>
   <script src="k3rn3l.js" defer></script>
 
 

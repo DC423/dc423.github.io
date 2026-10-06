@@ -54,6 +54,12 @@
   outline: none;
 }
 
+.desktop-icon:focus-visible {
+  border-color: #ffff00;
+  outline: 2px solid #ffff00;
+  outline-offset: 2px;
+}
+
 /* Large emoji glyph above icon label */
 .desktop-icon-glyph {
   display: block;
@@ -221,6 +227,13 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
   padding: 0 8px;
   white-space: nowrap;
+  font: inherit;
+}
+
+.xfce-menu-button,
+.xfce-task-button,
+.xfce-weather {
+  appearance: none;
 }
 
 /* Applications menu button — bold green with glow */
@@ -248,6 +261,15 @@
   cursor: pointer;
 }
 
+.xfce-menu-button:focus-visible,
+.xfce-task-button:focus-visible,
+.xfce-weather:focus-visible,
+.xfce-menu-item:focus-visible,
+.folder-window-close:focus-visible {
+  outline: 2px solid #ffff00;
+  outline-offset: 2px;
+}
+
 /* Minimized task — dashed border, dimmed */
 .xfce-task-button.minimized-task {
   color: #777;
@@ -264,6 +286,7 @@
    ======================================== */
 .xfce-weather {
   color: #9dff9d;
+  cursor: pointer;
 }
 
 /* Active weather alert state — yellow pulsing glow */

@@ -44,9 +44,12 @@
 }
 
 /* Base circle for all three buttons */
-.window-controls div {
+.window-controls button {
   width: 12px;
   height: 12px;
+  min-width: 12px;
+  padding: 0;
+  border: 0;
   border-radius: 50%;
   background-color: #444;
   cursor: pointer;
@@ -54,9 +57,14 @@
   transition: all 0.2s ease;
 }
 
-.window-controls div:hover {
+.window-controls button:hover {
   transform: scale(1.1);
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+.window-controls button:focus-visible {
+  outline: 2px solid #ffff00;
+  outline-offset: 3px;
 }
 
 /* Close button (red) — shows × on hover */
@@ -166,6 +174,11 @@
 .taskbar-dock:hover {
   background: rgba(0, 255, 0, 0.15);
   box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
+}
+
+.taskbar-dock:focus-visible {
+  outline: 2px solid #ffff00;
+  outline-offset: 3px;
 }
 
 @keyframes taskbar-pulse {

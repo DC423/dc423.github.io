@@ -1,150 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Code of conduct and safe-lab rules for Chattanooga Hackers Anonymous events.">
   <title>CHA Code of Conduct</title>
-  <style>
-    :root {
-      --cha-green: #33ff33;
-      --cha-bright: #00ff00;
-      --cha-dim: #8cff8c;
-      --cha-panel: rgba(0, 0, 0, 0.92);
-      --cha-title: #1e1e1e;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5)),
-        url('aW1hZ2VzCg==/background.png') no-repeat center center fixed;
-      background-size: cover;
-      font-family: 'Courier New', Courier, monospace;
-      color: #33ff33;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .static-window {
-      max-width: 880px;
-      width: 100%;
-      max-height: calc(100vh - 40px);
-      background: var(--cha-panel);
-      border: 1px solid #222;
-      box-shadow: 0 0 30px rgba(0, 255, 0, 0.75);
-      backdrop-filter: blur(2px);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .title-bar {
-      min-height: 32px;
-      background: var(--cha-title);
-      color: #cfcfcf;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 0 12px;
-      border-bottom: 1px solid #333;
-      font-size: 0.9rem;
-      flex: 0 0 auto;
-    }
-
-    .window-controls {
-      display: flex;
-      gap: 6px;
-    }
-
-    .window-controls span {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .window-controls span:nth-child(1) { background: #ff5f57; }
-    .window-controls span:nth-child(2) { background: #ffbd30; }
-    .window-controls span:nth-child(3) { background: #28c940; }
-
-    .window-title {
-      margin-left: auto;
-      margin-right: auto;
-      color: #d8ffd8;
-    }
-
-    .content {
-      padding: 26px;
-      overflow-y: auto;
-    }
-
-    h1, h2 {
-      color: var(--cha-bright);
-      text-shadow: 0 0 10px rgba(0, 255, 0, 0.65);
-    }
-
-    h1 {
-      margin-top: 0;
-    }
-
-    h1::before {
-      content: "root@cha:~# ";
-      color: var(--cha-dim);
-      font-size: 0.75em;
-    }
-
-    p {
-      margin-bottom: 1em;
-      line-height: 1.5;
-    }
-
-    ul {
-      padding-left: 20px;
-      list-style: square;
-    }
-
-    a {
-      color: #33ff33;
-      text-decoration: none;
-      border-bottom: 1px dashed rgba(51, 255, 51, 0.55);
-    }
-
-    a:hover {
-      color: #ffffff;
-      text-shadow: 0 0 8px rgba(51, 255, 51, 0.8);
-    }
-
-    .back {
-      margin-top: 2em;
-      display: block;
-      color: #33ff33;
-    }
-
-    .important {
-      color: #ffff66;
-      font-weight: bold;
-    }
-
-    /* CRT Scanline overlay */
-    body::after {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
-      z-index: 9999;
-      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
-    }
-  </style>
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico">
+  <link rel="stylesheet" href="st4t1c.css">
 </head>
-<body>
-  <div class="static-window">
+<body class="static-page conduct-page">
+  <main class="static-window">
     <div class="title-bar" aria-hidden="true">
       <div class="window-controls"><span></span><span></span><span></span></div>
       <div class="window-title">conduct — static viewer</div>
@@ -152,52 +17,46 @@
     <div class="content">
       <h1>code of conduct</h1>
 
-    <p>
-      Chattanooga Hackers Anonymous (CHA) is a collective committed to fostering a safe, welcoming, and inclusive environment for all participants—regardless of background, experience, or skill level.
-    </p>
+      <p>Chattanooga Hackers Anonymous (CHA) is a collective committed to fostering a safe, welcoming, and inclusive environment for all participants—regardless of background, experience, or skill level.</p>
 
-    <h2>Expected Behavior</h2>
-    <ul>
-      <li>Be respectful, inclusive, and considerate.</li>
-      <li>Be mindful of your words and actions.</li>
-      <li>Support others in learning and growth.</li>
-      <li>Respect the physical space, equipment, and networks of our host venues.</li>
-      <li>Keep all tools, devices, and experiments on your own equipment and isolated networks only.</li>
-      <li>Report violations to organizers or moderators promptly.</li>
-    </ul>
+      <h2>Expected Behavior</h2>
+      <ul>
+        <li>Be respectful, inclusive, and considerate.</li>
+        <li>Be mindful of your words and actions.</li>
+        <li>Support others in learning and growth.</li>
+        <li>Respect the physical space, equipment, and networks of our host venues.</li>
+        <li>Keep all tools, devices, and experiments on your own equipment and isolated networks only.</li>
+        <li>Report violations to organizers or moderators promptly.</li>
+      </ul>
 
-    <h2>Unacceptable Behavior</h2>
-    <ul>
-      <li>Harassment, discrimination, or hate speech.</li>
-      <li>Intimidation or threats, online or in person.</li>
-      <li>Unwelcome sexual attention or advances.</li>
-      <li>Disruptive behavior during events or discussions.</li>
-      <li>Unauthorized access, scanning, or probing of any network, system, or device you do not own.</li>
-      <li>Any activity that violates local, state, or federal law.</li>
-    </ul>
+      <h2>Unacceptable Behavior</h2>
+      <ul>
+        <li>Harassment, discrimination, or hate speech.</li>
+        <li>Intimidation or threats, online or in person.</li>
+        <li>Unwelcome sexual attention or advances.</li>
+        <li>Disruptive behavior during events or discussions.</li>
+        <li>Unauthorized access, scanning, or probing of any network, system, or device you do not own.</li>
+        <li>Any activity that violates local, state, or federal law.</li>
+      </ul>
 
-    <h2 class="important">Critical Rules</h2>
-    <ul>
-      <li class="important">If you are under 18, you must be accompanied by a parent or legal guardian.</li>
-      <li class="important">DO NOT hack, scan, probe, or otherwise target the host venue, its building systems, networks, infrastructure, or any devices belonging to the host organization—period.</li>
-      <li class="important">DO NOT use any hacking tools, radio devices, or hardware (including but not limited to Flipper Zero, Wi-Fi Pineapple, HackRF, or similar) against the host venue's TVs, displays, AV equipment, access control systems, IoT devices, wireless networks, or any other property.</li>
-      <li class="important">All demonstrations, experiments, and tool usage must be confined to your own equipment or explicitly sanctioned lab environments. "For the lulz" is not a valid excuse.</li>
-      <li class="important">DO NOT attack, scan, or interfere with other members' devices or personal networks without their explicit, informed consent.</li>
-      <li class="important">Respect the trust our host venues place in us. Violating their space jeopardizes the group's ability to meet and reflects poorly on the entire community.</li>
-    </ul>
+      <h2 class="important">Critical Rules</h2>
+      <ul>
+        <li class="important">If you are under 18, you must be accompanied by a parent or legal guardian.</li>
+        <li class="important">DO NOT hack, scan, probe, or otherwise target the host venue, its building systems, networks, infrastructure, or any devices belonging to the host organization—period.</li>
+        <li class="important">DO NOT use any hacking tools, radio devices, or hardware against the host venue's TVs, displays, AV equipment, access-control systems, IoT devices, wireless networks, or other property.</li>
+        <li class="important">All demonstrations, experiments, and tool usage must be confined to your own equipment or explicitly sanctioned lab environments. "For the lulz" is not a valid excuse.</li>
+        <li class="important">DO NOT attack, scan, or interfere with other members' devices or personal networks without their explicit, informed consent.</li>
+        <li class="important">Respect the trust our host venues place in us. Violating their space jeopardizes the group's ability to meet and reflects poorly on the entire community.</li>
+      </ul>
 
-    <h2>Consequences</h2>
-    <p>
-      Violations of this Code of Conduct—especially the Critical Rules—may result in immediate removal from the event, a permanent ban from future CHA activities, and if applicable, referral to law enforcement. Organizers reserve the right to take any action deemed necessary to protect the community, our host venues, and our reputation.
-    </p>
+      <h2>Consequences</h2>
+      <p>Violations of this Code of Conduct—especially the Critical Rules—may result in immediate removal from the event, a permanent ban from future CHA activities, and, if applicable, referral to law enforcement. Organizers reserve the right to take any action deemed necessary to protect the community, our host venues, and our reputation.</p>
 
-    <h2>Reporting</h2>
-    <p>
-      If you experience or witness any behavior that violates this code, please report it to a core member immediately. All reports will be handled with discretion.
-    </p>
+      <h2>Reporting</h2>
+      <p>If you experience or witness any behavior that violates this code, please report it to a core member immediately. All reports will be handled with discretion.</p>
 
       <a class="back" href="index.html">&lt; back to terminal</a>
     </div>
-  </div>
+  </main>
 </body>
 </html>
