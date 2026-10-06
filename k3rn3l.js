@@ -35,6 +35,21 @@
         const weatherAlertMeta = document.getElementById('weatherAlertMeta');
         const weatherAlertBody = document.getElementById('weatherAlertBody');
         const weatherAlertClose = document.getElementById('weatherAlertClose');
+        const snakeWindow = document.getElementById('snakeWindow');
+        const snakeWindowTitleBar = document.getElementById('snakeWindowTitleBar');
+        const snakeWindowClose = document.getElementById('snakeWindowClose');
+        const snakeWindowMinimize = document.getElementById('snakeWindowMinimize');
+        const snakeWindowMaximize = document.getElementById('snakeWindowMaximize');
+        const snakePauseButton = document.getElementById('snakePauseButton');
+        const snakeRestartButton = document.getElementById('snakeRestartButton');
+        const snakeTaskbarDock = document.getElementById('snakeTaskbarDock');
+        const snakeBoard = document.getElementById('snakeBoard');
+        const snakeScoreValue = document.getElementById('snakeScoreValue');
+        const snakeHighScoreValue = document.getElementById('snakeHighScoreValue');
+        const snakeSpeedValue = document.getElementById('snakeSpeedValue');
+        const snakeStateValue = document.getElementById('snakeStateValue');
+        const snakeHintPanel = document.getElementById('snakeHintPanel');
+        const snakeStatusBar = document.getElementById('snakeStatusBar');
 
         // ────────────────────────────────────────────────────────────
         //  Configuration — editable via `nano /etc/weather.conf`
@@ -725,6 +740,8 @@ Example:
         let snakeSpeed = 180;
         let snakePaused = false;
         let snakeGameOver = false;
+        let snakeWasPausedBeforeMinimize = false;
+        let snakeHintOverride = '';
         let tcpdumpActive = false;
         let tcpdumpTimer = null;
         let tcpdumpOutput = null;
@@ -1415,7 +1432,7 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
         }
 
         // ────────────────────────────────────────────────────────────
-        //  CHA Snake — playable ASCII game inside the terminal
+        //  CHA Snake — browser-native game presented as a Python/Tkinter app
         // ────────────────────────────────────────────────────────────
         const snakeBoardWidth = 28;
         const snakeBoardHeight = 14;
@@ -1465,21 +1482,33 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           }
 
           rows.push(`+${'-'.repeat(snakeBoardWidth)}+`);
-          rows.push(` SCORE: ${String(snakeScore).padStart(4, '0')}   HIGH: ${String(snakeHighScore).padStart(4, '0')}   SPEED: ${Math.round(180 / snakeSpeed)}x`);
-
-          if (snakeGameOver) {
-            rows.push(' CONNECTION LOST // snake.exe dumped core');
-            rows.push(' [R] restart   [Q/Esc/Ctrl+C] exit');
-          } else if (snakePaused) {
-            rows.push(' PAUSED // press P to resume');
-            rows.push(' Arrows/WASD move   R restart   Q exit');
-          } else {
-            rows.push(' Arrows/WASD move   P pause   R restart   Q exit');
-            rows.push(' Collect packets (*) without hitting the firewall.');
-          }
 
           snakeOutput.textContent = rows.join('\n');
-          scrollToBottom();
+          if (snakeScoreValue) snakeScoreValue.textContent = String(snakeScore).padStart(4, '0');
+          if (snakeHighScoreValue) snakeHighScoreValue.textContent = String(snakeHighScore).padStart(4, '0');
+          if (snakeSpeedValue) snakeSpeedValue.textContent = `${Math.round(180 / snakeSpeed)}x`;
+
+          const state = snakeGameOver ? 'Game Over' : snakePaused ? 'Paused' : 'Running';
+          if (snakeStateValue) snakeStateValue.textContent = state;
+          if (snakeStatusBar) {
+            snakeStatusBar.textContent = snakeGameOver
+              ? 'Callback stopped · collision detected · press R to create a new game'
+              : snakePaused
+                ? 'Event loop paused · press P to resume'
+                : 'Running · Python 3 · Tkinter event loop active';
+          }
+          if (snakeHintPanel) {
+            snakeHintPanel.textContent = snakeHintOverride || (snakeGameOver
+              ? 'TclError: packet_run.py collided with a firewall rule. Start a new game to continue.'
+              : snakePaused
+                ? 'The Tkinter after() callback is paused. Resume when you are ready.'
+                : 'Collect packet data (*) without hitting the firewall or your own process.');
+          }
+          if (snakePauseButton) {
+            snakePauseButton.textContent = snakePaused ? '▶ Resume' : '⏸ Pause';
+            snakePauseButton.setAttribute('aria-label', snakePaused ? 'Resume CHA Snake' : 'Pause CHA Snake');
+            snakePauseButton.disabled = snakeGameOver;
+          }
         }
 
         function scheduleSnakeTick() {
@@ -1540,25 +1569,36 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           snakeSpeed = 180;
           snakePaused = false;
           snakeGameOver = false;
+          snakeHintOverride = '';
           placeSnakeFood();
           renderSnake();
           scheduleSnakeTick();
         }
 
         function startSnake(outputDiv) {
+          if (!snakeWindow || !snakeBoard) {
+            setTextOutput(outputDiv, 'python3 cha_snake.py: GUI window is unavailable');
+            return;
+          }
+
+          if (snakeActive) {
+            setTextOutput(outputDiv, 'cha_snake.py is already running; focusing the existing window...');
+            restoreSnakeWindow();
+            return;
+          }
+
           clearTimeout(snakeTimer);
           snakeActive = true;
-          snakeOutput = document.createElement('pre');
-          snakeOutput.setAttribute('aria-label', 'CHA Snake game board');
-          snakeOutput.style.margin = '8px 0';
-          snakeOutput.style.whiteSpace = 'pre';
-          snakeOutput.style.overflowX = 'auto';
-          snakeOutput.style.wordBreak = 'keep-all';
-          snakeOutput.style.overflowWrap = 'normal';
-          snakeOutput.style.color = '#33ff33';
-          outputDiv.appendChild(snakeOutput);
-          prompt.style.visibility = 'hidden';
+          snakeOutput = snakeBoard;
+          snakeWindow.hidden = false;
+          snakeWindow.classList.remove('minimized', 'maximized');
+          if (snakeWindowMaximize) snakeWindowMaximize.setAttribute('aria-label', 'Maximize CHA Snake');
+          if (snakeTaskbarDock) snakeTaskbarDock.style.display = 'none';
+          snakeWindow.style.zIndex = ++folderWindowZ;
+          setTextOutput(outputDiv, 'Launching python3 cha_snake.py...');
           resetSnake();
+          if (!snakeWindow.style.left || !snakeWindow.style.top) centerSnakeWindow();
+          snakeBoard.focus({ preventScroll: true });
         }
 
         function exitSnake() {
@@ -1566,26 +1606,39 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           snakeActive = false;
           snakePaused = false;
           snakeGameOver = false;
-          if (snakeOutput) snakeOutput.textContent += '\n\n[snake.exe terminated by operator]';
+          snakeWasPausedBeforeMinimize = false;
+          snakeHintOverride = '';
           snakeOutput = null;
+          if (snakeWindow) {
+            snakeWindow.hidden = true;
+            snakeWindow.classList.remove('minimized', 'maximized');
+          }
+          if (snakeWindowMaximize) snakeWindowMaximize.setAttribute('aria-label', 'Maximize CHA Snake');
+          if (snakeTaskbarDock) snakeTaskbarDock.style.display = 'none';
           commandBuffer = '';
           updatePrompt();
           prompt.style.visibility = 'visible';
-          scrollToBottom();
+          terminal.focus({ preventScroll: true });
         }
 
         function snakeKeyHandler(e) {
           if (!snakeActive) return;
+          const key = e.key.toLowerCase();
+          const isExitKey = key === 'q' || key === 'escape' || (e.ctrlKey && (key === 'c' || key === 'q'));
+          const isRestartKey = key === 'r' || (e.ctrlKey && key === 'n');
+          const isControlKey = isExitKey || isRestartKey || key === 'p';
+          const isMovementKey = ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd'].includes(key);
+          if (!isControlKey && !isMovementKey) return;
+
           e.preventDefault();
           e.stopImmediatePropagation();
 
-          const key = e.key.toLowerCase();
-          if (key === 'q' || key === 'escape' || (e.ctrlKey && key === 'c')) {
+          if (isExitKey) {
             exitSnake();
             return;
           }
 
-          if (key === 'r') {
+          if (isRestartKey) {
             resetSnake();
             return;
           }
@@ -1615,6 +1668,166 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           const reversesDirection = nextDirection.x === -snakeDirection.x && nextDirection.y === -snakeDirection.y;
           if (!reversesDirection) snakeNextDirection = nextDirection;
         }
+
+        function toggleSnakePause() {
+          if (!snakeActive || snakeGameOver || snakeWindow.classList.contains('minimized')) return;
+          snakeHintOverride = '';
+          snakePaused = !snakePaused;
+          renderSnake();
+          if (!snakePaused) scheduleSnakeTick();
+          snakeBoard.focus({ preventScroll: true });
+        }
+
+        function minimizeSnakeWindow() {
+          if (!snakeActive || !snakeWindow || snakeWindow.classList.contains('minimized')) return;
+          snakeWasPausedBeforeMinimize = snakePaused;
+          snakePaused = true;
+          clearTimeout(snakeTimer);
+          renderSnake();
+          snakeWindow.classList.add('minimized');
+          if (snakeTaskbarDock) {
+            snakeTaskbarDock.style.display = 'block';
+            snakeTaskbarDock.focus({ preventScroll: true });
+          } else {
+            terminal.focus({ preventScroll: true });
+          }
+        }
+
+        function restoreSnakeWindow() {
+          if (!snakeActive || !snakeWindow) return;
+          const wasMinimized = snakeWindow.classList.contains('minimized');
+          snakeWindow.hidden = false;
+          snakeWindow.classList.remove('minimized');
+          snakeWindow.style.zIndex = ++folderWindowZ;
+          if (snakeTaskbarDock) snakeTaskbarDock.style.display = 'none';
+
+          if (wasMinimized && !snakeWasPausedBeforeMinimize && !snakeGameOver) {
+            snakePaused = false;
+            renderSnake();
+            scheduleSnakeTick();
+          }
+
+          snakeBoard.focus({ preventScroll: true });
+        }
+
+        function centerSnakeWindow() {
+          if (!snakeWindow || snakeWindow.hidden) return;
+          const left = Math.max(12, (window.innerWidth - snakeWindow.offsetWidth) / 2);
+          const top = Math.max(42, 28 + (window.innerHeight - 28 - snakeWindow.offsetHeight) / 2);
+          snakeWindow.style.left = `${left}px`;
+          snakeWindow.style.top = `${top}px`;
+        }
+
+        if (snakeWindow) {
+          snakeWindow.addEventListener('mousedown', () => {
+            snakeWindow.style.zIndex = ++folderWindowZ;
+          });
+        }
+
+        if (snakeWindowClose) snakeWindowClose.addEventListener('click', exitSnake);
+        if (snakeRestartButton) {
+          snakeRestartButton.addEventListener('click', () => {
+            if (!snakeActive) return;
+            resetSnake();
+            snakeBoard.focus({ preventScroll: true });
+          });
+        }
+        if (snakePauseButton) snakePauseButton.addEventListener('click', toggleSnakePause);
+        if (snakeWindowMinimize) snakeWindowMinimize.addEventListener('click', minimizeSnakeWindow);
+        if (snakeTaskbarDock) snakeTaskbarDock.addEventListener('click', restoreSnakeWindow);
+
+        if (snakeWindow) {
+          snakeWindow.querySelectorAll('.python-menu').forEach(menu => {
+            const summary = menu.querySelector('summary');
+            if (!summary) return;
+            summary.addEventListener('click', () => {
+              snakeWindow.querySelectorAll('.python-menu[open]').forEach(otherMenu => {
+                if (otherMenu !== menu) otherMenu.removeAttribute('open');
+              });
+            });
+          });
+
+          snakeWindow.addEventListener('click', event => {
+            const actionButton = event.target.closest('[data-snake-action]');
+            if (!actionButton) return;
+            const action = actionButton.dataset.snakeAction;
+
+            if (action === 'new' || action === 'restart') resetSnake();
+            else if (action === 'pause') toggleSnakePause();
+            else if (action === 'exit') exitSnake();
+            else if (action === 'controls' && snakeHintPanel) {
+              snakeHintOverride = 'Controls: Arrow keys or WASD move · P pauses · R or Ctrl+N starts a new game · Q or Escape closes.';
+              snakeHintPanel.textContent = snakeHintOverride;
+            } else if (action === 'about' && snakeHintPanel) {
+              snakeHintOverride = 'cha_snake.py — a Chattanooga-themed Snake game presented as a Python 3 Tkinter desktop application.';
+              snakeHintPanel.textContent = snakeHintOverride;
+            }
+
+            snakeWindow.querySelectorAll('.python-menu[open]').forEach(menu => menu.removeAttribute('open'));
+            if (snakeActive && !snakeWindow.hidden) snakeBoard.focus({ preventScroll: true });
+          });
+        }
+
+        let snakeWindowDragging = false;
+        let snakeWindowDragOffsetX = 0;
+        let snakeWindowDragOffsetY = 0;
+        let snakeWindowSavedPosition = null;
+
+        if (snakeWindowMaximize) {
+          snakeWindowMaximize.addEventListener('click', () => {
+            if (!snakeActive || !snakeWindow) return;
+            const isMaximized = snakeWindow.classList.contains('maximized');
+
+            if (isMaximized) {
+              snakeWindow.classList.remove('maximized');
+              if (snakeWindowSavedPosition) {
+                snakeWindow.style.left = snakeWindowSavedPosition.left;
+                snakeWindow.style.top = snakeWindowSavedPosition.top;
+              }
+              snakeWindowMaximize.setAttribute('aria-label', 'Maximize CHA Snake');
+            } else {
+              snakeWindowSavedPosition = {
+                left: snakeWindow.style.left,
+                top: snakeWindow.style.top
+              };
+              snakeWindow.classList.add('maximized');
+              snakeWindowMaximize.setAttribute('aria-label', 'Restore CHA Snake window');
+            }
+
+            snakeBoard.focus({ preventScroll: true });
+          });
+        }
+
+        if (snakeWindowTitleBar) {
+          snakeWindowTitleBar.addEventListener('mousedown', event => {
+            if (event.target.closest('button') || snakeWindow.classList.contains('maximized')) return;
+            snakeWindowDragging = true;
+            snakeWindowDragOffsetX = event.clientX - snakeWindow.offsetLeft;
+            snakeWindowDragOffsetY = event.clientY - snakeWindow.offsetTop;
+            snakeWindow.style.zIndex = ++folderWindowZ;
+            event.preventDefault();
+          });
+        }
+
+        document.addEventListener('mousemove', event => {
+          if (!snakeWindowDragging || !snakeWindow || snakeWindow.hidden) return;
+          const left = Math.max(0, Math.min(event.clientX - snakeWindowDragOffsetX, window.innerWidth - snakeWindow.offsetWidth));
+          const top = Math.max(28, Math.min(event.clientY - snakeWindowDragOffsetY, window.innerHeight - snakeWindow.offsetHeight));
+          snakeWindow.style.left = `${left}px`;
+          snakeWindow.style.top = `${top}px`;
+        });
+
+        document.addEventListener('mouseup', () => {
+          snakeWindowDragging = false;
+        });
+
+        window.addEventListener('resize', () => {
+          if (!snakeActive || snakeWindow.hidden || snakeWindow.classList.contains('minimized') || snakeWindow.classList.contains('maximized')) return;
+          const left = Math.max(0, Math.min(snakeWindow.offsetLeft, window.innerWidth - snakeWindow.offsetWidth));
+          const top = Math.max(28, Math.min(snakeWindow.offsetTop, window.innerHeight - snakeWindow.offsetHeight));
+          snakeWindow.style.left = `${left}px`;
+          snakeWindow.style.top = `${top}px`;
+        });
 
         // ────────────────────────────────────────────────────────────
         //  Packet Trail — tcpdump-driven network forensics puzzle
@@ -2248,7 +2461,7 @@ zone = ${alertZone}
   dig <domain>    Query DNS records
   curl <url>      Fetch a URL, carefully
   ping [-c n] <host>  Send up to 10 fake ICMP echoes
-  snake           Play CHA Snake in the terminal
+  snake           Launch CHA Snake in a desktop window
   ctf             Start the local-only Scenic City CTF
   ctf status      Show CTF flag progress
   ctf hint        Show the next safe sandbox clue
@@ -2763,7 +2976,7 @@ Patch SMB. Back up your stuff. Hug your incident responder.
           if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasTerminalSelection()) return;
           if (tcpdumpActive) {
             tcpdumpKeyHandler(e);
-          } else if (snakeActive) {
+          } else if (snakeActive && snakeWindow && snakeWindow.contains(document.activeElement)) {
             snakeKeyHandler(e);
           } else if (nanoActive) {
             nanoKeyHandler(e);
@@ -3043,6 +3256,10 @@ Patch SMB. Back up your stuff. Hug your incident responder.
               break;
             case 'code':
               openExternalUrl('https://github.com/dc423');
+              break;
+            case 'snake':
+              if (snakeActive) restoreSnakeWindow();
+              else handleCommand('snake');
               break;
             case 'lights-on':
               document.body.classList.add('lights-on');

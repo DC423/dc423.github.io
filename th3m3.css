@@ -19,6 +19,61 @@ body.lights-on .window {
   border: 1px solid #ccc;
 }
 
+body.lights-on .snake-window {
+  background-color: #d9d9d9;
+  color: #111;
+  border-color: #202020;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+body.lights-on .snake-window-titlebar {
+  background: linear-gradient(#3e4650, #252b31);
+  color: #fff;
+}
+
+body.lights-on .snake-window-help {
+  color: #555;
+}
+
+body.lights-on .snake-board {
+  background: #101510;
+  color: #7cff72;
+  border-color: #777;
+  border-top-color: #333;
+  border-left-color: #333;
+  text-shadow: 0 0 5px rgba(93, 255, 84, 0.5);
+}
+
+body.lights-on .python-app-header h2,
+body.lights-on .python-stats output,
+body.lights-on .python-menu-popup button {
+  color: #111;
+  text-shadow: none;
+}
+
+body.lights-on .python-menu-popup button:hover,
+body.lights-on .python-menu-popup button:focus-visible {
+  color: #fff;
+}
+
+body.lights-on .ttk-button.primary {
+  color: #fff;
+  background: linear-gradient(#5b9bd5, #3475ad);
+  text-shadow: 0 1px #17436a;
+}
+
+body.lights-on .ttk-button.primary:hover:not(:disabled) {
+  background: linear-gradient(#6eabe0, #4084bd);
+}
+
+body.lights-on .python-app-content,
+body.lights-on .python-menu-bar,
+body.lights-on .python-status-bar,
+body.lights-on .snake-window-body {
+  color: #111;
+  text-shadow: none;
+}
+
 /* Terminal text — dark on light */
 body.lights-on .terminal {
   color: #111;

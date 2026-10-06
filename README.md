@@ -24,10 +24,13 @@ The desktop version of the site is designed as an interactive, retro-inspired co
 - An XFCE-inspired desktop, application menu, and window controls
 - Keyboard-driven terminal interaction with command history and completion
 - Copy and paste support for terminal input and output
+- Tab and F2 command completion while the terminal is focused
 - Responsive light and dark themes
-- Live clock, weather, and meeting information
+- Live clock, weather, and Chattanooga-time meeting information
 - Community pages for meetings, contact information, articles, and conduct
 - A mobile-specific interface for smaller screens
+- A draggable Python/Tkinter-style CHA Snake desktop app launched with `snake` or from Applications
+- A local-only, three-stage Scenic City CTF launched with `ctf`
 - Playful details for visitors who enjoy exploring
 
 Some interactions are intentionally undocumented. Exploration is part of the experience, so this README remains spoiler-free.
@@ -70,11 +73,14 @@ Serving the project over HTTP is recommended instead of opening `index.html` dir
 ├── 0v3rlay.css      Dialogs and overlays
 ├── th3m3.css        Theme overrides
 ├── m0b1l3.css       Responsive mobile interface
+├── st4t1c.css       Shared styling for standalone pages
+├── m33t1ng.js       Chattanooga meeting schedule and timezone logic
 ├── meetings.html    Meeting information
 ├── blog.html        Community articles and updates
 ├── contact.html     Contact and community links
 ├── coc.html         Code of Conduct
-├── LICENSE          Project license
+├── LICENSE          MIT license for source code and tooling
+├── LICENSE-CONTENT  CC BY-NC-SA 4.0 license for content and artwork
 └── CNAME            Custom-domain configuration
 ```
 
@@ -87,6 +93,40 @@ The unconventional filenames are intentional and match the site's visual style.
 - Session-based interface changes reset when the page is reloaded.
 - Dynamic information is retrieved from public web services and has local fallback behavior where appropriate.
 - Changes should preserve keyboard usability, responsive behavior, and the site's no-build architecture.
+
+## Recent Improvements
+
+Recent work on the site includes:
+
+- Centralized meeting calculations in `America/New_York`, including DST and month-boundary handling
+- Safer terminal and blog rendering for user-, network-, and file-derived text
+- Responsive desktop initialization when resizing from the mobile layout
+- Keyboard, focus, dialog, reduced-motion, and semantic-control accessibility improvements
+- Masked terminal secret prompts and safer screen-lock behavior
+- Shared styling and semantic landmarks for the blog, meetings, contact, and conduct pages
+- Safer blog conversion and a constrained structured-image format
+- A local-only Scenic City CTF built over the site's existing simulated puzzles
+- A Python/Tkinter-style desktop window for the existing CHA Snake game
+
+The Snake game itself was already part of the site; the recent change moves that same game out of terminal output and into a dedicated desktop window.
+
+## Help Wanted / Ideas
+
+We would appreciate help from contributors, testers, writers, designers, and accessibility users. Useful ideas include:
+
+- Cross-browser testing in current Chrome, Firefox, Safari, and Edge releases
+- Mobile and tablet testing across orientation changes and unusual viewport sizes
+- Screen-reader reviews of the terminal, desktop controls, popout windows, and static pages
+- Keyboard-navigation testing, especially terminal completion, menus, dialogs, and Snake
+- More automated tests for timezone boundaries, terminal commands, blog rendering, and CTF state
+- Additional Chattanooga-themed, local-only CTF stages that never contact or target real systems
+- Optional Snake improvements such as touch controls, selectable difficulty, sound controls, or persistent local high scores
+- Better blog-author tooling, schema validation, previews, and index generation without adding a heavy build system
+- Performance and resilience improvements for slow connections or unavailable public APIs
+- Community-written blog posts, meeting recaps, project showcases, and accessibility documentation
+- Visual polish that preserves the retro terminal identity and reduced-motion support
+
+If you have another idea, open an issue or a focused pull request. Please explain the user benefit, keep hidden interactions spoiler-light, and describe how you tested the change.
 
 ## Contributing
 
@@ -109,11 +149,15 @@ CHA supports ethical, authorized security research and education. Examples, joke
 
 ## License
 
-Except where otherwise noted, this repository's original source code and content are licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](LICENSE).
+This repository uses separate licenses for software and creative content:
 
-You may share and adapt the material for noncommercial purposes provided that you give appropriate credit, link to the license, indicate whether changes were made, and distribute adaptations under the same license. See `LICENSE` for the complete terms.
+- Source code and tooling—including HTML, CSS, JavaScript, and Python—are licensed under the [MIT License](LICENSE).
+- Original written site content, blog posts, graphics, and artwork are licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](LICENSE-CONTENT), unless a file or asset states otherwise.
+- Third-party names, trademarks, services, and externally sourced assets remain subject to their respective owners' rights and terms.
 
-Suggested attribution:
+Contributions are expected to use the license applicable to the files or material being changed unless the contribution explicitly states otherwise.
+
+Suggested attribution for CC-licensed content:
 
 > Chattanooga Hackers Anonymous website — Chattanooga Hackers Anonymous contributors, licensed under CC BY-NC-SA 4.0. Changes were made where applicable.
 

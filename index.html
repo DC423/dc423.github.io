@@ -128,6 +128,7 @@
 
   <!-- Taskbar Dock (shown when minimized) -->
   <button class="taskbar-dock" id="taskbarDock" type="button">[ root@cha:~ ] — click to restore</button>
+  <button class="taskbar-dock snake-taskbar-dock" id="snakeTaskbarDock" type="button">[ python3 cha_snake.py ] — click to restore</button>
 
   <!-- Desktop View -->
   <div class="desktop-view">
@@ -155,6 +156,7 @@
       </div>
       <div class="xfce-menu-section">
         <div class="xfce-menu-label">Utilities</div>
+        <button class="xfce-menu-item" data-action="snake"><span class="xfce-menu-icon">🐍</span> CHA Snake</button>
         <button class="xfce-menu-item" data-action="lights-on"><span class="xfce-menu-icon">☀</span> Light Mode</button>
         <button class="xfce-menu-item" data-action="lights-off"><span class="xfce-menu-icon">☾</span> Dark Mode</button>
         <button class="xfce-menu-item" data-action="weather"><span class="xfce-menu-icon">☁</span> Refresh Weather</button>
@@ -184,6 +186,76 @@
       </div>
       <div class="resize-handle" id="resizeHandle"></div>
     </div>
+
+    <section class="snake-window python-app-window" id="snakeWindow" role="dialog" aria-modal="false" aria-labelledby="snakeWindowTitle" hidden>
+      <div class="snake-window-titlebar" id="snakeWindowTitleBar">
+        <div class="snake-window-controls">
+          <button class="snake-window-close" id="snakeWindowClose" type="button" aria-label="Close CHA Snake"></button>
+          <button class="snake-window-minimize" id="snakeWindowMinimize" type="button" aria-label="Minimize CHA Snake"></button>
+          <button class="snake-window-maximize" id="snakeWindowMaximize" type="button" aria-label="Maximize CHA Snake"></button>
+        </div>
+        <div class="snake-window-title" id="snakeWindowTitle">🐍 cha_snake.py — Python 3 / Tkinter</div>
+      </div>
+      <div class="snake-window-body">
+        <nav class="python-menu-bar" aria-label="CHA Snake application menu">
+          <details class="python-menu">
+            <summary>File</summary>
+            <div class="python-menu-popup">
+              <button type="button" data-snake-action="new">New Game <span>Ctrl+N</span></button>
+              <div class="python-menu-separator"></div>
+              <button type="button" data-snake-action="exit">Exit <span>Ctrl+Q</span></button>
+            </div>
+          </details>
+          <details class="python-menu">
+            <summary>Game</summary>
+            <div class="python-menu-popup">
+              <button type="button" data-snake-action="pause">Pause / Resume <span>P</span></button>
+              <button type="button" data-snake-action="restart">Restart <span>R</span></button>
+            </div>
+          </details>
+          <details class="python-menu">
+            <summary>Help</summary>
+            <div class="python-menu-popup">
+              <button type="button" data-snake-action="controls">Keyboard Controls</button>
+              <button type="button" data-snake-action="about">About CHA Snake</button>
+            </div>
+          </details>
+        </nav>
+
+        <div class="python-app-content">
+          <header class="python-app-header">
+            <div class="python-logo" aria-hidden="true"><span>Py</span></div>
+            <div>
+              <h2>CHA Snake</h2>
+              <p>cha_snake.py · tkinter.ttk</p>
+            </div>
+          </header>
+
+          <div class="python-stats" aria-label="Current game statistics">
+            <div><span class="python-stat-label">Score</span><output id="snakeScoreValue">0000</output></div>
+            <div><span class="python-stat-label">High Score</span><output id="snakeHighScoreValue">0000</output></div>
+            <div><span class="python-stat-label">Speed</span><output id="snakeSpeedValue">1x</output></div>
+            <div><span class="python-stat-label">State</span><output id="snakeStateValue" aria-live="polite">Ready</output></div>
+          </div>
+
+          <fieldset class="python-canvas-frame">
+            <legend>Packet Grid Canvas</legend>
+            <pre class="snake-board" id="snakeBoard" tabindex="0" aria-label="CHA Snake game board. Use arrow keys or WASD to move, P to pause, R to restart, and Q or Escape to close."></pre>
+          </fieldset>
+
+          <div class="snake-game-controls" aria-label="CHA Snake game controls">
+            <button class="ttk-button" id="snakePauseButton" type="button">⏸ Pause</button>
+            <button class="ttk-button primary" id="snakeRestartButton" type="button">↻ New Game</button>
+          </div>
+
+          <div class="python-hint-panel" id="snakeHintPanel" aria-live="polite">
+            Collect packet data without hitting the firewall or your own process.
+          </div>
+          <div class="snake-window-help">Arrow keys / WASD to move · P to pause · R to restart</div>
+        </div>
+        <div class="python-status-bar" id="snakeStatusBar">Ready · Python 3 · Tkinter event loop active</div>
+      </div>
+    </section>
   </div>
 
   <!-- Mobile View — Android-style phone UI -->
