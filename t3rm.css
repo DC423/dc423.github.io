@@ -33,6 +33,146 @@
   outline: none;
 }
 
+/* ---------- Interactive top / htop process monitor ---------- */
+.process-monitor {
+  width: 100%;
+  min-width: max-content;
+  box-sizing: border-box;
+  color: #d8ffd8;
+  background: #000;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  line-height: 1.3;
+  white-space: pre;
+  text-shadow: none;
+}
+
+.process-monitor-summary,
+.process-monitor-table,
+.process-monitor-help {
+  white-space: pre;
+}
+
+.process-monitor-table {
+  margin-top: 8px;
+}
+
+.process-monitor-table-header {
+  color: #001700;
+  background: #33ff33;
+  font-weight: bold;
+}
+
+.process-monitor-row {
+  min-height: 1.3em;
+}
+
+.process-monitor-row:nth-child(even) {
+  color: #aaffaa;
+}
+
+.process-monitor-row.selected {
+  color: #001700;
+  background: #66ffff;
+}
+
+.process-monitor-footer {
+  position: sticky;
+  bottom: -20px;
+  margin-top: 8px;
+  padding: 2px 4px;
+  color: #001700;
+  background: #b7ffb7;
+  font-weight: bold;
+}
+
+.process-monitor-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  color: #eaffea;
+  background: #003b3b;
+}
+
+.process-monitor-host {
+  padding: 1px 5px;
+  color: #001717;
+  background: #66ffff;
+  font-weight: bold;
+}
+
+.process-monitor-heading-detail {
+  color: #b7ffff;
+}
+
+.process-monitor-meter {
+  display: flex;
+  white-space: pre;
+}
+
+.process-monitor-meter-label {
+  color: #66ffff;
+  font-weight: bold;
+}
+
+.process-monitor-cpu-bar {
+  color: #33ff33;
+  background: rgba(51, 255, 51, 0.12);
+}
+
+.process-monitor-memory-bar {
+  color: #ffff55;
+  background: rgba(255, 255, 85, 0.12);
+}
+
+.process-monitor-swap-bar {
+  color: #ff66ff;
+}
+
+.process-monitor-meter-empty {
+  background: #071307;
+}
+
+.process-monitor-memory-detail {
+  color: #ffff99;
+}
+
+.process-monitor-htop-table {
+  margin-top: 4px;
+}
+
+.process-monitor-htop-footer {
+  display: flex;
+  gap: 8px;
+  padding: 0;
+  background: #001717;
+}
+
+.process-monitor-htop-footer > span {
+  display: inline-flex;
+}
+
+.process-monitor-function-key {
+  padding: 1px 3px;
+  color: #001717;
+  background: #66ffff;
+}
+
+.process-monitor-function-label {
+  padding: 1px 4px;
+  color: #eaffea;
+  background: #005555;
+}
+
+.process-monitor-help {
+  min-width: 42em;
+  padding: 12px;
+  border: 1px solid #66ffff;
+  color: #eaffea;
+  background: #001717;
+  box-shadow: inset 0 0 18px rgba(102, 255, 255, 0.12);
+}
+
 /* ---------- Command prompt ---------- */
 /* "root@cha:~#" prompt line — hidden until boot sequence completes */
 .prompt {

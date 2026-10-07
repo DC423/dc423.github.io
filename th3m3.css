@@ -91,6 +91,11 @@ body.lights-on .terminal-content {
   color: #111;
 }
 
+body.lights-on .process-monitor {
+  color: #d8ffd8;
+  background: #000;
+}
+
 /* Cursor — dark block */
 body.lights-on .cursor {
   background-color: #111;

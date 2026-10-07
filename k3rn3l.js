@@ -747,6 +747,54 @@ Example:
         let tcpdumpOutput = null;
         let tcpdumpPacketCount = 0;
         let tcpdumpCaptureLines = [];
+        let processMonitorActive = false;
+        let processMonitorMode = 'top';
+        let processMonitorTimer = null;
+        let processMonitorOutput = null;
+        let processMonitorPaused = false;
+        let processMonitorHelp = false;
+        let processMonitorSort = 'cpu';
+        let processMonitorSelectedPid = 423;
+        let processMonitorTick = 0;
+        const processMonitorStartedAt = Date.now();
+        const processMonitorProcesses = [
+          { pid: 1, user: 'root', pri: 20, ni: 0, virt: '168.4m', res: '11.8m', shr: '8.2m', state: 'S', cpu: 0.1, swing: 0.1, mem: 0.3, time: 91, command: '/sbin/init --terminal-mode' },
+          { pid: 423, user: 'root', pri: 20, ni: 0, virt: '423.0m', res: '96.6m', shr: '22.4m', state: 'S', cpu: 4.2, swing: 2.1, mem: 2.3, time: 423, command: '/usr/bin/noogahackers-motd' },
+          { pid: 1337, user: 'root', pri: 20, ni: 0, virt: '31.3m', res: '16.7m', shr: '5.1m', state: 'S', cpu: 0.4, swing: 0.3, mem: 0.4, time: 137, command: '/bin/bash' },
+          { pid: 2600, user: 'root', pri: 20, ni: 5, virt: '260.0m', res: '8.4m', shr: '4.2m', state: 'S', cpu: 0.2, swing: 0.2, mem: 0.2, time: 260, command: './curiosity-daemon' },
+          { pid: 3133, user: 'root', pri: 20, ni: 0, virt: '313.3m', res: '17.1m', shr: '6.6m', state: 'S', cpu: 1.3, swing: 0.8, mem: 0.4, time: 313, command: '/usr/bin/elite-daemon --port 31337' },
+          { pid: 4444, user: 'root', pri: 20, ni: 0, virt: '144.4m', res: '16.8m', shr: '4.4m', state: 'S', cpu: 0.8, swing: 0.5, mem: 0.4, time: 444, command: '/usr/bin/beacon --quiet' },
+          { pid: 8080, user: 'www-data', pri: 20, ni: 0, virt: '80.8m', res: '12.4m', shr: '7.7m', state: 'S', cpu: 0.6, swing: 0.4, mem: 0.3, time: 80, command: 'nginx: worker process' },
+          { pid: 9001, user: 'nobody', pri: 20, ni: 10, virt: '42.3m', res: '4.2m', shr: '2.6m', state: 'S', cpu: 0.1, swing: 0.1, mem: 0.1, time: 42, command: '/usr/sbin/packet-sweeper' },
+          { pid: 10423, user: 'root', pri: 20, ni: 0, virt: '73.1m', res: '10.4m', shr: '5.5m', state: 'S', cpu: 0.3, swing: 0.2, mem: 0.2, time: 104, command: 'sshd: root@pts/0' },
+          { pid: 12000, user: 'root', pri: 20, ni: 0, virt: '52.0m', res: '9.8m', shr: '5.2m', state: 'R', cpu: 2.6, swing: 1.4, mem: 0.2, time: 23, command: 'top' }
+        ];
+        let hackerScrollActive = false;
+        let hackerScrollPaused = false;
+        let hackerScrollTimer = null;
+        let hackerScrollOutput = null;
+        let hackerScrollStream = null;
+        let hackerScrollControls = null;
+        let hackerScrollHelp = null;
+        let hackerScrollQueue = [];
+        let hackerScrollLineCount = 0;
+        let hackerScrollConfig = null;
+        const hackerScrollThemes = ['matrix', 'cyber', 'amber'];
+        const hackerScrollWords = [
+          'kernel', 'daemon', 'proxy', 'socket', 'cipher', 'payload', 'sandbox', 'telemetry',
+          'endpoint', 'packet', 'firmware', 'mainframe', 'node', 'cluster', 'token', 'vector',
+          'matrix', 'cache', 'bus', 'module'
+        ];
+        const hackerScrollModules = [
+          'neural_firewall', 'quantum_proxy', 'packet_mangler', 'zero_day_espresso',
+          'mainframe_whisperer', 'cipher_waffle', 'threat_vacuum', 'vibe_compiler',
+          'banana_forensics', 'laser_inode', 'cloud_trombone', 'orbital_dns'
+        ];
+        const hackerScrollHosts = [
+          'localhost', 'coffee-maker.lan', 'printer-of-doom.local', 'dev-null-7',
+          'moonbase-alpha', 'srv-narnia-04', 'router-that-blinks', 'lab-kiosk-13'
+        ];
+        const hackerScrollStatuses = ['OK', 'SYNC', 'TRACE', 'PASS', 'WARN', 'PATCH', 'LOAD', 'EXEC', 'DONE'];
         let relayUnlocked = false;
         let relayEggUnlocked = false;
         let beaconPathDiscovered = false;
@@ -994,10 +1042,10 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           const baseCommands = [
             "ls", "cd", "cat", "pwd", "whoami", "help", "clear", "uptime", "date",
             "ifconfig", "ip", "iptables", "hostname", "id", "uname", "env", "history", "ps", "df", "free", "ping", "ssh",
-            "netstat", "ss", "last", "w", "tcpdump", "base64", "echo", "knock", "nc", "netcat",
+            "netstat", "ss", "last", "w", "top", "htop", "tcpdump", "base64", "echo", "knock", "nc", "netcat",
             "sudo", "lights", "light", "dark", "exit", "reboot", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup",
-            "mv", "desktop", "reset-icons", "snake", "python", "python3", "ctf"
+            "mv", "desktop", "reset-icons", "snake", "hacker-scroll", "python", "python3", "ctf"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -1069,6 +1117,21 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
             return ["status", "hint", "reset"]
               .filter(value => value.startsWith(partial) && value !== partial)
               .map(value => `ctf ${value}`);
+          }
+
+          if (cmd === "hacker-scroll") {
+            const partial = parts.slice(1).join(" ");
+            return ["--theme matrix", "--theme cyber", "--theme amber", "--speed 0.045", "--density 4", "--no-color", "--title \"OPERATION TERMINAL PEACOCK\"", "--help"]
+              .filter(value => value.startsWith(partial) && value !== partial)
+              .map(value => `hacker-scroll ${value}`);
+          }
+
+          if ((cmd === "python" || cmd === "python3") && parts[1]?.startsWith('hacker_scroll')) {
+            const prefix = `${cmd} hacker_scroll.py`;
+            const partial = parts.slice(2).join(" ");
+            return ["--theme matrix", "--theme cyber", "--theme amber", "--speed 0.045", "--density 4", "--no-color", "--help"]
+              .filter(value => value.startsWith(partial) && value !== partial)
+              .map(value => `${prefix} ${value}`);
           }
 
           // Complete common flags/subcommands
@@ -1326,8 +1389,8 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
               handleCommand(cmd).then(() => {
                 commandBuffer = "";
                 updatePrompt();
-                prompt.style.visibility = snakeActive || tcpdumpActive ? "hidden" : "visible";
-                if (!snakeActive && !tcpdumpActive && !nanoActive) terminal.focus({ preventScroll: true });
+                prompt.style.visibility = snakeActive || tcpdumpActive || processMonitorActive ? "hidden" : "visible";
+                if (!snakeActive && !tcpdumpActive && !processMonitorActive && !nanoActive) terminal.focus({ preventScroll: true });
               });
             } else if (e.key.length === 1) {
               commandBuffer += e.key;
@@ -1336,7 +1399,7 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           });
 
           terminal.addEventListener('paste', function (e) {
-            if (snakeActive || tcpdumpActive || nanoActive || isEditableTarget(e.target)) return;
+            if (snakeActive || tcpdumpActive || processMonitorActive || nanoActive || isEditableTarget(e.target)) return;
             if (getComputedStyle(prompt).visibility !== 'visible') return;
 
             const pastedText = sanitizePastedText(e.clipboardData?.getData('text/plain'));
@@ -1930,6 +1993,282 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
         }
 
         // ────────────────────────────────────────────────────────────
+        //  Process Monitor — interactive top/htop terminal emulator
+        // ────────────────────────────────────────────────────────────
+        function processMonitorClamp(value, min, max) {
+          return Math.max(min, Math.min(max, value));
+        }
+
+        function formatProcessMonitorTime(seconds) {
+          const wholeSeconds = Math.max(0, Math.floor(seconds));
+          const minutes = Math.floor(wholeSeconds / 60);
+          const remainder = wholeSeconds % 60;
+          const hundredths = Math.floor((seconds % 1) * 100);
+          return `${minutes}:${String(remainder).padStart(2, '0')}.${String(hundredths).padStart(2, '0')}`;
+        }
+
+        function getProcessMonitorSnapshot() {
+          const monitorCommand = processMonitorMode === 'htop' ? 'htop' : 'top';
+          const snapshot = processMonitorProcesses.map((process, index) => {
+            const pulse = Math.sin((processMonitorTick + index * 1.7) * 0.72);
+            const cpu = processMonitorClamp(process.cpu + pulse * process.swing, 0, 99.9);
+            return {
+              ...process,
+              cpu,
+              elapsed: process.time + processMonitorTick * (0.12 + cpu / 38),
+              command: process.pid === 12000 ? monitorCommand : process.command
+            };
+          });
+
+          const sortValue = process => {
+            if (processMonitorSort === 'mem') return process.mem;
+            if (processMonitorSort === 'time') return process.elapsed;
+            return process.cpu;
+          };
+
+          return snapshot.sort((a, b) => sortValue(b) - sortValue(a) || a.pid - b.pid);
+        }
+
+        function getProcessMonitorMetrics(processes) {
+          const processCpu = processes.reduce((total, process) => total + process.cpu, 0);
+          const user = processMonitorClamp(processCpu * 0.72, 0.2, 72);
+          const system = processMonitorClamp(processCpu * 0.21 + 0.8, 0.4, 22);
+          const nice = 0.2;
+          const wait = processMonitorClamp(0.5 + Math.sin(processMonitorTick * 0.3) * 0.3, 0, 3);
+          const idle = processMonitorClamp(100 - user - system - nice - wait, 0, 100);
+          const totalMem = 4096;
+          const usedMem = 1320 + Math.round(Math.sin(processMonitorTick * 0.41) * 56);
+          const cacheMem = 642 + Math.round(Math.cos(processMonitorTick * 0.27) * 24);
+          const freeMem = totalMem - usedMem - cacheMem;
+          return { user, system, nice, wait, idle, totalMem, usedMem, cacheMem, freeMem };
+        }
+
+        function appendProcessMonitorText(parent, text, className = '') {
+          const span = document.createElement('span');
+          span.textContent = text;
+          if (className) span.className = className;
+          parent.appendChild(span);
+          return span;
+        }
+
+        function buildProcessMonitorMeter(label, value, className) {
+          const row = document.createElement('div');
+          row.className = 'process-monitor-meter';
+          appendProcessMonitorText(row, `${label.padEnd(3, ' ')}[`, 'process-monitor-meter-label');
+          const width = 24;
+          const filled = Math.round(processMonitorClamp(value, 0, 100) / 100 * width);
+          appendProcessMonitorText(row, '|'.repeat(filled), className);
+          appendProcessMonitorText(row, ' '.repeat(width - filled), 'process-monitor-meter-empty');
+          appendProcessMonitorText(row, `] ${value.toFixed(1).padStart(5, ' ')}%`);
+          return row;
+        }
+
+        function renderProcessMonitorHelp() {
+          const name = processMonitorMode === 'htop' ? 'htop' : 'top';
+          const help = document.createElement('div');
+          help.className = 'process-monitor-help';
+          help.textContent = `${name} emulator help\n\n` +
+            `P        sort by CPU usage\n` +
+            `M        sort by memory usage\n` +
+            `T        sort by accumulated CPU time\n` +
+            `Space    pause/resume updates\n` +
+            `${processMonitorMode === 'htop' ? '↑ / ↓    select a process\nF6       cycle sort column\n' : ''}` +
+            `H or ?   close this help\n` +
+            `Q        quit\n` +
+            `Ctrl+C   quit`;
+          processMonitorOutput.replaceChildren(help);
+        }
+
+        function renderTopMonitor(processes, metrics) {
+          const now = new Date();
+          const elapsedSession = Math.floor((Date.now() - processMonitorStartedAt) / 1000);
+          const uptimeSeconds = 423 * 86400 + 4 * 3600 + 23 * 60 + elapsedSession;
+          const uptimeDays = Math.floor(uptimeSeconds / 86400);
+          const uptimeHours = Math.floor((uptimeSeconds % 86400) / 3600);
+          const uptimeMinutes = Math.floor((uptimeSeconds % 3600) / 60);
+          const loadOne = (processes.reduce((total, process) => total + process.cpu, 0) / 18).toFixed(2);
+          const loadFive = (Number(loadOne) * 0.72 + 0.23).toFixed(2);
+          const loadFifteen = (Number(loadOne) * 0.51 + 0.18).toFixed(2);
+          const running = processes.filter(process => process.state === 'R').length;
+          const summary = document.createElement('div');
+          summary.className = 'process-monitor-summary';
+          summary.textContent = `top - ${now.toLocaleTimeString([], { hour12: false })} up ${uptimeDays} days, ${String(uptimeHours).padStart(2, '0')}:${String(uptimeMinutes).padStart(2, '0')},  1 user,  load average: ${loadOne}, ${loadFive}, ${loadFifteen}\n` +
+            `Tasks: ${String(processes.length).padStart(3, ' ')} total, ${String(running).padStart(3, ' ')} running, ${String(processes.length - running).padStart(3, ' ')} sleeping,   0 stopped,   0 zombie\n` +
+            `%Cpu(s): ${metrics.user.toFixed(1)} us, ${metrics.system.toFixed(1)} sy, ${metrics.nice.toFixed(1)} ni, ${metrics.idle.toFixed(1)} id, ${metrics.wait.toFixed(1)} wa,  0.0 hi,  0.0 si,  0.0 st\n` +
+            `MiB Mem : ${metrics.totalMem.toFixed(1).padStart(7, ' ')} total, ${metrics.freeMem.toFixed(1).padStart(7, ' ')} free, ${metrics.usedMem.toFixed(1).padStart(7, ' ')} used, ${metrics.cacheMem.toFixed(1).padStart(7, ' ')} buff/cache\n` +
+            `MiB Swap:     0.0 total,     0.0 free,     0.0 used. ${(metrics.freeMem + metrics.cacheMem).toFixed(1).padStart(7, ' ')} avail Mem`;
+          processMonitorOutput.appendChild(summary);
+
+          const table = document.createElement('div');
+          table.className = 'process-monitor-table';
+          const header = document.createElement('div');
+          header.className = 'process-monitor-table-header';
+          header.textContent = '    PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND';
+          table.appendChild(header);
+
+          processes.forEach(process => {
+            const row = document.createElement('div');
+            row.className = 'process-monitor-row';
+            row.textContent = `${String(process.pid).padStart(7, ' ')} ${process.user.padEnd(9, ' ').slice(0, 9)} ${String(process.pri).padStart(2, ' ')} ${String(process.ni).padStart(3, ' ')} ${process.virt.padStart(7, ' ')} ${process.res.padStart(6, ' ')} ${process.shr.padStart(6, ' ')} ${process.state} ${process.cpu.toFixed(1).padStart(5, ' ')} ${process.mem.toFixed(1).padStart(4, ' ')} ${formatProcessMonitorTime(process.elapsed).padStart(9, ' ')} ${process.command}`;
+            table.appendChild(row);
+          });
+          processMonitorOutput.appendChild(table);
+
+          const footer = document.createElement('div');
+          footer.className = 'process-monitor-footer';
+          footer.textContent = `${processMonitorPaused ? '[PAUSED]  ' : ''}P CPU  M MEM  T TIME  Space pause  H help  Q quit  |  sort: ${processMonitorSort.toUpperCase()}`;
+          processMonitorOutput.appendChild(footer);
+        }
+
+        function renderHtopMonitor(processes, metrics) {
+          const heading = document.createElement('div');
+          heading.className = 'process-monitor-heading';
+          appendProcessMonitorText(heading, 'cha-terminal', 'process-monitor-host');
+          appendProcessMonitorText(heading, `  Tasks: ${processes.length}, ${processes.filter(process => process.state === 'R').length} running  Load average: ${(processes.reduce((sum, process) => sum + process.cpu, 0) / 18).toFixed(2)}  Uptime: 423 days`, 'process-monitor-heading-detail');
+          processMonitorOutput.appendChild(heading);
+
+          processMonitorOutput.appendChild(buildProcessMonitorMeter('CPU', 100 - metrics.idle, 'process-monitor-cpu-bar'));
+          processMonitorOutput.appendChild(buildProcessMonitorMeter('Mem', metrics.usedMem / metrics.totalMem * 100, 'process-monitor-memory-bar'));
+          processMonitorOutput.appendChild(buildProcessMonitorMeter('Swp', 0, 'process-monitor-swap-bar'));
+
+          const memoryDetail = document.createElement('div');
+          memoryDetail.className = 'process-monitor-memory-detail';
+          memoryDetail.textContent = `Mem ${metrics.usedMem}M/${metrics.totalMem}M  Cache ${metrics.cacheMem}M  Swap 0K/0K${processMonitorPaused ? '  [PAUSED]' : ''}`;
+          processMonitorOutput.appendChild(memoryDetail);
+
+          const table = document.createElement('div');
+          table.className = 'process-monitor-table process-monitor-htop-table';
+          const header = document.createElement('div');
+          header.className = 'process-monitor-table-header';
+          header.textContent = '  PID USER      PRI NI   VIRT   RES   SHR S CPU% MEM%    TIME+ Command';
+          table.appendChild(header);
+
+          processes.forEach(process => {
+            const row = document.createElement('div');
+            row.className = 'process-monitor-row';
+            if (process.pid === processMonitorSelectedPid) row.classList.add('selected');
+            row.textContent = `${String(process.pid).padStart(5, ' ')} ${process.user.padEnd(9, ' ').slice(0, 9)} ${String(process.pri).padStart(3, ' ')} ${String(process.ni).padStart(2, ' ')} ${process.virt.padStart(6, ' ')} ${process.res.padStart(5, ' ')} ${process.shr.padStart(5, ' ')} ${process.state} ${process.cpu.toFixed(1).padStart(4, ' ')} ${process.mem.toFixed(1).padStart(4, ' ')} ${formatProcessMonitorTime(process.elapsed).padStart(8, ' ')} ${process.command}`;
+            table.appendChild(row);
+          });
+          processMonitorOutput.appendChild(table);
+
+          const footer = document.createElement('div');
+          footer.className = 'process-monitor-footer process-monitor-htop-footer';
+          [['F1', 'Help'], ['F6', `Sort:${processMonitorSort.toUpperCase()}`], ['Space', 'Pause'], ['F10', 'Quit']].forEach(([key, label]) => {
+            const item = document.createElement('span');
+            appendProcessMonitorText(item, key, 'process-monitor-function-key');
+            appendProcessMonitorText(item, label, 'process-monitor-function-label');
+            footer.appendChild(item);
+          });
+          processMonitorOutput.appendChild(footer);
+        }
+
+        function renderProcessMonitor() {
+          if (!processMonitorActive || !processMonitorOutput) return;
+          if (processMonitorHelp) {
+            renderProcessMonitorHelp();
+            return;
+          }
+
+          const processes = getProcessMonitorSnapshot();
+          if (!processes.some(process => process.pid === processMonitorSelectedPid)) {
+            processMonitorSelectedPid = processes[0]?.pid || 1;
+          }
+          const metrics = getProcessMonitorMetrics(processes);
+          processMonitorOutput.replaceChildren();
+          processMonitorOutput.className = `process-monitor process-monitor-${processMonitorMode}`;
+          if (processMonitorMode === 'htop') renderHtopMonitor(processes, metrics);
+          else renderTopMonitor(processes, metrics);
+          scrollToBottom();
+        }
+
+        function startProcessMonitor(mode, outputDiv) {
+          clearInterval(processMonitorTimer);
+          processMonitorActive = true;
+          processMonitorMode = mode;
+          processMonitorPaused = false;
+          processMonitorHelp = false;
+          processMonitorSort = 'cpu';
+          processMonitorSelectedPid = 423;
+          processMonitorTick = 0;
+          processMonitorOutput = document.createElement('div');
+          processMonitorOutput.setAttribute('role', 'application');
+          processMonitorOutput.setAttribute('aria-label', `${mode} process monitor emulator`);
+          outputDiv.appendChild(processMonitorOutput);
+          prompt.style.visibility = 'hidden';
+          renderProcessMonitor();
+          processMonitorTimer = setInterval(() => {
+            if (processMonitorActive && !processMonitorPaused) {
+              processMonitorTick++;
+              renderProcessMonitor();
+            }
+          }, 1000);
+        }
+
+        function stopProcessMonitor() {
+          if (!processMonitorActive) return;
+          clearInterval(processMonitorTimer);
+          processMonitorTimer = null;
+          processMonitorActive = false;
+          processMonitorPaused = false;
+          processMonitorHelp = false;
+          const wrapper = processMonitorOutput?.parentElement;
+          if (wrapper) wrapper.remove();
+          processMonitorOutput = null;
+          commandBuffer = '';
+          updatePrompt();
+          prompt.style.visibility = 'visible';
+          terminal.focus({ preventScroll: true });
+          scrollToBottom();
+        }
+
+        function cycleProcessMonitorSort() {
+          const keys = ['cpu', 'mem', 'time'];
+          processMonitorSort = keys[(keys.indexOf(processMonitorSort) + 1) % keys.length];
+        }
+
+        function moveProcessMonitorSelection(direction) {
+          const processes = getProcessMonitorSnapshot();
+          const currentIndex = Math.max(0, processes.findIndex(process => process.pid === processMonitorSelectedPid));
+          const nextIndex = (currentIndex + direction + processes.length) % processes.length;
+          processMonitorSelectedPid = processes[nextIndex].pid;
+        }
+
+        function processMonitorKeyHandler(e) {
+          if (!processMonitorActive) return;
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasTerminalSelection()) return;
+
+          const key = e.key;
+          const lowerKey = key.toLowerCase();
+          const shouldQuit = lowerKey === 'q' || key === 'F10' || (e.ctrlKey && lowerKey === 'c');
+          e.preventDefault();
+          e.stopImmediatePropagation();
+
+          if (shouldQuit) {
+            stopProcessMonitor();
+            return;
+          }
+          if (lowerKey === 'h' || key === '?' || key === 'F1') {
+            processMonitorHelp = !processMonitorHelp;
+          } else if (key === ' ') {
+            processMonitorPaused = !processMonitorPaused;
+          } else if (lowerKey === 'p') {
+            processMonitorSort = 'cpu';
+          } else if (lowerKey === 'm') {
+            processMonitorSort = 'mem';
+          } else if (lowerKey === 't') {
+            processMonitorSort = 'time';
+          } else if (processMonitorMode === 'htop' && key === 'F6') {
+            cycleProcessMonitorSort();
+          } else if (processMonitorMode === 'htop' && key === 'ArrowUp') {
+            moveProcessMonitorSelection(-1);
+          } else if (processMonitorMode === 'htop' && key === 'ArrowDown') {
+            moveProcessMonitorSelection(1);
+          }
+          renderProcessMonitor();
+        }
+
+        // ────────────────────────────────────────────────────────────
         //  Command Router — dispatches typed commands to handlers
         // ────────────────────────────────────────────────────────────
         async function handleCommand(cmd) {
@@ -2447,7 +2786,8 @@ zone = ${alertZone}
   uname -a        Show kernel/system info
   env             Show environment variables
   history         Show recent command history
-  ps              Show running processes
+  ps              Show a process snapshot
+  top / htop      Open the interactive process monitor
   netstat -tulnp  Show listening services
   ss -tulnp       Show socket summary
   tcpdump         Capture packets; Ctrl+C stops capture
@@ -2492,6 +2832,11 @@ zone = ${alertZone}
             setTextOutput(div, 'Scenic City CTF progress reset for this browser session.');
           } else if (cmd === "snake") {
             startSnake(div);
+          } else if (cmd === "top" || cmd === "htop") {
+            terminal.insertBefore(div, prompt);
+            startProcessMonitor(cmd, div);
+            scrollToBottom();
+            return;
           } else if (cmd === "tcpdump -d") {
             div.innerHTML = `<pre>1.eth0 [Up, Running, Connected]
 2.lo [Up, Running, Loopback]
@@ -2974,7 +3319,9 @@ Patch SMB. Back up your stuff. Hug your incident responder.
 
         document.addEventListener('keydown', function(e) {
           if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasTerminalSelection()) return;
-          if (tcpdumpActive) {
+          if (processMonitorActive) {
+            processMonitorKeyHandler(e);
+          } else if (tcpdumpActive) {
             tcpdumpKeyHandler(e);
           } else if (snakeActive && snakeWindow && snakeWindow.contains(document.activeElement)) {
             snakeKeyHandler(e);
