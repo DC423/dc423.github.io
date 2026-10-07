@@ -91,7 +91,8 @@ body.lights-on .terminal-content {
   color: #111;
 }
 
-body.lights-on .process-monitor {
+body.lights-on .process-monitor,
+body.lights-on .hacker-scroll {
   color: #d8ffd8;
   background: #000;
 }

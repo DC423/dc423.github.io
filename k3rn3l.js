@@ -69,6 +69,7 @@
           { id: 'meetings', glyph: '📅', label: 'Meetings' },
           { id: 'dumpster', glyph: '🗑️', label: 'Garbage' },
           { id: 'terminal', glyph: '▣', label: 'Terminal' },
+          { id: 'stunt-hacker', glyph: '🐍', label: 'stunthacker.py' },
           { id: 'radio', glyph: '📡', label: 'SDR Notes' },
           { id: 'loot', glyph: '📁', label: 'Totally Not Loot' }
         ];
@@ -152,6 +153,7 @@ Example:
             meetings: '../meetings.html',
             dumpster: '/dev/null',
             terminal: '/usr/bin/cha-terminal',
+            'stunt-hacker': '/root/Desktop/stunthacker.py',
             radio: 'https://github.com/DC423/Meeting-Presentations/blob/master/2016-03_SDR_Basics.pdf',
             loot: '/root/.shadow'
           };
@@ -159,7 +161,9 @@ Example:
         }
 
         function desktopIconMode(icon) {
-          return icon.id === 'home' ? 'drwxr-xr-x' : 'lrwxrwxrwx';
+          if (icon.id === 'home') return 'drwxr-xr-x';
+          if (icon.id === 'stunt-hacker') return '-rwxr-xr-x';
+          return 'lrwxrwxrwx';
         }
 
         function desktopIconDetailedListing(showHidden = false) {
@@ -294,6 +298,12 @@ Example:
 
           if (icon.id === 'terminal') {
             restoreTerminal();
+            return;
+          }
+
+          if (icon.id === 'stunt-hacker') {
+            restoreTerminal();
+            if (!hackerScrollActive) launchHackerScrollCommand('python3 stunthacker.py');
             return;
           }
 
@@ -1045,7 +1055,7 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
             "netstat", "ss", "last", "w", "top", "htop", "tcpdump", "base64", "echo", "knock", "nc", "netcat",
             "sudo", "lights", "light", "dark", "exit", "reboot", "shutdown", "init", "poweroff", "halt",
             "ai", "llm", "gpt", "chatgpt", "garbage", "rtl_test", "sdr", "strings", "dig", "curl", "nslookup",
-            "mv", "desktop", "reset-icons", "snake", "hacker-scroll", "python", "python3", "ctf"
+            "mv", "desktop", "reset-icons", "snake", "stunthacker", "stunthacker.py", "python", "python3", "ctf"
           ];
 
           // If the buffer is empty or has no spaces, complete command names
@@ -1119,15 +1129,15 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
               .map(value => `ctf ${value}`);
           }
 
-          if (cmd === "hacker-scroll") {
+          if (cmd === "stunthacker") {
             const partial = parts.slice(1).join(" ");
             return ["--theme matrix", "--theme cyber", "--theme amber", "--speed 0.045", "--density 4", "--no-color", "--title \"OPERATION TERMINAL PEACOCK\"", "--help"]
               .filter(value => value.startsWith(partial) && value !== partial)
-              .map(value => `hacker-scroll ${value}`);
+              .map(value => `stunthacker ${value}`);
           }
 
-          if ((cmd === "python" || cmd === "python3") && parts[1]?.startsWith('hacker_scroll')) {
-            const prefix = `${cmd} hacker_scroll.py`;
+          if ((cmd === "python" || cmd === "python3") && parts[1]?.startsWith('stunthacker')) {
+            const prefix = `${cmd} stunthacker.py`;
             const partial = parts.slice(2).join(" ");
             return ["--theme matrix", "--theme cyber", "--theme amber", "--speed 0.045", "--density 4", "--no-color", "--help"]
               .filter(value => value.startsWith(partial) && value !== partial)
@@ -1389,8 +1399,8 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
               handleCommand(cmd).then(() => {
                 commandBuffer = "";
                 updatePrompt();
-                prompt.style.visibility = snakeActive || tcpdumpActive || processMonitorActive ? "hidden" : "visible";
-                if (!snakeActive && !tcpdumpActive && !processMonitorActive && !nanoActive) terminal.focus({ preventScroll: true });
+                prompt.style.visibility = snakeActive || tcpdumpActive || processMonitorActive || hackerScrollActive ? "hidden" : "visible";
+                if (!snakeActive && !tcpdumpActive && !processMonitorActive && !hackerScrollActive && !nanoActive) terminal.focus({ preventScroll: true });
               });
             } else if (e.key.length === 1) {
               commandBuffer += e.key;
@@ -1399,7 +1409,7 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           });
 
           terminal.addEventListener('paste', function (e) {
-            if (snakeActive || tcpdumpActive || processMonitorActive || nanoActive || isEditableTarget(e.target)) return;
+            if (snakeActive || tcpdumpActive || processMonitorActive || hackerScrollActive || nanoActive || isEditableTarget(e.target)) return;
             if (getComputedStyle(prompt).visibility !== 'visible') return;
 
             const pastedText = sanitizePastedText(e.clipboardData?.getData('text/plain'));
@@ -2269,6 +2279,345 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
         }
 
         // ────────────────────────────────────────────────────────────
+        //  Stunt Hacker — browser port of the harmless terminal animation
+        // ────────────────────────────────────────────────────────────
+        function hackerScrollRandomItem(items) {
+          return items[Math.floor(Math.random() * items.length)];
+        }
+
+        function hackerScrollRandomInt(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function hackerScrollHex(length) {
+          const chars = '0123456789abcdef';
+          return Array.from({ length }, () => chars[hackerScrollRandomInt(0, chars.length - 1)]).join('');
+        }
+
+        function hackerScrollIp() {
+          return `${hackerScrollRandomItem(['192.0.2', '198.51.100', '203.0.113'])}.${hackerScrollRandomInt(1, 254)}`;
+        }
+
+        function hackerScrollNow() {
+          const now = new Date();
+          return `${now.toLocaleTimeString([], { hour12: false })}.${String(now.getMilliseconds()).padStart(3, '0')}`;
+        }
+
+        function hackerScrollGibberish(width) {
+          const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789[]{}<>/\\|=_-+*#@$%&:;.,';
+          return Array.from({ length: width }, () => chars[hackerScrollRandomInt(0, chars.length - 1)]).join('');
+        }
+
+        function parseHackerScrollCommand(cmd) {
+          const usage = `usage: stunthacker [--theme {amber,cyber,matrix}] [--speed SECONDS]\n` +
+            `                     [--density 1-25] [--no-color] [--title TEXT]\n\n` +
+            `Harmless animated terminal output that looks like movie hacking.\n\n` +
+            `Controls while running: Space pause · T theme · +/- speed · D density · H help · Q/Ctrl+C quit`;
+          const argsText = cmd.replace(/^(?:stunthacker|stunthacker\.py|\.\/stunthacker\.py|python3?\s+stunthacker\.py|hacker-scroll|hacker_scroll\.py|\.\/hacker_scroll\.py|python3?\s+hacker_scroll\.py)\s*/i, '');
+          const tokens = [];
+          const tokenPattern = /"([^"]*)"|'([^']*)'|(\S+)/g;
+          let tokenMatch;
+          while ((tokenMatch = tokenPattern.exec(argsText))) {
+            tokens.push(tokenMatch[1] ?? tokenMatch[2] ?? tokenMatch[3]);
+          }
+
+          const config = {
+            theme: 'matrix',
+            speed: 0.045,
+            density: 4,
+            noColor: false,
+            title: 'OPERATION TERMINAL PEACOCK'
+          };
+
+          for (let index = 0; index < tokens.length; index++) {
+            const token = tokens[index];
+            if (token === '--help' || token === '-h') return { help: usage };
+            if (token === '--no-color') {
+              config.noColor = true;
+              continue;
+            }
+
+            const [flag, inlineValue] = token.includes('=') ? token.split(/=(.*)/s, 2) : [token, null];
+            const needsValue = ['--theme', '--speed', '--density', '--title'].includes(flag);
+            if (!needsValue) return { error: `stunthacker: unrecognized argument: ${token}\nTry: stunthacker --help` };
+            const value = inlineValue ?? tokens[++index];
+            if (value === undefined) return { error: `stunthacker: ${flag} requires a value` };
+
+            if (flag === '--theme') {
+              if (!hackerScrollThemes.includes(value)) {
+                return { error: `stunthacker: invalid theme '${value}' (choose amber, cyber, or matrix)` };
+              }
+              config.theme = value;
+            } else if (flag === '--speed') {
+              const speed = Number(value);
+              if (!Number.isFinite(speed)) return { error: `stunthacker: invalid speed '${value}'` };
+              config.speed = processMonitorClamp(speed, 0.001, 2);
+            } else if (flag === '--density') {
+              const density = Number.parseInt(value, 10);
+              if (!Number.isFinite(density)) return { error: `stunthacker: invalid density '${value}'` };
+              config.density = processMonitorClamp(density, 1, 25);
+            } else if (flag === '--title') {
+              config.title = value.trim().slice(0, 60) || config.title;
+            }
+          }
+
+          return { config };
+        }
+
+        function updateHackerScrollTheme() {
+          if (!hackerScrollOutput || !hackerScrollConfig) return;
+          hackerScrollOutput.className = `hacker-scroll hacker-scroll-${hackerScrollConfig.theme}${hackerScrollConfig.noColor ? ' hacker-scroll-no-color' : ''}`;
+        }
+
+        function updateHackerScrollControls(message = '') {
+          if (!hackerScrollControls || !hackerScrollConfig) return;
+          hackerScrollControls.textContent = `${hackerScrollPaused ? '[PAUSED] ' : ''}` +
+            `theme=${hackerScrollConfig.theme} speed=${hackerScrollConfig.speed.toFixed(3)}s density=${hackerScrollConfig.density}` +
+            `${message ? ` // ${message}` : ''}  |  Space pause · T theme · +/- speed · D density · H help · Q quit`;
+        }
+
+        function appendHackerScrollLine(text = '', role = 'primary') {
+          if (!hackerScrollStream) return;
+          const line = document.createElement('div');
+          line.className = `hacker-scroll-line hacker-scroll-${role}`;
+          line.textContent = text;
+          hackerScrollStream.appendChild(line);
+          while (hackerScrollStream.childElementCount > 180) {
+            hackerScrollStream.firstElementChild.remove();
+          }
+          scrollToBottom();
+        }
+
+        function makeHackerScrollLogLine() {
+          const host = hackerScrollRandomItem(hackerScrollHosts);
+          const module = hackerScrollRandomItem(hackerScrollModules);
+          const status = hackerScrollRandomItem(hackerScrollStatuses);
+          const role = status === 'WARN' ? 'warn' : ['OK', 'DONE', 'PASS'].includes(status) ? 'secondary' : 'primary';
+          const progress = () => {
+            const width = hackerScrollRandomInt(18, 34);
+            const value = hackerScrollRandomInt(3, 100);
+            const filled = Math.floor(width * value / 100);
+            const label = hackerScrollRandomItem(['kernel vibes', 'packet aura', 'mainframe mojo', 'proxy noodles']);
+            return `${label.padEnd(22, ' ')} [${'█'.repeat(filled)}${'░'.repeat(width - filled)}] ${String(value).padStart(3, ' ')}%`;
+          };
+          const templates = [
+            () => `probing ${host.padEnd(24, ' ')} via tunnel/${hackerScrollHex(4)} latency=${hackerScrollRandomInt(2, 94)}ms`,
+            () => `compiling ${module.padEnd(22, ' ')} flags=-O${hackerScrollRandomInt(1, 9)} --with-extra-sauce`,
+            () => `decrypting block ${hackerScrollHex(8)}:${hackerScrollHex(8)} entropy=${Math.random().toFixed(6)}`,
+            () => `routing packet ${hackerScrollIp()} -> ${hackerScrollIp()} ttl=${hackerScrollRandomInt(16, 255)} hops=${hackerScrollRandomInt(1, 12)}`,
+            () => `mounting /dev/${hackerScrollRandomItem(hackerScrollWords)}${hackerScrollRandomInt(0, 9)} as /mnt/${hackerScrollRandomItem(hackerScrollWords)}_${hackerScrollHex(3)}`,
+            () => `injecting caffeine into ${module.padEnd(20, ' ')} dose=${hackerScrollRandomInt(40, 400)}mg`,
+            () => `solving ${hackerScrollRandomItem(hackerScrollWords)} race condition with duct_tape=${hackerScrollRandomItem(['true', 'false'])}`,
+            () => `indexing shadow table rows=${String(hackerScrollRandomInt(1024, 999999)).padStart(6, ' ')} checksum=0x${hackerScrollHex(6)}`,
+            () => `negotiating cipher suite TLS_FAKE_WITH_${hackerScrollRandomItem(hackerScrollWords).toUpperCase()}_${hackerScrollRandomInt(128, 4096)}`,
+            () => `spawning worker pid=${hackerScrollRandomInt(1000, 99999)} affinity=core-${hackerScrollRandomInt(0, 31)} task=${hackerScrollRandomItem(hackerScrollWords)}`,
+            progress,
+            () => hackerScrollGibberish(hackerScrollRandomInt(42, 96))
+          ];
+          return { text: `[${hackerScrollNow()}] [${status.padStart(5, ' ')}] ${hackerScrollRandomItem(templates)()}`, role };
+        }
+
+        function queueHackerScrollDramaticSequence() {
+          const sequences = [
+            ['TARGET ACQUIRED: suspiciously cool sunglasses', 'rerouting through 7 proxy hamsters', 'trace confused successfully'],
+            ['MAINFRAME LOCATED', 'asking mainframe politely', 'mainframe said yes'],
+            ['ENCRYPTION WALL ENCOUNTERED', 'trying password: password123', 'trying password: hunter2', 'trying password: please', 'wall respected our persistence']
+          ];
+          hackerScrollQueue.push({ text: '', role: 'muted' });
+          hackerScrollRandomItem(sequences).forEach(text => hackerScrollQueue.push({ text: ` >>> ${text}`, role: 'accent' }));
+          hackerScrollQueue.push({ text: '', role: 'muted' });
+        }
+
+        function queueHackerScrollRain() {
+          const width = processMonitorClamp(Math.floor((terminal.clientWidth || 800) / 9), 20, 120);
+          const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノ{}[]<>#$%&';
+          for (let row = 0; row < hackerScrollRandomInt(4, 10); row++) {
+            const text = Array.from({ length: width }, () => chars[hackerScrollRandomInt(0, chars.length - 1)]).join('');
+            hackerScrollQueue.push({ text, role: hackerScrollRandomItem(['primary', 'secondary', 'muted']) });
+          }
+        }
+
+        function scheduleHackerScroll(delay = null) {
+          clearTimeout(hackerScrollTimer);
+          if (!hackerScrollActive || !hackerScrollConfig) return;
+          const baseDelay = delay ?? hackerScrollConfig.speed * 1000 * (0.35 + Math.random());
+          hackerScrollTimer = setTimeout(runHackerScrollStep, Math.max(10, baseDelay));
+        }
+
+        function runHackerScrollStep() {
+          if (!hackerScrollActive || !hackerScrollConfig) return;
+          if (hackerScrollPaused) {
+            scheduleHackerScroll(120);
+            return;
+          }
+
+          if (hackerScrollQueue.length) {
+            const next = hackerScrollQueue.shift();
+            appendHackerScrollLine(next.text, next.role);
+            scheduleHackerScroll(hackerScrollConfig.speed * 2200);
+            return;
+          }
+
+          const burst = hackerScrollRandomInt(1, hackerScrollConfig.density);
+          for (let index = 0; index < burst; index++) {
+            const line = makeHackerScrollLogLine();
+            appendHackerScrollLine(line.text, line.role);
+            hackerScrollLineCount++;
+          }
+
+          const roll = Math.random();
+          if (roll < 0.012) queueHackerScrollDramaticSequence();
+          else if (roll < 0.024) queueHackerScrollRain();
+          else if (roll < 0.036) {
+            hackerScrollQueue.push({ text: `[${hackerScrollNow()}] [ALERT] keyboard intensity increased by ${hackerScrollRandomInt(200, 900)}%`, role: 'warn' });
+          }
+
+          if (hackerScrollLineCount >= (hackerScrollConfig.nextCheckpoint || 80)) {
+            hackerScrollQueue.push({ text: '', role: 'muted' });
+            hackerScrollQueue.push({ text: `--- checkpoint saved: /tmp/absolutely-real-plan-${hackerScrollHex(5)}.bin ---`, role: 'muted' });
+            hackerScrollQueue.push({ text: '', role: 'muted' });
+            hackerScrollConfig.nextCheckpoint = hackerScrollLineCount + hackerScrollRandomInt(60, 110);
+          }
+          scheduleHackerScroll();
+        }
+
+        function renderHackerScrollHelp() {
+          if (!hackerScrollHelp) return;
+          hackerScrollHelp.hidden = !hackerScrollHelp.hidden;
+          if (!hackerScrollHelp.hidden) {
+            hackerScrollHelp.textContent = `STUNT HACKER CONTROLS\n\n` +
+              `Space    pause or resume the stream\n` +
+              `T        cycle matrix / cyber / amber theme\n` +
+              `+ / -    speed up or slow down\n` +
+              `D        cycle output density\n` +
+              `H or ?   toggle this help\n` +
+              `Q        quit\n` +
+              `Ctrl+C   quit\n\n` +
+              `All output is simulated locally. No networks are contacted.`;
+          }
+        }
+
+        function startHackerScroll(config, outputDiv) {
+          clearTimeout(hackerScrollTimer);
+          hackerScrollActive = true;
+          hackerScrollPaused = false;
+          hackerScrollQueue = [];
+          hackerScrollLineCount = 0;
+          hackerScrollConfig = { ...config, nextCheckpoint: hackerScrollRandomInt(60, 110) };
+          hackerScrollOutput = document.createElement('section');
+          hackerScrollOutput.setAttribute('role', 'application');
+          hackerScrollOutput.setAttribute('aria-label', 'Stunt Hacker harmless Hollywood terminal animation');
+
+          const banner = document.createElement('div');
+          banner.className = 'hacker-scroll-banner';
+          const title = hackerScrollConfig.title.toUpperCase().slice(0, 60);
+          banner.textContent = `╔${'═'.repeat(62)}╗\n` +
+            `║ ${title.padStart(Math.floor((60 + title.length) / 2), ' ').padEnd(60, ' ')} ║\n` +
+            `║        totally fake // 100% harmless // maximum vibes        ║\n` +
+            `╚${'═'.repeat(62)}╝\n` +
+            `Press Ctrl+C to dramatically abort the operation.`;
+
+          hackerScrollStream = document.createElement('div');
+          hackerScrollStream.className = 'hacker-scroll-stream';
+          hackerScrollHelp = document.createElement('pre');
+          hackerScrollHelp.className = 'hacker-scroll-help';
+          hackerScrollHelp.hidden = true;
+          hackerScrollControls = document.createElement('div');
+          hackerScrollControls.className = 'hacker-scroll-controls';
+
+          hackerScrollOutput.append(banner, hackerScrollStream, hackerScrollHelp, hackerScrollControls);
+          outputDiv.appendChild(hackerScrollOutput);
+          updateHackerScrollTheme();
+          updateHackerScrollControls('local simulation only');
+          prompt.style.visibility = 'hidden';
+          scheduleHackerScroll(80);
+        }
+
+        function stopHackerScroll() {
+          if (!hackerScrollActive) return;
+          clearTimeout(hackerScrollTimer);
+          hackerScrollTimer = null;
+          hackerScrollActive = false;
+          hackerScrollPaused = false;
+          hackerScrollQueue = [];
+          appendHackerScrollLine('', 'muted');
+          appendHackerScrollLine('[SYSTEM] Operation suspended. Evidence of coolness preserved.', 'accent');
+          appendHackerScrollLine('[SYSTEM] No networks were hacked. No mainframes were harmed.', 'muted');
+          if (hackerScrollControls) hackerScrollControls.textContent = '[STOPPED] harmless simulation complete';
+          hackerScrollOutput?.removeAttribute('role');
+          hackerScrollOutput = null;
+          hackerScrollStream = null;
+          hackerScrollControls = null;
+          hackerScrollHelp = null;
+          hackerScrollConfig = null;
+          commandBuffer = '';
+          updatePrompt();
+          prompt.style.visibility = 'visible';
+          terminal.focus({ preventScroll: true });
+          scrollToBottom();
+        }
+
+        function hackerScrollKeyHandler(e) {
+          if (!hackerScrollActive || !hackerScrollConfig) return;
+          if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasTerminalSelection()) return;
+          const key = e.key;
+          const lowerKey = key.toLowerCase();
+          e.preventDefault();
+          e.stopImmediatePropagation();
+
+          if (lowerKey === 'q' || (e.ctrlKey && lowerKey === 'c')) {
+            stopHackerScroll();
+          } else if (key === ' ') {
+            hackerScrollPaused = !hackerScrollPaused;
+            updateHackerScrollControls();
+          } else if (lowerKey === 't') {
+            const themeIndex = hackerScrollThemes.indexOf(hackerScrollConfig.theme);
+            hackerScrollConfig.theme = hackerScrollThemes[(themeIndex + 1) % hackerScrollThemes.length];
+            updateHackerScrollTheme();
+            updateHackerScrollControls('theme changed');
+          } else if (key === '+' || key === '=') {
+            hackerScrollConfig.speed = processMonitorClamp(hackerScrollConfig.speed * 0.75, 0.001, 2);
+            updateHackerScrollControls('faster');
+          } else if (key === '-' || key === '_') {
+            hackerScrollConfig.speed = processMonitorClamp(hackerScrollConfig.speed * 1.35, 0.001, 2);
+            updateHackerScrollControls('slower');
+          } else if (lowerKey === 'd') {
+            hackerScrollConfig.density = hackerScrollConfig.density >= 8 ? 1 : hackerScrollConfig.density + 1;
+            updateHackerScrollControls('density changed');
+          } else if (lowerKey === 'h' || key === '?') {
+            renderHackerScrollHelp();
+          }
+        }
+
+        function launchHackerScrollCommand(cmd, outputDiv = null) {
+          if (hackerScrollActive) {
+            terminal.focus({ preventScroll: true });
+            return true;
+          }
+
+          if (processMonitorActive) stopProcessMonitor();
+          if (tcpdumpActive) stopTcpdump();
+
+          const parsed = parseHackerScrollCommand(cmd);
+          const target = outputDiv || document.createElement('div');
+          if (!outputDiv) terminal.insertBefore(target, prompt);
+          if (parsed.help) {
+            setPreOutput(target, parsed.help);
+            scrollToBottom();
+            return false;
+          }
+          if (parsed.error) {
+            setTextOutput(target, parsed.error);
+            scrollToBottom();
+            return false;
+          }
+
+          startHackerScroll(parsed.config, target);
+          scrollToBottom();
+          return true;
+        }
+
+        // ────────────────────────────────────────────────────────────
         //  Command Router — dispatches typed commands to handlers
         // ────────────────────────────────────────────────────────────
         async function handleCommand(cmd) {
@@ -2788,6 +3137,8 @@ zone = ${alertZone}
   history         Show recent command history
   ps              Show a process snapshot
   top / htop      Open the interactive process monitor
+  stunthacker     Run harmless Hollywood hacker output
+  python3 stunthacker.py  Python-style launcher alias
   netstat -tulnp  Show listening services
   ss -tulnp       Show socket summary
   tcpdump         Capture packets; Ctrl+C stops capture
@@ -2832,6 +3183,10 @@ zone = ${alertZone}
             setTextOutput(div, 'Scenic City CTF progress reset for this browser session.');
           } else if (cmd === "snake") {
             startSnake(div);
+          } else if (/^(?:stunthacker|stunthacker\.py|\.\/stunthacker\.py|python3?\s+stunthacker\.py|hacker-scroll|hacker_scroll\.py|\.\/hacker_scroll\.py|python3?\s+hacker_scroll\.py)(?:\s|$)/.test(cmd)) {
+            terminal.insertBefore(div, prompt);
+            launchHackerScrollCommand(cmd, div);
+            return;
           } else if (cmd === "top" || cmd === "htop") {
             terminal.insertBefore(div, prompt);
             startProcessMonitor(cmd, div);
@@ -3319,7 +3674,9 @@ Patch SMB. Back up your stuff. Hug your incident responder.
 
         document.addEventListener('keydown', function(e) {
           if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' && hasTerminalSelection()) return;
-          if (processMonitorActive) {
+          if (hackerScrollActive) {
+            hackerScrollKeyHandler(e);
+          } else if (processMonitorActive) {
             processMonitorKeyHandler(e);
           } else if (tcpdumpActive) {
             tcpdumpKeyHandler(e);
@@ -3607,6 +3964,10 @@ Patch SMB. Back up your stuff. Hug your incident responder.
             case 'snake':
               if (snakeActive) restoreSnakeWindow();
               else handleCommand('snake');
+              break;
+            case 'stunt-hacker':
+              restoreTerminal();
+              if (!hackerScrollActive) launchHackerScrollCommand('python3 stunthacker.py');
               break;
             case 'lights-on':
               document.body.classList.add('lights-on');

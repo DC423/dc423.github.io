@@ -173,6 +173,94 @@
   box-shadow: inset 0 0 18px rgba(102, 255, 255, 0.12);
 }
 
+/* ---------- stunthacker.py browser emulator ---------- */
+.hacker-scroll {
+  position: relative;
+  width: 100%;
+  min-width: max-content;
+  box-sizing: border-box;
+  padding-bottom: 24px;
+  background: #000;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  line-height: 1.32;
+  white-space: pre;
+  text-shadow: none;
+}
+
+.hacker-scroll-banner {
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.hacker-scroll-stream {
+  min-height: 12em;
+}
+
+.hacker-scroll-line {
+  min-height: 1.32em;
+}
+
+.hacker-scroll-controls {
+  position: sticky;
+  bottom: -20px;
+  z-index: 2;
+  margin-top: 8px;
+  padding: 3px 6px;
+  border-top: 1px solid currentColor;
+  background: #081008;
+  font-weight: bold;
+}
+
+.hacker-scroll-help {
+  margin: 8px 0;
+  padding: 10px 12px;
+  border: 1px solid currentColor;
+  background: rgba(0, 0, 0, 0.96);
+  color: inherit;
+  white-space: pre;
+}
+
+.hacker-scroll-matrix {
+  color: #00ff5f;
+}
+
+.hacker-scroll-matrix .hacker-scroll-secondary { color: #5fff87; }
+.hacker-scroll-matrix .hacker-scroll-accent { color: #87ff5f; font-weight: bold; }
+.hacker-scroll-matrix .hacker-scroll-warn { color: #ffff00; }
+.hacker-scroll-matrix .hacker-scroll-error { color: #ff3333; }
+.hacker-scroll-matrix .hacker-scroll-muted { color: #666; }
+.hacker-scroll-matrix .hacker-scroll-controls { background: #061306; }
+
+.hacker-scroll-cyber {
+  color: #00ffff;
+}
+
+.hacker-scroll-cyber .hacker-scroll-secondary { color: #00d7ff; }
+.hacker-scroll-cyber .hacker-scroll-accent { color: #ff00ff; font-weight: bold; }
+.hacker-scroll-cyber .hacker-scroll-warn { color: #ffaf00; }
+.hacker-scroll-cyber .hacker-scroll-error { color: #ff3333; }
+.hacker-scroll-cyber .hacker-scroll-muted { color: #777; }
+.hacker-scroll-cyber .hacker-scroll-controls { background: #001319; }
+
+.hacker-scroll-amber {
+  color: #ffaf00;
+}
+
+.hacker-scroll-amber .hacker-scroll-secondary { color: #ffd700; }
+.hacker-scroll-amber .hacker-scroll-accent { color: #ff8700; font-weight: bold; }
+.hacker-scroll-amber .hacker-scroll-warn { color: #ffff00; }
+.hacker-scroll-amber .hacker-scroll-error { color: #ff3333; }
+.hacker-scroll-amber .hacker-scroll-muted { color: #777; }
+.hacker-scroll-amber .hacker-scroll-controls { background: #1a1000; }
+
+.hacker-scroll-no-color,
+.hacker-scroll-no-color .hacker-scroll-line,
+.hacker-scroll-no-color .hacker-scroll-banner,
+.hacker-scroll-no-color .hacker-scroll-controls {
+  color: #d8d8d8;
+}
+
 /* ---------- Command prompt ---------- */
 /* "root@cha:~#" prompt line — hidden until boot sequence completes */
 .prompt {
