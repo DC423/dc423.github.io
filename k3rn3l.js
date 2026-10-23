@@ -726,6 +726,7 @@ Example:
         let awaitingGarbagePassword = false;
         let awaitingSshPassword = false;
         let awaitingRelayPhrase = false;
+        let php2ShellActive = false;
         let pendingSshTarget = "";
         let commandHistory = [];
         let historyIndex = -1;
@@ -874,6 +875,7 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           if (awaitingSshPassword) return `${pendingSshTarget}'s password: `;
           if (awaitingGarbagePassword) return "Password: ";
           if (awaitingRelayPhrase) return "Authentication phrase: ";
+          if (php2ShellActive) return "www-data@php2shell:/var/www/html$ ";
           if (currentDir === ".shadow") return "root@cha:~/.shadow# ";
           return "root@cha:~# ";
         }
@@ -1042,6 +1044,34 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
         function getCompletions(buffer) {
           const trimmed = buffer.trimStart();
           const parts = trimmed.split(/\s+/);
+
+          if (php2ShellActive) {
+            const shellCommands = [
+              "ls", "cat", "pwd", "whoami", "id", "hostname", "uname", "php",
+              "ps", "env", "date", "joke", "shell", "help", "clear", "exit", "logout"
+            ];
+
+            if (parts.length <= 1) {
+              const prefix = parts[0] || "";
+              return shellCommands.filter(command => command.startsWith(prefix) && command !== prefix);
+            }
+
+            if (parts[0] === "cat") {
+              const partial = parts.slice(1).join(" ");
+              return ["index.php", "README.txt", "shell.php", ".shellfish.php", "flag.txt"]
+                .filter(file => file.startsWith(partial) && file !== partial)
+                .map(file => `cat ${file}`);
+            }
+
+            if (parts[0] === "php") {
+              const partial = parts.slice(1).join(" ");
+              return ["-v", "shell.php"]
+                .filter(arg => arg.startsWith(partial) && arg !== partial)
+                .map(arg => `php ${arg}`);
+            }
+
+            return [];
+          }
 
           // Files and directories available in each context
           const homeFiles = ["blog/", "code/", "conduct/", "contact/", "meetings/", "manifesto.txt", "wannacry.exe", ".shadow/", "/dev/memory"];
@@ -2617,11 +2647,130 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           return true;
         }
 
+        function handlePhp2ShellCommand(cmd, div) {
+          const shellfish = String.raw`       /\
+  ____/  \____
+ /  _        _ \
+|  (_)  /\  (_) |
+ \_____/  \_____/
+    /  /\  \
+   /__/  \__\
+
+Congratulations. You found the shell fish.`;
+
+          if (!cmd) {
+            setTextOutput(div, '');
+          } else if (cmd === 'exit' || cmd === 'logout') {
+            php2ShellActive = false;
+            setPreOutput(div, `logout
+Connection to php2shell closed.
+[+] No servers were harmed. You never left the browser.`);
+          } else if (cmd === 'clear') {
+            terminal.innerHTML = '';
+            terminal.appendChild(prompt);
+            return;
+          } else if (cmd === 'ls') {
+            setTextOutput(div, 'index.php  README.txt  shell.php  flag.txt');
+          } else if (cmd === 'ls -a' || cmd === 'ls -la' || cmd === 'ls -al' || cmd === 'ls -lah' || cmd === 'ls -l') {
+            setPreOutput(div, `dr-xr-xr-x  1 www-data www-data  160 Oct 23 04:23 .
+dr-xr-xr-x  1 root     root       96 Oct 23 04:23 ..
+-r--r--r--  1 www-data www-data   58 Oct 23 04:23 .shellfish.php
+-r--r--r--  1 www-data www-data   67 Oct 23 04:23 README.txt
+-r--r--r--  1 www-data www-data   39 Oct 23 04:23 flag.txt
+-r--r--r--  1 www-data www-data   52 Oct 23 04:23 index.php
+-r-xr-xr-x  1 www-data www-data  423 Oct 23 04:23 shell.php`);
+          } else if (cmd === 'pwd') {
+            setTextOutput(div, '/var/www/html');
+          } else if (cmd === 'cd' || cmd === 'cd .' || cmd === 'cd /var/www/html' || cmd === 'cd /var/www/html/') {
+            setTextOutput(div, '');
+          } else if (cmd.startsWith('cd ')) {
+            setTextOutput(div, `sh: cd: ${cmd.slice(3)}: Read-only fish tank`);
+          } else if (cmd === 'whoami') {
+            setTextOutput(div, 'www-data');
+          } else if (cmd === 'id') {
+            setTextOutput(div, 'uid=33(www-data) gid=33(www-data) groups=33(www-data),423(shellfish)');
+          } else if (cmd === 'hostname') {
+            setTextOutput(div, 'php2shell');
+          } else if (cmd === 'uname' || cmd === 'uname -a') {
+            setTextOutput(div, 'Linux php2shell 6.6.6-browser #423 SMP x86_64 GNU/Linux');
+          } else if (cmd === 'php' || cmd === 'php -v' || cmd === 'php --version') {
+            setPreOutput(div, `PHP 0.0.0-browser (cli) (built: whenever you opened this tab)
+Runtime: vanilla JavaScript in a fake moustache
+Zend Engine: imaginary, with zero actual PHP`);
+          } else if (cmd === 'ps' || cmd === 'ps aux') {
+            setPreOutput(div, `USER       PID %CPU %MEM COMMAND
+www-data   423  0.0  0.0 browser-shell --no-network --no-php
+www-data  1337  0.0  0.0 definitely-not-a-webshell
+www-data  2600  0.0  0.0 crab-walk --sideways`);
+          } else if (cmd === 'env') {
+            setPreOutput(div, `USER=www-data
+HOME=/var/www
+SHELL=/bin/shellfish
+PWD=/var/www/html
+NETWORK=disconnected
+ACTUAL_PHP_EXECUTED=false`);
+          } else if (cmd === 'date') {
+            setTextOutput(div, new Date().toString());
+          } else if (cmd === 'cat README.txt' || cmd === 'cat readme.txt') {
+            setPreOutput(div, `Welcome to PHP2Shell.
+No PHP is running. No shell was spawned. Something still smells fishy.`);
+          } else if (cmd === 'cat index.php') {
+            setPreOutput(div, `<?php
+echo "Nice try. This page is JavaScript wearing a PHP hat.";
+?>`);
+          } else if (cmd === 'cat shell.php') {
+            setPreOutput(div, `<?php
+// Extremely advanced remote shell technology.
+include '.shellfish.php';
+
+$shell = new ShellFish();
+echo $shell->execute('joke');
+?>`);
+          } else if (cmd === 'cat .shellfish.php') {
+            setPreOutput(div, `<?php
+class ShellFish {
+    public function execute() { return "nope"; }
+}`);
+          } else if (cmd === 'cat flag.txt') {
+            setTextOutput(div, 'CHA{this_shell_is_100_percent_shellfish}');
+          } else if (cmd.startsWith('cat ')) {
+            setTextOutput(div, `cat: ${cmd.slice(4)}: No such file or crustacean`);
+          } else if (cmd === 'php shell.php' || cmd === './shell.php' || cmd === 'shell' || cmd === 'joke') {
+            setPreOutput(div, shellfish);
+          } else if (cmd === 'help' || cmd === '?') {
+            setPreOutput(div, `PHP2Shell built-ins:
+  ls [-la]          List the suspiciously small web root
+  cat <file>        Read a local fake file
+  php [-v|shell.php] Run imaginary PHP
+  pwd / whoami / id Inspect the fake session
+  hostname / uname  Inspect the fake host
+  ps / env / date   Inspect fake processes and environment
+  shell / joke      Get to the point
+  clear             Clear this terminal
+  exit / logout     Return to CHA`);
+          } else if (/^(?:sudo|su)(?:\s|$)/.test(cmd)) {
+            setTextOutput(div, 'www-data is not in the sudoers file. This incident will be reported to a rubber duck.');
+          } else if (/^(?:rm|mv|cp|chmod|chown|touch|mkdir)(?:\s|$)/.test(cmd)) {
+            setTextOutput(div, `${cmd.split(' ')[0]}: filesystem is read-only (and the crab has the keys)`);
+          } else if (/^(?:curl|wget|ssh|nc|netcat|ping)(?:\s|$)/.test(cmd)) {
+            setTextOutput(div, `${cmd.split(' ')[0]}: network disabled; this shell stays in the fish tank`);
+          } else {
+            setTextOutput(div, `sh: ${cmd}: not found. Try "help" or follow the bubbles.`);
+          }
+
+          terminal.insertBefore(div, prompt);
+          scrollToBottom();
+        }
+
         // ────────────────────────────────────────────────────────────
         //  Command Router — dispatches typed commands to handlers
         // ────────────────────────────────────────────────────────────
         async function handleCommand(cmd) {
           const div = document.createElement("div");
+          if (php2ShellActive) {
+            handlePhp2ShellCommand(cmd, div);
+            return;
+          }
           // Obscured easter egg check (rot13 encoded triggers)
           const _rot13 = s => s.replace(/[a-zA-Z]/g, c => String.fromCharCode((c<='Z'?90:122)>=(c=c.charCodeAt(0)+13)?c:c-26));
           const _isEasterEgg = [_rot13("g@pul0a13"), _rot13("gnpulba13"), _rot13("flanpxcja")].includes(cmd);
@@ -3183,6 +3332,16 @@ zone = ${alertZone}
             setTextOutput(div, 'Scenic City CTF progress reset for this browser session.');
           } else if (cmd === "snake") {
             startSnake(div);
+          } else if (cmd === "php2shell") {
+            php2ShellActive = true;
+            setPreOutput(div, `PHP2Shell v0.0.1
+[+] probing localhost
+[+] remote code execution: absolutely not
+[+] browser sandbox acquired
+[+] network access: disabled
+
+You caught a shell. It may be a little fishy.
+Try "ls". Type "exit" when you want to swim back.`);
           } else if (/^(?:stunthacker|stunthacker\.py|\.\/stunthacker\.py|python3?\s+stunthacker\.py|hacker-scroll|hacker_scroll\.py|\.\/hacker_scroll\.py|python3?\s+hacker_scroll\.py)(?:\s|$)/.test(cmd)) {
             terminal.insertBefore(div, prompt);
             launchHackerScrollCommand(cmd, div);
