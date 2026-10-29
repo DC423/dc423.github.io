@@ -65,7 +65,7 @@
       <p><strong>Next meeting:</strong> <span id="nextMeeting">Calculating...</span></p>
       <p class="meeting-local-time" id="localMeetingTime"></p>
       <dl class="meeting-facts">
-        <div><dt>Schedule</dt><dd>Last Wednesday of each month at 6:30 PM Eastern</dd></div>
+        <div><dt>Schedule</dt><dd>Last Wednesday at 6:30 PM Eastern, January–October; the combined November/December Holidays Meeting date is announced separately</dd></div>
         <div><dt>Area</dt><dd>Chattanooga, Tennessee</dd></div>
         <div><dt>Venue</dt><dd>[REDACTED] — explore the site or <a href="contact.html">contact CHA</a> for current details</dd></div>
         <div><dt>Experience</dt><dd>Beginners, students, working professionals, researchers, makers, and longtime hackers are welcome</dd></div>
@@ -113,11 +113,11 @@
 
   <script src="m33t1ng.js"></script>
   <script>
-    const nextMeeting = ChaMeeting.getNextMeetingDate();
-    document.getElementById('nextMeeting').textContent = ChaMeeting.formatChattanooga(nextMeeting);
+    const nextMeeting = ChaMeeting.getNextMeeting();
+    document.getElementById('nextMeeting').textContent = nextMeeting.label;
 
-    if (Intl.DateTimeFormat().resolvedOptions().timeZone !== ChaMeeting.TIME_ZONE) {
-      document.getElementById('localMeetingTime').textContent = `Your local time: ${ChaMeeting.formatLocal(nextMeeting)}`;
+    if (nextMeeting.meeting && Intl.DateTimeFormat().resolvedOptions().timeZone !== ChaMeeting.TIME_ZONE) {
+      document.getElementById('localMeetingTime').textContent = `Your local time: ${ChaMeeting.formatLocal(nextMeeting.meeting)}`;
     }
   </script>
 </body>

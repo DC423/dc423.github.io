@@ -929,6 +929,7 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
         function getNextMeetingCountdown() {
           if (!window.ChaMeeting) return 'NEXT MEETING: see meetings.html';
           const countdown = window.ChaMeeting.getCountdown();
+          if (!countdown.meeting) return `NEXT MEETING: ${countdown.label}`;
           const meetingLabel = window.ChaMeeting.formatChattanooga(countdown.meeting);
           return `NEXT MEETING: ${meetingLabel} (${countdown.days}d ${countdown.hours}h ${countdown.minutes}m)`;
         }

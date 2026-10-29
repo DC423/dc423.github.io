@@ -4,6 +4,7 @@
   const TIME_ZONE = 'America/New_York';
   const MEETING_HOUR = 18;
   const MEETING_MINUTE = 30;
+  const HOLIDAYS_MEETING_LABEL = 'Holidays Meeting TBD';
 
   const zonedPartsFormatter = new Intl.DateTimeFormat('en-US', {
     timeZone: TIME_ZONE,
@@ -53,8 +54,14 @@
     };
   }
 
+  function isHolidaysMeetingMonth(monthIndex) {
+    return monthIndex === 10 || monthIndex === 11;
+  }
+
   function getMeetingDate(year, monthIndex) {
     const normalized = normalizeYearMonth(year, monthIndex);
+    if (isHolidaysMeetingMonth(normalized.monthIndex)) return null;
+
     const lastDay = new Date(Date.UTC(normalized.year, normalized.monthIndex + 1, 0));
     const daysSinceWednesday = (lastDay.getUTCDay() - 3 + 7) % 7;
     const meetingDay = lastDay.getUTCDate() - daysSinceWednesday;
@@ -68,12 +75,46 @@
     );
   }
 
-  function getNextMeetingDate(now = new Date()) {
+  function getNextMeeting(now = new Date()) {
     const chattanoogaNow = getZonedParts(now);
-    const thisMonth = getMeetingDate(chattanoogaNow.year, chattanoogaNow.month - 1);
-    return now < thisMonth
-      ? thisMonth
-      : getMeetingDate(chattanoogaNow.year, chattanoogaNow.month);
+    const monthIndex = chattanoogaNow.month - 1;
+
+    if (isHolidaysMeetingMonth(monthIndex)) {
+      return {
+        type: 'holidays-tbd',
+        label: HOLIDAYS_MEETING_LABEL,
+        meeting: null
+      };
+    }
+
+    const thisMonth = getMeetingDate(chattanoogaNow.year, monthIndex);
+    if (now < thisMonth) {
+      return {
+        type: 'scheduled',
+        label: formatChattanooga(thisMonth),
+        meeting: thisMonth
+      };
+    }
+
+    const nextMonth = normalizeYearMonth(chattanoogaNow.year, monthIndex + 1);
+    if (isHolidaysMeetingMonth(nextMonth.monthIndex)) {
+      return {
+        type: 'holidays-tbd',
+        label: HOLIDAYS_MEETING_LABEL,
+        meeting: null
+      };
+    }
+
+    const meeting = getMeetingDate(nextMonth.year, nextMonth.monthIndex);
+    return {
+      type: 'scheduled',
+      label: formatChattanooga(meeting),
+      meeting
+    };
+  }
+
+  function getNextMeetingDate(now = new Date()) {
+    return getNextMeeting(now).meeting;
   }
 
   function formatChattanooga(date) {
@@ -102,11 +143,22 @@
   }
 
   function getCountdown(now = new Date()) {
-    const meeting = getNextMeetingDate(now);
+    const nextMeeting = getNextMeeting(now);
+    if (!nextMeeting.meeting) {
+      return {
+        ...nextMeeting,
+        days: null,
+        hours: null,
+        minutes: null
+      };
+    }
+
+    const meeting = nextMeeting.meeting;
     const remainingMs = Math.max(0, meeting.getTime() - now.getTime());
     const totalMinutes = Math.floor(remainingMs / 60000);
 
     return {
+      ...nextMeeting,
       meeting,
       days: Math.floor(totalMinutes / 1440),
       hours: Math.floor((totalMinutes % 1440) / 60),
@@ -116,7 +168,9 @@
 
   global.ChaMeeting = Object.freeze({
     TIME_ZONE,
+    HOLIDAYS_MEETING_LABEL,
     getMeetingDate,
+    getNextMeeting,
     getNextMeetingDate,
     formatChattanooga,
     formatLocal,
