@@ -727,6 +727,7 @@ Example:
         let awaitingSshPassword = false;
         let awaitingRelayPhrase = false;
         let php2ShellActive = false;
+        let log4ShellActive = false;
         let pendingSshTarget = "";
         let commandHistory = [];
         let historyIndex = -1;
@@ -876,6 +877,7 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
           if (awaitingGarbagePassword) return "Password: ";
           if (awaitingRelayPhrase) return "Authentication phrase: ";
           if (php2ShellActive) return "www-data@php2shell:/var/www/html$ ";
+          if (log4ShellActive) return "logger@log4shell:/var/log/cha$ ";
           if (currentDir === ".shadow") return "root@cha:~/.shadow# ";
           return "root@cha:~# ";
         }
@@ -1069,6 +1071,32 @@ Scenic City CTF complete. Curiosity: confirmed. Chattanooga: defended.`;
               return ["-v", "shell.php"]
                 .filter(arg => arg.startsWith(partial) && arg !== partial)
                 .map(arg => `php ${arg}`);
+            }
+
+            return [];
+          }
+
+          if (log4ShellActive) {
+            const logCommands = [
+              "ls", "cat", "tail", "pwd", "whoami", "id", "hostname", "uname",
+              "java", "ps", "env", "date", "logger", "logs", "joke", "help", "clear", "exit", "logout"
+            ];
+
+            if (parts.length <= 1) {
+              const prefix = parts[0] || "";
+              return logCommands.filter(command => command.startsWith(prefix) && command !== prefix);
+            }
+
+            if (parts[0] === "cat" || parts[0] === "tail") {
+              const partial = parts.slice(1).join(" ");
+              return ["README.txt", "app.log", "audit.log", "debug.log", "error.log", "log4j2.xml", "flag.txt"]
+                .filter(file => file.startsWith(partial) && file !== partial)
+                .map(file => `${parts[0]} ${file}`);
+            }
+
+            if (parts[0] === "java") {
+              const partial = parts.slice(1).join(" ");
+              return ["-version"].filter(arg => arg.startsWith(partial) && arg !== partial).map(arg => `java ${arg}`);
             }
 
             return [];
@@ -2763,6 +2791,147 @@ class ShellFish {
           scrollToBottom();
         }
 
+        function handleLog4ShellCommand(cmd, div) {
+          const fourLogsAndAShell = String.raw`        __        __        __        __
+      _/  \_    _/  \_    _/  \_    _/  \_
+     /______\  /______\  /______\  /______\
+       LOG 1     LOG 2     LOG 3     LOG 4
+
+                         /\
+                    ____/  \____
+                   /            \
+                   \____________/
+                       SHELL
+
+You found four logs and a shell. Please leaf them alone.`;
+
+          const appLog = `2026-10-29 04:20:00 INFO  cha.Application - service started
+2026-10-29 04:21:13 INFO  cha.Logger - rotated log 1 of 4
+2026-10-29 04:22:37 WARN  cha.Lookup - remote lookups disabled by browser policy
+2026-10-29 04:23:00 INFO  cha.PunFactory - awaiting operator groan`;
+          const auditLog = `2026-10-29 04:23:01 ALLOW user=logger action=read target=local-fake-logs
+2026-10-29 04:23:02 DENY  user=logger action=network reason=browser-only
+2026-10-29 04:23:03 DENY  user=logger action=write reason=read-only-bark`;
+          const debugLog = `DEBUG log.count=4
+DEBUG shell.count=1
+DEBUG actual.log4j.loaded=false
+DEBUG actual.lookups.performed=false
+DEBUG pun.level=critical`;
+          const errorLog = `ERROR 404: exploit not found
+ERROR 418: logger is a teapot
+ERROR 423: logs are locked
+ERROR 1337: joke escaped containment`;
+
+          if (!cmd) {
+            setTextOutput(div, '');
+          } else if (cmd === 'exit' || cmd === 'logout') {
+            log4ShellActive = false;
+            setPreOutput(div, `logout
+Connection to log4shell closed.
+[+] No lookups were performed. You never left the browser.`);
+          } else if (cmd === 'clear') {
+            terminal.innerHTML = '';
+            terminal.appendChild(prompt);
+            return;
+          } else if (cmd === 'ls') {
+            setTextOutput(div, 'README.txt  app.log  audit.log  debug.log  error.log  log4j2.xml  flag.txt');
+          } else if (cmd === 'ls -a' || cmd === 'ls -la' || cmd === 'ls -al' || cmd === 'ls -lah' || cmd === 'ls -l') {
+            setPreOutput(div, `dr-xr-xr-x  1 logger logger  224 Oct 29 04:23 .
+dr-xr-xr-x  1 root   root     96 Oct 29 04:23 ..
+-r--r--r--  1 logger logger  108 Oct 29 04:23 README.txt
+-r--r--r--  1 logger logger  312 Oct 29 04:23 app.log
+-r--r--r--  1 logger logger  271 Oct 29 04:23 audit.log
+-r--r--r--  1 logger logger  151 Oct 29 04:23 debug.log
+-r--r--r--  1 logger logger  128 Oct 29 04:23 error.log
+-r--r--r--  1 logger logger  423 Oct 29 04:23 log4j2.xml
+-r--r--r--  1 logger logger   42 Oct 29 04:23 flag.txt`);
+          } else if (cmd === 'pwd') {
+            setTextOutput(div, '/var/log/cha');
+          } else if (cmd === 'cd' || cmd === 'cd .' || cmd === 'cd /var/log/cha' || cmd === 'cd /var/log/cha/') {
+            setTextOutput(div, '');
+          } else if (cmd.startsWith('cd ')) {
+            setTextOutput(div, `sh: cd: ${cmd.slice(3)}: logs do not grow on that tree`);
+          } else if (cmd === 'whoami') {
+            setTextOutput(div, 'logger');
+          } else if (cmd === 'id') {
+            setTextOutput(div, 'uid=4242(logger) gid=423(cha) groups=423(cha),404(loggers)');
+          } else if (cmd === 'hostname') {
+            setTextOutput(div, 'log4shell');
+          } else if (cmd === 'uname' || cmd === 'uname -a') {
+            setTextOutput(div, 'Linux log4shell 6.6.6-browser #423 SMP x86_64 GNU/Linux');
+          } else if (cmd === 'java' || cmd === 'java -version' || cmd === 'java --version') {
+            setPreOutput(div, `openjdk version "0.0.0-browser"
+OpenJDK Runtime Environment (imaginary build 4-logs+1-shell)
+OpenJDK 64-Bit Server VM (no bytecode, no lookups, just JavaScript)`);
+          } else if (cmd === 'ps' || cmd === 'ps aux') {
+            setPreOutput(div, `USER       PID %CPU %MEM COMMAND
+logger     404  0.0  0.0 java -jar definitely-not-vulnerable.jar
+logger     423  0.0  0.0 log-roller --count 4
+logger    1337  0.0  0.0 lumberjack --okay`);
+          } else if (cmd === 'env') {
+            setPreOutput(div, `USER=logger
+HOME=/var/empty
+PWD=/var/log/cha
+LOG_COUNT=4
+SHELL_COUNT=1
+REMOTE_LOOKUPS=disabled
+ACTUAL_JAVA_EXECUTED=false`);
+          } else if (cmd === 'date') {
+            setTextOutput(div, new Date().toString());
+          } else if (cmd === 'cat README.txt' || cmd === 'cat readme.txt' || cmd === 'tail README.txt' || cmd === 'tail readme.txt') {
+            setPreOutput(div, `Welcome to Log4Shell.
+This is a JavaScript joke with four fake logs and one fake shell.
+No Java, Log4j, naming service, or remote lookup is running.`);
+          } else if (cmd === 'cat app.log' || cmd === 'tail app.log') {
+            setPreOutput(div, appLog);
+          } else if (cmd === 'cat audit.log' || cmd === 'tail audit.log') {
+            setPreOutput(div, auditLog);
+          } else if (cmd === 'cat debug.log' || cmd === 'tail debug.log') {
+            setPreOutput(div, debugLog);
+          } else if (cmd === 'cat error.log' || cmd === 'tail error.log') {
+            setPreOutput(div, errorLog);
+          } else if (cmd === 'cat log4j2.xml' || cmd === 'tail log4j2.xml') {
+            setPreOutput(div, `<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="OFF">
+  <Appenders>
+    <Console name="BrowserOnly" target="SYSTEM_OUT" />
+  </Appenders>
+  <Loggers remoteLookups="disabled" actualLog4j="false">
+    <Root level="PUN" />
+  </Loggers>
+</Configuration>`);
+          } else if (cmd === 'cat flag.txt' || cmd === 'tail flag.txt') {
+            setTextOutput(div, 'CHA{four_logs_and_a_shell_make_a_lumberjack}');
+          } else if (cmd.startsWith('cat ') || cmd.startsWith('tail ')) {
+            const file = cmd.slice(cmd.indexOf(' ') + 1);
+            setTextOutput(div, `${cmd.split(' ')[0]}: ${file}: No such log or lumber`);
+          } else if (cmd === 'logs' || cmd === 'joke' || cmd === 'logger') {
+            setPreOutput(div, fourLogsAndAShell);
+          } else if (cmd === 'help' || cmd === '?') {
+            setPreOutput(div, `Log4Shell built-ins:
+  ls [-la]          List the fake local log directory
+  cat / tail <file> Read a fake local log
+  java -version     Inspect the imaginary runtime
+  pwd / whoami / id Inspect the fake session
+  hostname / uname  Inspect the fake host
+  ps / env / date   Inspect fake processes and environment
+  logs / logger     Get to the punchline
+  clear             Clear this terminal
+  exit / logout     Return to CHA`);
+          } else if (/^(?:sudo|su)(?:\s|$)/.test(cmd)) {
+            setTextOutput(div, 'logger is not in the sudoers file. The incident was written to /dev/null.');
+          } else if (/^(?:rm|mv|cp|chmod|chown|touch|mkdir)(?:\s|$)/.test(cmd)) {
+            setTextOutput(div, `${cmd.split(' ')[0]}: filesystem is read-only; the lumberjack took the axe`);
+          } else if (/^(?:curl|wget|ssh|nc|netcat|ping|lookup|jndi)(?:\s|$)/.test(cmd)) {
+            setTextOutput(div, `${cmd.split(' ')[0]}: remote lookups and network access are disabled in this browser joke`);
+          } else {
+            setTextOutput(div, `sh: ${cmd}: not found. Try "help" or count the logs.`);
+          }
+
+          terminal.insertBefore(div, prompt);
+          scrollToBottom();
+        }
+
         // ────────────────────────────────────────────────────────────
         //  Command Router — dispatches typed commands to handlers
         // ────────────────────────────────────────────────────────────
@@ -2772,6 +2941,10 @@ class ShellFish {
           if (!cmd && !awaitingSecretEntry) return;
           if (php2ShellActive) {
             handlePhp2ShellCommand(cmd, div);
+            return;
+          }
+          if (log4ShellActive) {
+            handleLog4ShellCommand(cmd, div);
             return;
           }
           // Obscured easter egg check (rot13 encoded triggers)
@@ -3345,6 +3518,17 @@ zone = ${alertZone}
 
 You caught a shell. It may be a little fishy.
 Try "ls". Type "exit" when you want to swim back.`);
+          } else if (cmd === "log4shell") {
+            log4ShellActive = true;
+            setPreOutput(div, `Log4Shell v0.0.1
+[+] loading Java: absolutely not
+[+] loading Log4j: also no
+[+] remote lookups: disabled
+[+] browser sandbox acquired
+[+] network access: disabled
+
+You found four logs and a shell.
+Try "ls -la". Type "exit" when you are ready to log off.`);
           } else if (/^(?:stunthacker|stunthacker\.py|\.\/stunthacker\.py|python3?\s+stunthacker\.py|hacker-scroll|hacker_scroll\.py|\.\/hacker_scroll\.py|python3?\s+hacker_scroll\.py)(?:\s|$)/.test(cmd)) {
             terminal.insertBefore(div, prompt);
             launchHackerScrollCommand(cmd, div);
