@@ -2768,6 +2768,8 @@ class ShellFish {
         // ────────────────────────────────────────────────────────────
         async function handleCommand(cmd) {
           const div = document.createElement("div");
+          const awaitingSecretEntry = awaitingGarbagePassword || awaitingSshPassword || awaitingRelayPhrase;
+          if (!cmd && !awaitingSecretEntry) return;
           if (php2ShellActive) {
             handlePhp2ShellCommand(cmd, div);
             return;
