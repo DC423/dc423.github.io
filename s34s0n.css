@@ -1,0 +1,217 @@
+/* ============================================
+   s34s0n.css — Date-gated holiday presentation
+   Activated by s34s0n.js during Oct 24–31 or Dec 18–25
+   in Chattanooga's America/New_York time zone.
+   ============================================ */
+
+.seasonal-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  overflow: hidden;
+  pointer-events: none;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.seasonal-banner {
+  position: absolute;
+  top: 36px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100vw - 28px);
+  padding: 7px 14px;
+  transform: translateX(-50%);
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.88);
+  font-size: clamp(0.7rem, 1.6vw, 0.92rem);
+  font-weight: bold;
+  letter-spacing: 0.08em;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 0 20px currentColor;
+}
+
+.seasonal-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.seasonal-particle {
+  position: absolute;
+  top: -10vh;
+  left: var(--season-x);
+  font-size: clamp(0.85rem, 2vw, 1.45rem);
+  opacity: 0.78;
+  transform: translateX(-50%);
+  animation: seasonal-fall var(--season-duration) linear var(--season-delay) infinite;
+  filter: drop-shadow(0 0 5px currentColor);
+}
+
+.seasonal-edge {
+  position: absolute;
+  bottom: 12px;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.seasonal-edge-left {
+  left: 18px;
+}
+
+.seasonal-edge-right {
+  right: 18px;
+}
+
+body.holiday-halloween .seasonal-layer {
+  color: #ff7a00;
+}
+
+body.holiday-halloween .desktop-view {
+  background-image:
+    radial-gradient(circle at 50% 100%, rgba(255, 72, 0, 0.2), transparent 42%),
+    linear-gradient(to bottom, rgba(20, 0, 25, 0.42), rgba(0, 0, 0, 0.72)),
+    url('aW1hZ2VzCg==/background.png');
+}
+
+body.holiday-halloween .window {
+  box-shadow: 0 0 32px #ff5a00, 0 0 54px rgba(132, 0, 255, 0.3);
+}
+
+body.holiday-halloween .cursor {
+  background-color: #ff7a00;
+}
+
+body.holiday-halloween .xfce-panel {
+  border-bottom-color: rgba(255, 122, 0, 0.72);
+  box-shadow: 0 1px 12px rgba(255, 90, 0, 0.35);
+}
+
+body.holiday-halloween .mobile-view {
+  background:
+    radial-gradient(circle at 50% 100%, rgba(255, 90, 0, 0.18), transparent 46%),
+    linear-gradient(160deg, #100013 0%, #210c00 52%, #050005 100%);
+}
+
+body.holiday-halloween .android-widget,
+body.holiday-halloween .android-terminal-widget {
+  border-color: rgba(255, 122, 0, 0.45);
+  box-shadow: 0 0 20px rgba(255, 90, 0, 0.14);
+}
+
+body.holiday-halloween .widget-title,
+body.holiday-halloween .terminal-widget-body,
+body.holiday-halloween .tw-prompt,
+body.holiday-halloween .tw-cursor {
+  color: #ff8a1f;
+}
+
+body.holiday-christmas .seasonal-layer {
+  color: #e8fff0;
+}
+
+body.holiday-christmas .seasonal-banner {
+  border-color: #ff3b4f;
+  color: #f2fff5;
+  background: rgba(0, 48, 25, 0.92);
+  box-shadow: 0 0 12px #ff3b4f, 0 0 26px rgba(47, 255, 119, 0.48);
+}
+
+body.holiday-christmas .seasonal-banner::after {
+  position: absolute;
+  right: 8px;
+  bottom: -12px;
+  left: 8px;
+  height: 7px;
+  content: '';
+  background:
+    radial-gradient(circle, #ff334b 0 3px, transparent 4px) 0 0 / 28px 7px repeat-x,
+    radial-gradient(circle, #33ff77 0 3px, transparent 4px) 14px 0 / 28px 7px repeat-x;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+
+body.holiday-christmas .seasonal-particle {
+  color: #fff;
+}
+
+body.holiday-christmas .desktop-view {
+  background-image:
+    radial-gradient(circle at 50% 100%, rgba(0, 120, 60, 0.2), transparent 45%),
+    linear-gradient(to bottom, rgba(0, 42, 24, 0.3), rgba(0, 0, 0, 0.62)),
+    url('aW1hZ2VzCg==/background.png');
+}
+
+body.holiday-christmas .window {
+  box-shadow: 0 0 22px #28d76f, 0 0 42px rgba(255, 45, 67, 0.38);
+}
+
+body.holiday-christmas .xfce-panel {
+  border-bottom-color: rgba(255, 50, 75, 0.7);
+  box-shadow: 0 1px 12px rgba(45, 255, 116, 0.38);
+}
+
+body.holiday-christmas .mobile-view {
+  background:
+    radial-gradient(circle at 50% 100%, rgba(255, 40, 60, 0.12), transparent 45%),
+    linear-gradient(160deg, #001b0d 0%, #073019 52%, #100004 100%);
+}
+
+body.holiday-christmas .android-widget,
+body.holiday-christmas .android-terminal-widget {
+  border-color: rgba(255, 65, 85, 0.38);
+  box-shadow: 0 0 20px rgba(45, 255, 116, 0.14);
+}
+
+@keyframes seasonal-fall {
+  0% {
+    transform: translate3d(-50%, -12vh, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(calc(-50% + var(--season-drift-mid)), 52vh, 0) rotate(160deg);
+  }
+  100% {
+    transform: translate3d(calc(-50% + var(--season-drift-end)), 112vh, 0) rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .seasonal-layer {
+    z-index: 90;
+  }
+
+  .seasonal-banner {
+    position: fixed;
+    top: 42px;
+    width: calc(100vw - 44px);
+    box-sizing: border-box;
+    justify-content: center;
+    white-space: normal;
+  }
+
+  .seasonal-edge {
+    position: fixed;
+    bottom: 18px;
+    font-size: 2.4rem;
+  }
+}
+
+@media (max-height: 500px) and (orientation: landscape) {
+  .seasonal-banner {
+    top: 34px;
+    padding-block: 4px;
+    font-size: 0.65rem;
+  }
+
+  .seasonal-edge {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .seasonal-particle {
+    display: none;
+  }
+}
